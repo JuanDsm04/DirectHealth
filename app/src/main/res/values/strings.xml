@@ -6,4 +6,10 @@
     <string name="login_button">Iniciar sesión</string>
     <string name="register_button">Registrarse</string>
 
+    <string name="register_title">Forma parte de Direct Health</string>
+    <string name="register_text1">Seleciona tu rol para continuar:</string>
+    <string name="register_text2">Si necesitas buscar médicos, agendar citas y ver tus recetas:</string>
+    <string name="register_text3">Si deseas gestionar tus citas y recetarle medicamentos a tus pacientes:</string>
+    <string name="register_patient_button">Registrarme como paciente</string>
+    <string name="register_doctor_button">Registrarme como médico</string>
 </resources>
