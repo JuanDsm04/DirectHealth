@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">DirectHealth</string>
+
+    <string name="welcome_title">Bienvenido a Direct Health</string>
+    <string name="welcome_text">Encuentra y agenda citas con los mejores doctores de Guatemala. Accede a tus recetas y mantente al día con tus próximas citas. ¡Tu salud, en tus manos!</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="register_button">Registrarse</string>
+
 </resources>
