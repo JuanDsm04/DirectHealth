@@ -18,4 +18,20 @@
     <string name="login_text_field2">Ingresa tu contraseña</string>
     <string name="login_text1">No tienes una cuenta?</string>
     <string name="login_text2"> Registrate</string>
+
+    <string name="patient_register_title">Nuevo paciente</string>
+    <string name="patient_register_name">Nombre</string>
+    <string name="patient_register_text_field_name">Nombres y apellidos</string>
+    <string name="patient_register_email">Email</string>
+    <string name="patient_register_text_field_email">Correo electrónico</string>
+    <string name="patient_register_password">Contraseña</string>
+    <string name="patient_register_text_field_password">Contraseña</string>
+    <string name="patient_register_birthdate">Fecha de nacimiento</string>
+    <string name="patient_register_text_field_birthdate">DD/MM/YYYY</string>
+    <string name="patient_register_dpi">Número de identificación</string>
+    <string name="patient_register_text_field_dpi">DPI</string>
+    <string name="patient_register_phone_number">Número de teléfono</string>
+    <string name="patient_register_text_field_phone_number">+502</string>
+    <string name="patient_register_medical_history">Historial médico básico</string>
+    <string name="patient_register_text_field_medical_history">Alergias, condiciones preliminares, etc.</string>
 </resources>
