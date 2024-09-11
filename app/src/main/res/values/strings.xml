@@ -12,4 +12,10 @@
     <string name="register_text3">Si deseas gestionar tus citas y recetarle medicamentos a tus pacientes:</string>
     <string name="register_patient_button">Registrarme como paciente</string>
     <string name="register_doctor_button">Registrarme como médico</string>
+
+    <string name="login_title">Bienvenido de nuevo</string>
+    <string name="login_text_field1">Ingresa tu email</string>
+    <string name="login_text_field2">Ingresa tu contraseña</string>
+    <string name="login_text1">No tienes una cuenta?</string>
+    <string name="login_text2"> Registrate</string>
 </resources>
