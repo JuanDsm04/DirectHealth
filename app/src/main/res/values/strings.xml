@@ -34,4 +34,63 @@
     <string name="patient_register_text_field_phone_number">+502</string>
     <string name="patient_register_medical_history">Historial médico básico</string>
     <string name="patient_register_text_field_medical_history">Alergias, condiciones preliminares, etc.</string>
+
+    <string name="doctor_register_title">Nuevo médico</string>
+    <string name="doctor_register_membership_number">Número de colegiado</string>
+    <string name="doctor_register_text_field_membership_number">000000C</string>
+    <string name="doctor_register_direction">Dirección</string>
+    <string name="doctor_register_text_field_direction">Dirección del lugar de trabajo</string>
+    <string name="doctor_register_professional_experience">Experiencia profesional</string>
+    <string name="doctor_register_text_field_professional_experience">Resumen o años de experiencia</string>
+    <string name="doctor_register_certifications">Títulos</string>
+    <string name="doctor_register_text_field_certifications">Certificaciones o títulos</string>
+    <string name="doctor_register_specialty">Especialidad</string>
+    <string name="doctor_register_text_field_specialty">Seleccione una especialidad</string>
+
+    <string name="error_name">Nombre inválido</string>
+    <string name="error_email">Email inválido</string>
+    <string name="error_password">Contraseña inválida</string>
+    <string name="error_birthday">Fecha inválida</string>
+    <string name="error_dpi">DPI inválido</string>
+    <string name="error_phone_number">Número inválido</string>
+    <string name="error_medical_history">Historial inválido</string>
+    <string name="error_membership_number">Número inválido</string>
+    <string name="error_direction">Dirección inválida</string>
+    <string name="error_professional_experience">Experiencia inválida</string>
+    <string name="error_certifications">Certificaciones inválidas</string>
+    <string name="error_specialty">Especialidad inválida</string>
+
+    <string-array name="specialties">
+        <item>Cardiología</item>
+        <item>Dermatología</item>
+        <item>Endocrinología</item>
+        <item>Gastroenterología</item>
+        <item>Ginecología</item>
+        <item>Hematología</item>
+        <item>Infectología</item>
+        <item>Nefrología</item>
+        <item>Neurología</item>
+        <item>Neumología</item>
+        <item>Oftalmología</item>
+        <item>Oncología</item>
+        <item>Ortopedia</item>
+        <item>Otorrinolaringología</item>
+        <item>Pediatría</item>
+        <item>Psiquiatría</item>
+        <item>Radiología</item>
+        <item>Reumatología</item>
+        <item>Traumatología</item>
+        <item>Urología</item>
+        <item>Alergología</item>
+        <item>Angiología</item>
+        <item>Cirugía plástica</item>
+        <item>Geriatría</item>
+        <item>Medicina interna</item>
+        <item>Medicina familiar</item>
+        <item>Medicina deportiva</item>
+        <item>Medicina del trabajo</item>
+        <item>Rehabilitación</item>
+    </string-array>
+
+
 </resources>

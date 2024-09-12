@@ -41,9 +41,9 @@ com.uvg.directhealth.app-runtime-release-39 C:\Users\juand\.gradle\caches\transf
 com.uvg.directhealth.app-ui-geometry-release-40 C:\Users\juand\.gradle\caches\transforms-4\f463f53ec93208e8a849ed0e5c0e3bae\transformed\ui-geometry-release\res
 com.uvg.directhealth.app-activity-1.9.2-41 C:\Users\juand\.gradle\caches\transforms-4\f8421a05ae36150c4c432176ffabe108\transformed\activity-1.9.2\res
 com.uvg.directhealth.app-material3-release-42 C:\Users\juand\.gradle\caches\transforms-4\f8c4f8e2786f986a433dfda1ec01d781\transformed\material3-release\res
-com.uvg.directhealth.app-resValues-43 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\generated\res\resValues\debug
-com.uvg.directhealth.app-packageDebugResources-44 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
-com.uvg.directhealth.app-packageDebugResources-45 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
-com.uvg.directhealth.app-debug-46 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\intermediates\merged_res\debug\mergeDebugResources
-com.uvg.directhealth.app-debug-47 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\src\debug\res
-com.uvg.directhealth.app-main-48 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\src\main\res
+com.uvg.directhealth.app-resValues-43 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\generated\res\resValues\debug
+com.uvg.directhealth.app-packageDebugResources-44 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.uvg.directhealth.app-packageDebugResources-45 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.uvg.directhealth.app-debug-46 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.uvg.directhealth.app-debug-47 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\src\debug\res
+com.uvg.directhealth.app-main-48 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\src\main\res

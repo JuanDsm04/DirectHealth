@@ -31,7 +31,7 @@ com.uvg.directhealth.test.app-ui-unit-release-29 C:\Users\juand\.gradle\caches\t
 com.uvg.directhealth.test.app-runtime-release-30 C:\Users\juand\.gradle\caches\transforms-4\f20a90d9a2c09ae2304f9461f4bb999a\transformed\runtime-release\res
 com.uvg.directhealth.test.app-ui-geometry-release-31 C:\Users\juand\.gradle\caches\transforms-4\f463f53ec93208e8a849ed0e5c0e3bae\transformed\ui-geometry-release\res
 com.uvg.directhealth.test.app-activity-1.9.2-32 C:\Users\juand\.gradle\caches\transforms-4\f8421a05ae36150c4c432176ffabe108\transformed\activity-1.9.2\res
-com.uvg.directhealth.test.app-androidTest-33 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\generated\res\resValues\androidTest\debug
-com.uvg.directhealth.test.app-mergeDebugAndroidTestResources-34 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
-com.uvg.directhealth.test.app-mergeDebugAndroidTestResources-35 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
-com.uvg.directhealth.test.app-debugAndroidTest-36 C:\Users\juand\OneDrive\Escritorio\Proyectos\Proyecto\DirectHealth\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources
+com.uvg.directhealth.test.app-androidTest-33 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\generated\res\resValues\androidTest\debug
+com.uvg.directhealth.test.app-mergeDebugAndroidTestResources-34 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.uvg.directhealth.test.app-mergeDebugAndroidTestResources-35 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.uvg.directhealth.test.app-debugAndroidTest-36 C:\Users\juand\OneDrive\Documentos\DirectHealth\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources

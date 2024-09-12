@@ -14,6 +14,37 @@
             MIIEQzCCAyugAwIBAgIJAMLgh0ZkSjCNMA0GCSqGSIb3DQEBBAUAMHQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDAeFw0wODA4MjEyMzEzMzRaFw0zNjAxMDcyMzEzMzRaMHQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDCCASAwDQYJKoZIhvcNAQEBBQADggENADCCAQgCggEBAKtWLgDYO6IIrgqWbxJOKdoR8qtW0I9Y4sypEwPpt1TTcvZApxsdyxMJZ2JORland2qSGT2y5b+3JKkedxiLDmpHpDsz2WCbdxgxRczfey5YZnTJ4VZbH0xqWVW/8lGmPav5xVwnIiJS6HXk+BVKZF+JcWjAsb/GEuq/eFdpuzSqeYTcfi6idkyugwfYwXFU1+5fZKUaRKYCwkkFQVfcAs1fXA5V+++FGfvjJ/CxURaSxaBvGdGDhfXE28LWuT9ozCl5xw4Yq5OGazvV24mZVSoOO0yZ31j7kYvtwYK6NeADwbSxDdJEqO4k//0zOHKrUiGYXtqw/A0LFFtqoZKFjnkCAQOjgdkwgdYwHQYDVR0OBBYEFMd9jMIhF1Ylmn/Tgt9r45jk14alMIGmBgNVHSMEgZ4wgZuAFMd9jMIhF1Ylmn/Tgt9r45jk14aloXikdjB0MQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLR29vZ2xlIEluYy4xEDAOBgNVBAsTB0FuZHJvaWQxEDAOBgNVBAMTB0FuZHJvaWSCCQDC4IdGZEowjTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBAUAA4IBAQBt0lLO74UwLDYKqs6Tm8/yzKkEu116FmH4rkaymUIE0P9KaMftGlMexFlaYjzmB2OxZyl6euNXEsQH8gjwyxCUKRJNexBiGcCEyj6z+a1fuHHvkiaai+KL8W1EyNmgjmyy8AW7P+LLlkR+ho5zEHatRbM/YAnqGcFh5iZBqpknHf1SKMXFh4dd239FJ1jWYfbMDMy3NS5CTMQ2XFI1MvcyUTdZPErjQfTbQe3aDQsQcafEQPD+nqActifKZ0Np0IS9L9kR/wbNvyz6ENwPiTrjV2KRkEjH78ZMcUQXg0L3BYHJ3lc69Vs5Ddf9uUGGMYldX3WfMBEmh/9iFBDAaTCK
         </item>
     </string-array>
+    <string-array name="specialties">
+        <item>Cardiología</item>
+        <item>Dermatología</item>
+        <item>Endocrinología</item>
+        <item>Gastroenterología</item>
+        <item>Ginecología</item>
+        <item>Hematología</item>
+        <item>Infectología</item>
+        <item>Nefrología</item>
+        <item>Neurología</item>
+        <item>Neumología</item>
+        <item>Oftalmología</item>
+        <item>Oncología</item>
+        <item>Ortopedia</item>
+        <item>Otorrinolaringología</item>
+        <item>Pediatría</item>
+        <item>Psiquiatría</item>
+        <item>Radiología</item>
+        <item>Reumatología</item>
+        <item>Traumatología</item>
+        <item>Urología</item>
+        <item>Alergología</item>
+        <item>Angiología</item>
+        <item>Cirugía plástica</item>
+        <item>Geriatría</item>
+        <item>Medicina interna</item>
+        <item>Medicina familiar</item>
+        <item>Medicina deportiva</item>
+        <item>Medicina del trabajo</item>
+        <item>Rehabilitación</item>
+    </string-array>
     <color name="black">#FF000000</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
@@ -22,6 +53,29 @@
     <color name="teal_700">#FF018786</color>
     <color name="white">#FFFFFFFF</color>
     <string name="app_name">DirectHealth</string>
+    <string name="doctor_register_certifications">Títulos</string>
+    <string name="doctor_register_direction">Dirección</string>
+    <string name="doctor_register_membership_number">Número de colegiado</string>
+    <string name="doctor_register_professional_experience">Experiencia profesional</string>
+    <string name="doctor_register_specialty">Especialidad</string>
+    <string name="doctor_register_text_field_certifications">Certificaciones o títulos</string>
+    <string name="doctor_register_text_field_direction">Dirección del lugar de trabajo</string>
+    <string name="doctor_register_text_field_membership_number">000000C</string>
+    <string name="doctor_register_text_field_professional_experience">Resumen o años de experiencia</string>
+    <string name="doctor_register_text_field_specialty">Seleccione una especialidad</string>
+    <string name="doctor_register_title">Nuevo médico</string>
+    <string name="error_birthday">Fecha inválida</string>
+    <string name="error_certifications">Certificaciones inválidas</string>
+    <string name="error_direction">Dirección inválida</string>
+    <string name="error_dpi">DPI inválido</string>
+    <string name="error_email">Email inválido</string>
+    <string name="error_medical_history">Historial inválido</string>
+    <string name="error_membership_number">Número inválido</string>
+    <string name="error_name">Nombre inválido</string>
+    <string name="error_password">Contraseña inválida</string>
+    <string name="error_phone_number">Número inválido</string>
+    <string name="error_professional_experience">Experiencia inválida</string>
+    <string name="error_specialty">Especialidad inválida</string>
     <string name="login_button">Iniciar sesión</string>
     <string name="login_text1">No tienes una cuenta?</string>
     <string name="login_text2"> Registrate</string>
