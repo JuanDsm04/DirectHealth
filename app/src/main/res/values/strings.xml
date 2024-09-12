@@ -92,5 +92,9 @@
         <item>Rehabilitación</item>
     </string-array>
 
-
+    <string name="edit_profile_title">Mi perfil</string>
+    <string name="edit_profile_photo">Editar foto</string>
+    <string name="edit_profile_photo_description">Editar foto</string>
+    <string name="edit_profile_log_out">Cerrar sesión</string>
+    <string name="edit_profile_edit">Editar</string>
 </resources>
