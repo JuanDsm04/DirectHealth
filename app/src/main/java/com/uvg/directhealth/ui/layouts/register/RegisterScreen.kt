@@ -1,4 +1,4 @@
-package com.uvg.directhealth.register
+package com.uvg.directhealth.ui.layouts.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,25 +46,11 @@ fun RegisterScreen(){
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primaryContainer)
     ){
-        TopAppBar(
-            title = {},
-            navigationIcon = {
-                IconButton({}) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-        )
+        AppBar()
 
         Image(
             painter = painterResource(id = R.drawable.register),
-            contentDescription = "Welcome Image",
+            contentDescription = stringResource(id = R.string.register_img),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .size(225.dp)
@@ -90,6 +77,7 @@ fun RegisterScreen(){
                         textAlign = TextAlign.Center
                     )
                 )
+
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = stringResource(id = R.string.register_text1),
@@ -99,65 +87,87 @@ fun RegisterScreen(){
                         textAlign = TextAlign.Center
                     )
                 )
+
                 Spacer(modifier = Modifier.height(20.dp))
-                Text(
-                    text = stringResource(id = R.string.register_text2),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp,
-                        lineHeight = 24.sp,
-                        textAlign = TextAlign.Center
-                    )
+                CustomOptionButton(
+                    descriptionText = stringResource(id = R.string.register_text2),
+                    buttonText = stringResource(id = R.string.register_patient_button),
+                    onClick = { /*TODO*/ },
+                    backgroundColor = MaterialTheme.colorScheme.primary,
+                    textColor = MaterialTheme.colorScheme.onPrimary
                 )
-                Spacer(modifier = Modifier.height(5.dp))
-                TextButton(
-                    onClick = {  },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.register_patient_button),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(35.dp))
-                Text(
-                    text = stringResource(id = R.string.register_text3),
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp,
-                        lineHeight = 24.sp,
-                        textAlign = TextAlign.Center
-                    )
+                CustomOptionButton(
+                    descriptionText = stringResource(id = R.string.register_text3),
+                    buttonText = stringResource(id = R.string.register_doctor_button),
+                    onClick = { /*TODO*/ },
+                    backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                    textColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                Spacer(modifier = Modifier.height(5.dp))
-                TextButton(
-                    onClick = {  },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.register_doctor_button),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        )
-                    )
-                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(){
+    TopAppBar(
+        title = {},
+        navigationIcon = {
+            IconButton({}) {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = stringResource(id = R.string.back_icon)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    )
+}
+
+
+@Composable
+fun CustomOptionButton(
+    descriptionText: String,
+    buttonText: String,
+    onClick: () -> Unit,
+    backgroundColor: Color,
+    textColor: Color
+) {
+    Text(
+        text = descriptionText,
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontSize = 14.sp,
+            lineHeight = 24.sp,
+            textAlign = TextAlign.Center
+        )
+    )
+    Spacer(modifier = Modifier.height(5.dp))
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(15.dp))
+            .background(backgroundColor)
+            .height(50.dp)
+    ) {
+        Text(
+            text = buttonText,
+            style = MaterialTheme.typography.labelLarge.copy(
+                color = textColor
+            )
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-private fun PreviewInformation() {
+private fun PreviewRegisterScreen() {
     DirectHealthTheme {
         Surface {
             RegisterScreen()

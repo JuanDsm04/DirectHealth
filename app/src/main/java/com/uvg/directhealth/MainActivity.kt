@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
-import com.uvg.directhealth.welcome.WelcomeScreen
+import com.uvg.directhealth.ui.layouts.welcome.WelcomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package com.uvg.directhealth.doctor_register
+package com.uvg.directhealth.ui.layouts.doctorRegister
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
@@ -142,7 +142,7 @@ fun DoctorRegisterScreen(){
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val imageResource = if (passwordVisible) R.drawable.visibility_off else R.drawable.visibility
+                        val imageResource = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(

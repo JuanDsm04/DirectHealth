@@ -1,4 +1,4 @@
-package com.uvg.directhealth.welcome
+package com.uvg.directhealth.ui.layouts.welcome
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +43,7 @@ fun WelcomeScreen(){
 
         Image(
             painter = painterResource(id = R.drawable.welcome),
-            contentDescription = "Welcome Image",
+            contentDescription = stringResource(id = R.string.welcome_img),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .size(250.dp)
@@ -79,44 +80,52 @@ fun WelcomeScreen(){
         Column (
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            TextButton(
-                onClick = {  },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .height(50.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.login_button),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                )
-            }
+            CustomButton(
+                text = stringResource(id = R.string.login_button),
+                onClick = { /* */ },
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                textColor = MaterialTheme.colorScheme.onPrimary
+            )
 
-            TextButton(
-                onClick = {  },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .height(50.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.register_button),
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    )
-                )
-            }
+            CustomButton(
+                text = stringResource(id = R.string.register_button),
+                onClick = { /* */ },
+                backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                textColor = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+
         }
     }
 }
 
+@Composable
+fun CustomButton(
+    text: String,
+    onClick: () -> Unit,
+    backgroundColor: Color,
+    textColor: Color
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(15.dp))
+            .background(backgroundColor)
+            .height(50.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge.copy(
+                color = textColor
+            )
+        )
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
-private fun PreviewInformation() {
+private fun PreviewWelcomeScreen() {
     DirectHealthTheme {
         Surface {
             WelcomeScreen()

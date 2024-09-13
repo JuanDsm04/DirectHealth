@@ -61,6 +61,7 @@
     <string name="error_specialty">Especialidad inválida</string>
 
     <string-array name="specialties">
+        <item>Médico General</item>
         <item>Cardiología</item>
         <item>Dermatología</item>
         <item>Endocrinología</item>
@@ -85,16 +86,37 @@
         <item>Angiología</item>
         <item>Cirugía plástica</item>
         <item>Geriatría</item>
-        <item>Medicina interna</item>
-        <item>Medicina familiar</item>
-        <item>Medicina deportiva</item>
-        <item>Medicina del trabajo</item>
-        <item>Rehabilitación</item>
     </string-array>
 
     <string name="edit_profile_title">Mi perfil</string>
     <string name="edit_profile_photo">Editar foto</string>
-    <string name="edit_profile_photo_description">Editar foto</string>
     <string name="edit_profile_log_out">Cerrar sesión</string>
     <string name="edit_profile_edit">Editar</string>
+
+    <string name="prescription_title">Recetas médicas</string>
+    <string name="prescription_id">Receta #</string>
+    <string name="prescription_doctor">Médico</string>
+    <string name="prescription_patient">Paciente</string>
+    <string name="prescription_emissionDate">Fecha emisión</string>
+    <string name="prescription_empty">Aún no hay recetas médicas</string>
+
+    <string name="nav_doctors">Médicos</string>
+    <string name="nav_patients">Pacientes</string>
+    <string name="nav_prescriptions">Recetas</string>
+    <string name="nav_appointments">Citas</string>
+
+    <string name="back_icon">Back icon</string>
+    <string name="visibility_icon">Visibility icon</string>
+    <string name="visibility_off_icon">Visibility off icon</string>
+    <string name="settings_icon">Settings icon</string>
+    <string name="date_icon">Date icon</string>
+    <string name="groups_icon">Groups icon</string>
+    <string name="prescriptions_icon">Prescriptions icon</string>
+    <string name="folder_off_icon">Folder Off icon</string>
+
+    <string name="login_img">Login image</string>
+    <string name="register_img">Register image</string>
+    <string name="welcome_img">Welcome image</string>
+    <string name="user_img">User image</string>
+
 </resources>

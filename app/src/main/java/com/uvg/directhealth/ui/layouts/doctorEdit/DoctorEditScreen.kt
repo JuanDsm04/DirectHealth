@@ -1,4 +1,4 @@
-package com.uvg.directhealth.patient_edit
+package com.uvg.directhealth.ui.layouts.doctorEdit
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
@@ -21,7 +21,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,16 +59,23 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PatientEditScreen(){
+fun DoctorEditScreen(){
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var birthdate by remember { mutableStateOf("") }
     var dpi by remember { mutableStateOf("") }
+    var membership by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
-    var medicalHistory by remember { mutableStateOf("") }
+    var direction by remember { mutableStateOf("") }
+    var experience by remember { mutableStateOf("") }
+    var certifications by remember { mutableStateOf("") }
     val calendar = Calendar.getInstance()
+
+    var selectedSpecialty by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    val specialties = LocalContext.current.resources.getStringArray(R.array.specialties).toList()
 
     val datePickerDialog = DatePickerDialog(
         LocalContext.current,
@@ -111,7 +121,7 @@ fun PatientEditScreen(){
             ){
                 Image(
                     painter = painterResource(id = R.drawable.user),
-                    contentDescription = stringResource(id = R.string.edit_profile_photo_description),
+                    contentDescription = stringResource(id = R.string.user_img),
                     modifier = Modifier
                         .size(150.dp)
                         .clip(CircleShape)
@@ -167,7 +177,7 @@ fun PatientEditScreen(){
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val imageResource = if (passwordVisible) R.drawable.visibility_off else R.drawable.visibility
+                        val imageResource = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
@@ -205,6 +215,14 @@ fun PatientEditScreen(){
                     singleLine = true
                 )
                 FormComponent(
+                    textId = R.string.doctor_register_membership_number,
+                    textFieldId = R.string.doctor_register_text_field_membership_number,
+                    keyboardType = KeyboardType.Text,
+                    value = membership,
+                    onValueChange = { membership = it },
+                    singleLine = true
+                )
+                FormComponent(
                     textId = R.string.patient_register_phone_number,
                     textFieldId = R.string.patient_register_text_field_phone_number,
                     keyboardType = KeyboardType.Phone,
@@ -213,15 +231,44 @@ fun PatientEditScreen(){
                     singleLine = true
                 )
                 FormComponent(
-                    textId = R.string.patient_register_medical_history,
-                    textFieldId = R.string.patient_register_text_field_medical_history,
+                    textId = R.string.doctor_register_direction,
+                    textFieldId = R.string.doctor_register_text_field_direction,
                     keyboardType = KeyboardType.Text,
-                    value = medicalHistory,
-                    onValueChange = { medicalHistory = it },
+                    value = direction,
+                    onValueChange = { direction = it },
+                    singleLine = true
+                )
+                FormComponent(
+                    textId = R.string.doctor_register_professional_experience,
+                    textFieldId = R.string.doctor_register_text_field_professional_experience,
+                    keyboardType = KeyboardType.Text,
+                    value = experience,
+                    onValueChange = { experience = it },
                     singleLine = false
                 )
+                FormComponent(
+                    textId = R.string.doctor_register_certifications,
+                    textFieldId = R.string.doctor_register_text_field_certifications,
+                    keyboardType = KeyboardType.Text,
+                    value = certifications,
+                    onValueChange = { certifications = it },
+                    singleLine = false
+                )
+                FormComponent(
+                    textId = R.string.doctor_register_specialty,
+                    textFieldId = R.string.doctor_register_text_field_specialty,
+                    keyboardType = KeyboardType.Text,
+                    value = selectedSpecialty,
+                    onValueChange = { },
+                    singleLine = true,
+                    readOnly = true,
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
+                    dropdownItems = specialties,
+                    onDropdownSelect = { selectedSpecialty = it }
+                )
                 TextButton(
-                    onClick = {  },
+                    onClick = { },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(15.dp))
@@ -229,7 +276,7 @@ fun PatientEditScreen(){
                         .height(50.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.edit_profile_edit),
+                        text = stringResource(id = R.string.register_button),
                         style = MaterialTheme.typography.labelLarge.copy(
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
@@ -249,7 +296,12 @@ fun FormComponent(
     onValueChange: (String) -> Unit,
     singleLine: Boolean,
     trailingIcon: (@Composable (() -> Unit))? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    readOnly: Boolean = false,
+    expanded: Boolean = false,
+    onExpandedChange: (Boolean) -> Unit = {},
+    dropdownItems: List<String> = emptyList(),
+    onDropdownSelect: (String) -> Unit = {}
 ) {
     Column {
         Text(
@@ -265,30 +317,59 @@ fun FormComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
-                .background(MaterialTheme.colorScheme.onPrimary),
+                .background(MaterialTheme.colorScheme.onPrimary)
+                .clickable { if (dropdownItems.isNotEmpty()) onExpandedChange(true) },
             placeholder = {
                 Text(
                     text = stringResource(id = textFieldId),
-                    style = MaterialTheme.typography.bodySmall.copy()
+                    style = MaterialTheme.typography.bodySmall
                 )
             },
+            readOnly = readOnly,
             shape = RoundedCornerShape(10.dp),
             singleLine = singleLine,
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = keyboardType
             ),
-            trailingIcon = trailingIcon,
-            visualTransformation = visualTransformation,
+            trailingIcon = trailingIcon ?: {
+                if (dropdownItems.isNotEmpty()) {
+                    IconButton(onClick = { onExpandedChange(!expanded) }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null
+                        )
+                    }
+                }
+            },
+            visualTransformation = visualTransformation
         )
+        if (dropdownItems.isNotEmpty()) {
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { onExpandedChange(false) },
+                modifier = Modifier
+                    .height(200.dp)
+            ) {
+                dropdownItems.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(item) },
+                        onClick = {
+                            onDropdownSelect(item)
+                            onExpandedChange(false)
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewPatientEditScreen() {
+private fun PreviewDoctorEditScreen() {
     DirectHealthTheme {
         Surface {
-            PatientEditScreen()
+            DoctorEditScreen()
         }
     }
 }

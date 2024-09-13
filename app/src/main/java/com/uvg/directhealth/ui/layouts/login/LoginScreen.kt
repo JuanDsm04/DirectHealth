@@ -1,4 +1,4 @@
-package com.uvg.directhealth.login
+package com.uvg.directhealth.ui.layouts.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -61,25 +61,11 @@ fun LoginScreen(){
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primaryContainer)
     ){
-        TopAppBar(
-            title = {},
-            navigationIcon = {
-                IconButton({}) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-        )
+        AppBar()
 
         Image(
             painter = painterResource(id = R.drawable.login),
-            contentDescription = "Welcome Image",
+            contentDescription = stringResource(id = R.string.login_img),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .size(225.dp)
@@ -135,10 +121,15 @@ fun LoginScreen(){
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val imageResource = if (passwordVisible) R.drawable.visibility_off else R.drawable.visibility
+                        val imageResource = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                        val imageDescription = if (passwordVisible) stringResource(id = R.string.visibility_off_icon) else stringResource(id = R.string.visibility_icon)
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(painter = painterResource(id = imageResource), contentDescription = null, tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Icon(
+                                painter = painterResource(id = imageResource),
+                                contentDescription = imageDescription,
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
                         }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
@@ -183,6 +174,26 @@ fun LoginScreen(){
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppBar(){
+    TopAppBar(
+        title = {},
+        navigationIcon = {
+            IconButton({}) {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = stringResource(id = R.string.back_icon)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    )
 }
 
 @Preview(showBackground = true)
