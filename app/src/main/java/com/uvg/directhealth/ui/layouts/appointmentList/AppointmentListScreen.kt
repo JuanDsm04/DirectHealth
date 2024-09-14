@@ -28,6 +28,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,23 +61,23 @@ fun AppointmentListScreen(userId: String, appointmentDb: AppointmentDb, userDb: 
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onPrimary)
     ){
-        AppBar()
+        PersonalizedMediumTopAppBar(stringResource(id = R.string.appointment_list_title))
 
         Box(modifier = Modifier.weight(1f)) {
             AppointmentList(appointments = appointments, userDb = userDb, isDoctor = user.role == Role.DOCTOR)
         }
 
-        BottomNavigationBar(isDoctor = user.role == Role.DOCTOR)
+        BottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 2)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(){
+fun PersonalizedMediumTopAppBar(
+    title: String
+){
     MediumTopAppBar(
-        title = {
-            Text(text = stringResource(id = R.string.appointment_list_title))
-        },
+        title = { Text(text = title)},
         actions = {
             IconButton({/**/}) {
                 Icon(
@@ -220,9 +221,10 @@ fun AppointmentListItem(
 
 @Composable
 fun BottomNavigationBar(
-    isDoctor: Boolean
+    isDoctor: Boolean,
+    itemSelected: Int
 ) {
-    var selectedItem by remember { mutableIntStateOf(2) }
+    var selectedItem by remember { mutableIntStateOf(itemSelected) }
 
     NavigationBar (
         containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -281,7 +283,7 @@ fun BottomNavigationBar(
 @Composable
 private fun PreviewDoctorAppointmentListScreen() {
     val userDb = UserDb()
-    val appointmentDb = AppointmentDb(userDb)
+    val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {
@@ -294,7 +296,7 @@ private fun PreviewDoctorAppointmentListScreen() {
 @Composable
 private fun PreviewPatientAppointmentListScreen() {
     val userDb = UserDb()
-    val appointmentDb = AppointmentDb(userDb)
+    val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {
@@ -307,7 +309,7 @@ private fun PreviewPatientAppointmentListScreen() {
 @Composable
 private fun PreviewAppointmentListEmptyScreen() {
     val userDb = UserDb()
-    val appointmentDb = AppointmentDb(userDb)
+    val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {

@@ -2,7 +2,7 @@ package com.uvg.directhealth.db
 
 import java.time.LocalDateTime
 
-class AppointmentDb(private val userDb: UserDb) {
+class AppointmentDb {
 
     private val appointments: List<Appointment> = listOf(
         Appointment(
@@ -20,7 +20,7 @@ class AppointmentDb(private val userDb: UserDb) {
         Appointment(
             id = "3",
             doctorId = "1",
-            patientId = "2",
+            patientId = "7",
             date = LocalDateTime.of(2024, 4, 2, 9, 0)
         )
     )

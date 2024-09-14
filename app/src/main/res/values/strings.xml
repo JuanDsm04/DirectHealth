@@ -93,12 +93,27 @@
     <string name="edit_profile_log_out">Cerrar sesión</string>
     <string name="edit_profile_edit">Editar</string>
 
-    <string name="prescription_title">Recetas médicas</string>
+    <string name="prescription_list_title">Recetas médicas</string>
     <string name="prescription_id">Receta #</string>
     <string name="prescription_doctor">Médico</string>
     <string name="prescription_patient">Paciente</string>
     <string name="prescription_emissionDate">Fecha emisión</string>
     <string name="prescription_empty">Aún no hay recetas médicas</string>
+    <string name="patient">Paciente</string>
+    <string name="medications">Medicamentos</string>
+    <string name="notes">Notas</string>
+    <string name="name">Nombre</string>
+    <string name="age">Edad</string>
+    <string name="empty_list">No se agregaron</string>
+
+    <string name="appointment_list_title">Citas agendadas</string>
+    <string name="appointment_date">Fecha</string>
+    <string name="appointment_time">Hora</string>
+    <string name="appointment_contact">Contacto</string>
+    <string name="appointment_address">Dirección</string>
+    <string name="appointment_emissionDate">Fecha emisión</string>
+    <string name="appointment_empty">Aún no hay citas</string>
+
 
     <string name="nav_doctors">Médicos</string>
     <string name="nav_patients">Pacientes</string>
@@ -119,11 +134,4 @@
     <string name="welcome_img">Welcome image</string>
     <string name="user_img">User image</string>
 
-    <string name="appointment_list_title">Citas agendadas</string>
-    <string name="appointment_date">Fecha</string>
-    <string name="appointment_time">Hora</string>
-    <string name="appointment_contact">Contacto</string>
-    <string name="appointment_address">Dirección</string>
-    <string name="appointment_emissionDate">Fecha emisión</string>
-    <string name="appointment_empty">Aún no hay citas</string>
 </resources>

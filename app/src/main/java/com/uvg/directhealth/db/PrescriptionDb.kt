@@ -4,7 +4,7 @@ import Medication
 import Prescription
 import java.time.LocalDate
 
-class PrescriptionDb(private val userDb: UserDb) {
+class PrescriptionDb {
     private val prescriptions: List<Prescription> = listOf(
         Prescription(
             id = "1",
@@ -29,7 +29,7 @@ class PrescriptionDb(private val userDb: UserDb) {
         Prescription(
             id = "2",
             doctorId = "3",
-            patientId = "2",
+            patientId = "7",
             emissionDate = LocalDate.of(2024, 8, 27),
             medicationList = listOf(
                 Medication(
@@ -37,9 +37,7 @@ class PrescriptionDb(private val userDb: UserDb) {
                     description = "Se utiliza para reducir la inflamación y tratar afecciones de la piel."
                 )
             ),
-            notes = listOf(
-                "Aplicar hidrocortisona dos veces al día en las zonas de piel afectadas."
-            )
+            notes = listOf()
         )
     )
 
