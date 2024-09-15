@@ -38,6 +38,14 @@ class PrescriptionDb {
                 )
             ),
             notes = listOf()
+        ),
+        Prescription(
+            id = "3",
+            doctorId = "3",
+            patientId = "7",
+            emissionDate = LocalDate.of(2024, 10, 18),
+            medicationList = listOf(),
+            notes = listOf()
         )
     )
 

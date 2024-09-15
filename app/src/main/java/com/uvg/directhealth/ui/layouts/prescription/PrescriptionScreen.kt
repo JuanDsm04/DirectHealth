@@ -23,7 +23,6 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,10 +48,13 @@ fun PrescriptionScreen(prescriptionId: String, prescriptionDb: PrescriptionDb, u
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onPrimary)
+            .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
     ){
-        PersonalizedLargeTopAppBar(prescription.id, prescription.emissionDate)
+        CustomLargeTopAppBar(
+            prescription.id,
+            prescription.emissionDate
+        )
 
         Column (
             modifier = Modifier
@@ -64,31 +66,30 @@ fun PrescriptionScreen(prescriptionId: String, prescriptionDb: PrescriptionDb, u
                     .fillMaxWidth()
             ){
                 SectionHeader(stringResource(id = R.string.patient).uppercase())
-                Box (
+                Column (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
+                        .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
+                        .background(MaterialTheme.colorScheme.onPrimary)
                         .padding(20.dp)
                 ){
-                    Column {
-                        Row {
-                            Text(
-                                text = stringResource(id = R.string.name) + ": ",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.ExtraBold
-                                )
+                    Row {
+                        Text(
+                            text = stringResource(id = R.string.name) + ": ",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.ExtraBold
                             )
-                            Text(text = user.name)
-                        }
-                        Row {
-                            Text(
-                                text = stringResource(id = R.string.age) + ": ",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.ExtraBold
-                                )
+                        )
+                        Text(text = user.name)
+                    }
+                    Row {
+                        Text(
+                            text = stringResource(id = R.string.age) + ": ",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.ExtraBold
                             )
-                            Text(text = "$age")
-                        }
+                        )
+                        Text(text = "$age")
                     }
                 }
             }
@@ -97,7 +98,7 @@ fun PrescriptionScreen(prescriptionId: String, prescriptionDb: PrescriptionDb, u
                 title = stringResource(id = R.string.medications),
                 items = prescription.medicationList
             ) { medicine ->
-                SectionItem(
+                CustomListItem(
                     title = medicine.name,
                     content = medicine.description
                 )
@@ -107,7 +108,7 @@ fun PrescriptionScreen(prescriptionId: String, prescriptionDb: PrescriptionDb, u
                 title = stringResource(id = R.string.notes),
                 items = prescription.notes
             ) { note ->
-                SectionItem(
+                CustomListItem(
                     content = note
                 )
             }
@@ -144,56 +145,57 @@ fun <T> SectionWithItems(
     items: List<T>,
     itemContent: @Composable (T) -> Unit
 ) {
-    Box(
+    Column (
         modifier = Modifier
             .fillMaxWidth()
-    ) {
-        Column {
-            SectionHeader(title.uppercase())
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                if(items.isEmpty()){
-                    Column (
+    ){
+        SectionHeader(title.uppercase())
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            if(items.isEmpty()){
+                Column (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.onPrimary),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Text(
+                        stringResource(id = R.string.empty_list) + " " + title.lowercase(),
+                        style = MaterialTheme.typography.bodyMedium.copy(),
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Text(
-                            stringResource(id = R.string.empty_list) + " " + title.lowercase(),
-                            style = MaterialTheme.typography.bodyMedium.copy(),
-                            modifier = Modifier
-                                .padding(15.dp)
-                        )
-                    }
+                            .padding(15.dp)
+                    )
+                }
 
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surfaceContainer),
-                        verticalArrangement = Arrangement.spacedBy(1.dp)
-                    ) {
-                        items.forEach { item ->
-                            itemContent(item)
-                        }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                ) {
+                    items.forEach { item ->
+                        itemContent(item)
                     }
                 }
             }
         }
     }
+
 }
 
 @Composable
-fun SectionItem(
+fun CustomListItem(
     title: String? = null,
     content: String
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.onPrimary)
             .padding(20.dp)
     ) {
         Column {
@@ -215,7 +217,10 @@ fun SectionItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PersonalizedLargeTopAppBar(prescriptionId: String, prescriptionEmissionDate: LocalDate){
+fun CustomLargeTopAppBar(
+    prescriptionId: String,
+    prescriptionEmissionDate: LocalDate
+){
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
     LargeTopAppBar(
         title = {
@@ -244,10 +249,7 @@ fun PersonalizedLargeTopAppBar(prescriptionId: String, prescriptionEmissionDate:
                     contentDescription = stringResource(id = R.string.settings_icon)
                 )
             }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary
-        )
+        }
     )
 }
 

@@ -118,11 +118,22 @@
     <string name="appointment_emissionDate">Fecha emisión</string>
     <string name="appointment_empty">Aún no hay citas</string>
 
+    <string name="new_prescription">Nueva receta</string>
+    <string name="add">Agregar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="confirm_prescription">Recetar</string>
+    <string name="medicine_description">Indicaciones</string>
+    <string name="new_note">Nueva nota</string>
 
     <string name="nav_doctors">Médicos</string>
     <string name="nav_patients">Pacientes</string>
     <string name="nav_prescriptions">Recetas</string>
     <string name="nav_appointments">Citas</string>
+
+    <string name="add_icon">Add icon</string>
+    <string name="close_icon">Close icon</string>
+    <string name="check_icon">Check icon</string>
 
     <string name="back_icon">Back icon</string>
     <string name="visibility_icon">Visibility icon</string>
