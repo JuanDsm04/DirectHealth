@@ -29,7 +29,7 @@ import com.uvg.directhealth.Role
 import com.uvg.directhealth.db.UserDb
 import com.uvg.directhealth.db.PrescriptionDb
 import com.uvg.directhealth.ui.layouts.appointmentList.BottomNavigationBar
-import com.uvg.directhealth.ui.layouts.appointmentList.PersonalizedMediumTopAppBar
+import com.uvg.directhealth.ui.layouts.appointmentList.CustomMediumTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -47,9 +47,13 @@ fun PrescriptionListScreen(userId: String, prescriptionDb: PrescriptionDb, userD
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onPrimary)
+            .background(MaterialTheme.colorScheme.surface)
     ){
-        PersonalizedMediumTopAppBar(stringResource(id = R.string.prescription_list_title))
+        CustomMediumTopAppBar(
+            title = stringResource(id = R.string.prescription_list_title),
+            onActionsClick = {/* */},
+            backgroundColor = MaterialTheme.colorScheme.surface
+        )
 
         Box(modifier = Modifier.weight(1f)) {
             PrescriptionList(prescriptions = prescriptions, userDb = userDb, isDoctor = user.role == Role.DOCTOR)
@@ -82,7 +86,7 @@ fun PrescriptionList(prescriptions: List<Prescription>, userDb: UserDb, isDoctor
         LazyColumn(
             modifier = Modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainer),
+                .background(MaterialTheme.colorScheme.surface),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             items(prescriptions.size) { index ->
@@ -115,7 +119,7 @@ fun PrescriptionListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha =0.5f ))
             .clickable { /**/ }
             .padding(15.dp)
     ){

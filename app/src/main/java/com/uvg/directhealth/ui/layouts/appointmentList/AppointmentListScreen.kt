@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,11 +29,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,9 +60,13 @@ fun AppointmentListScreen(userId: String, appointmentDb: AppointmentDb, userDb: 
     Column (
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onPrimary)
+            .background(MaterialTheme.colorScheme.surface)
     ){
-        PersonalizedMediumTopAppBar(stringResource(id = R.string.appointment_list_title))
+        CustomMediumTopAppBar(
+            title = stringResource(id = R.string.appointment_list_title),
+            onActionsClick = {/* */},
+            backgroundColor = MaterialTheme.colorScheme.surface
+        )
 
         Box(modifier = Modifier.weight(1f)) {
             AppointmentList(appointments = appointments, userDb = userDb, isDoctor = user.role == Role.DOCTOR)
@@ -73,22 +78,36 @@ fun AppointmentListScreen(userId: String, appointmentDb: AppointmentDb, userDb: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PersonalizedMediumTopAppBar(
-    title: String
+fun CustomMediumTopAppBar(
+    title: String,
+    onNavigationClick: (() -> Unit)? = null,
+    onActionsClick: (() -> Unit)? = null,
+    backgroundColor: Color
 ){
     MediumTopAppBar(
         title = { Text(text = title)},
+        navigationIcon = {
+            if (onNavigationClick != null) {
+                IconButton(onClick = { onNavigationClick() }) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back_icon)
+                    )
+                }
+            }
+        },
         actions = {
-            IconButton({/**/}) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = stringResource(id = R.string.settings_icon)
-                )
+            if (onActionsClick != null) {
+                IconButton(onClick = { onActionsClick() }) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = stringResource(id = R.string.settings_icon)
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.primary,
+            containerColor = backgroundColor
         )
     )
 }
@@ -117,7 +136,7 @@ fun AppointmentList(appointments: List<Appointment>, userDb: UserDb, isDoctor: B
         LazyColumn(
             modifier = Modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainer),
+                .background(MaterialTheme.colorScheme.surface),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             items(appointments.size) { index ->
@@ -155,7 +174,7 @@ fun AppointmentListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f))
             .clickable { /**/ }
             .padding(15.dp)
     ){

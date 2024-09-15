@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,9 +48,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uvg.directhealth.R
+import com.uvg.directhealth.ui.layouts.welcome.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(){
     var text1 by remember { mutableStateOf("") }
@@ -61,7 +62,10 @@ fun LoginScreen(){
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.primaryContainer)
     ){
-        AppBar()
+        CustomTopAppBar(
+            onNavigationClick = { /* */ },
+            backgroundColor = MaterialTheme.colorScheme.primaryContainer
+        )
 
         Image(
             painter = painterResource(id = R.drawable.login),
@@ -74,7 +78,7 @@ fun LoginScreen(){
         Box (
             modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
-                .background(MaterialTheme.colorScheme.onPrimary)
+                .background(MaterialTheme.colorScheme.surface)
                 .fillMaxSize()
                 .padding(30.dp)
         ){
@@ -156,21 +160,14 @@ fun LoginScreen(){
 
                 Spacer(modifier = Modifier.height(15.dp))
 
-                TextButton(
-                    onClick = {  },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.login_button),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                        )
-                    )
-                }
+                CustomButton(
+                    text = stringResource(id = R.string.login_button),
+                    onClick = {/**/},
+                    colorBackground = MaterialTheme.colorScheme.primary,
+                    colorText = MaterialTheme.colorScheme.onPrimary,
+                    maxWidth = true,
+                    cornerRadius = 15.dp
+                )
             }
         }
     }
@@ -178,20 +175,40 @@ fun LoginScreen(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(){
+fun CustomTopAppBar(
+    title: String? = null,
+    onNavigationClick: (() -> Unit)? = null,
+    onActionsClick: (() -> Unit)? = null,
+    backgroundColor: Color
+) {
     TopAppBar(
-        title = {},
+        title = {
+            if (title != null) {
+                Text(text = title)
+            }
+        },
         navigationIcon = {
-            IconButton({}) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = stringResource(id = R.string.back_icon)
-                )
+            if (onNavigationClick != null) {
+                IconButton(onClick = { onNavigationClick() }) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back_icon)
+                    )
+                }
+            }
+        },
+        actions = {
+            if (onActionsClick != null) {
+                IconButton(onClick = { onActionsClick() }) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = stringResource(id = R.string.settings_icon)
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            containerColor = backgroundColor
         )
     )
 }

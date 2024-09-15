@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uvg.directhealth.R
@@ -82,18 +86,21 @@ fun WelcomeScreen(){
         ) {
             CustomButton(
                 text = stringResource(id = R.string.login_button),
-                onClick = { /* */ },
-                backgroundColor = MaterialTheme.colorScheme.primary,
-                textColor = MaterialTheme.colorScheme.onPrimary
+                onClick = {/**/},
+                colorBackground = MaterialTheme.colorScheme.primary,
+                colorText = MaterialTheme.colorScheme.onPrimary,
+                maxWidth = true,
+                cornerRadius = 15.dp
             )
 
             CustomButton(
                 text = stringResource(id = R.string.register_button),
-                onClick = { /* */ },
-                backgroundColor = MaterialTheme.colorScheme.secondaryContainer,
-                textColor = MaterialTheme.colorScheme.onSecondaryContainer
+                onClick = {/**/},
+                colorBackground = MaterialTheme.colorScheme.secondaryContainer,
+                colorText = MaterialTheme.colorScheme.onSecondaryContainer,
+                maxWidth = true,
+                cornerRadius = 15.dp
             )
-
         }
     }
 }
@@ -102,26 +109,37 @@ fun WelcomeScreen(){
 fun CustomButton(
     text: String,
     onClick: () -> Unit,
-    backgroundColor: Color,
-    textColor: Color
+    colorBackground: Color,
+    colorText: Color,
+    icon: ImageVector? = null,
+    contentDescriptionIcon: String? = null,
+    maxWidth: Boolean = false,
+    cornerRadius: Dp
 ) {
     TextButton(
         onClick = onClick,
         modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(15.dp))
-            .background(backgroundColor)
-            .height(50.dp)
+            .clip(RoundedCornerShape(cornerRadius))
+            .background(colorBackground)
+            .then(if (maxWidth) Modifier.fillMaxWidth() else Modifier)
+            .padding(3.dp)
     ) {
+        if (icon != null) {
+            Icon(
+                icon,
+                contentDescription = contentDescriptionIcon,
+                tint = colorText
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+        }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge.copy(
-                color = textColor
+                color = colorText
             )
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

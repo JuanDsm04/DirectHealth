@@ -104,7 +104,11 @@
     <string name="notes">Notas</string>
     <string name="name">Nombre</string>
     <string name="age">Edad</string>
+    <string name="phone_number">Teléfono</string>
     <string name="empty_list">No se agregaron</string>
+    <string name="general_data">Datos generales</string>
+    <string name="medical_history">Historial médico básico</string>
+    <string name="create_prescription">Realizar receta</string>
 
     <string name="appointment_list_title">Citas agendadas</string>
     <string name="appointment_date">Fecha</string>
@@ -128,6 +132,7 @@
     <string name="groups_icon">Groups icon</string>
     <string name="prescriptions_icon">Prescriptions icon</string>
     <string name="folder_off_icon">Folder Off icon</string>
+    <string name="create_prescription_icon">Create prescription icon</string>
 
     <string name="login_img">Login image</string>
     <string name="register_img">Register image</string>
