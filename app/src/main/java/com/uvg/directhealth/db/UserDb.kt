@@ -128,4 +128,12 @@ class UserDb {
     fun getUserById(id: String): User {
         return users.first { it.id == id }
     }
+
+    fun getAllDoctors(): List<User> {
+        return users.filter { it.role == Role.DOCTOR }
+    }
+
+    fun getAllPatients(): List<User> {
+        return users.filter { it.role == Role.PATIENT }
+    }
 }

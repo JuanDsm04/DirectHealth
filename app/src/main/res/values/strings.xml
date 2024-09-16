@@ -126,6 +126,14 @@
     <string name="medicine_description">Indicaciones</string>
     <string name="new_note">Nueva nota</string>
 
+    <string name="hello_again">Hola de nuevo</string>
+    <string name="hello_message">Busca médicos de diferentes especialidades para agendar una cita.</string>
+    <string name="specialties">Especialidades</string>
+    <string name="select_specialty">Seleccione una especialidad</string>
+    <string name="deploy_specialties">Desplegar especialidades</string>
+    <string name="all_users">Todos</string>
+    <string name="empty_doctors">No hay médicos disponibles</string>
+
     <string name="nav_doctors">Médicos</string>
     <string name="nav_patients">Pacientes</string>
     <string name="nav_prescriptions">Recetas</string>
@@ -144,6 +152,8 @@
     <string name="prescriptions_icon">Prescriptions icon</string>
     <string name="folder_off_icon">Folder Off icon</string>
     <string name="create_prescription_icon">Create prescription icon</string>
+    <string name="account_icon">Account icon</string>
+    <string name="person_off_icon">Person icon</string>
 
     <string name="login_img">Login image</string>
     <string name="register_img">Register image</string>

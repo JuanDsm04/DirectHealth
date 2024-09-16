@@ -72,7 +72,7 @@ fun AppointmentListScreen(userId: String, appointmentDb: AppointmentDb, userDb: 
             AppointmentList(appointments = appointments, userDb = userDb, isDoctor = user.role == Role.DOCTOR)
         }
 
-        BottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 2)
+        CustomBottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 2)
     }
 }
 
@@ -239,7 +239,7 @@ fun AppointmentListItem(
 }
 
 @Composable
-fun BottomNavigationBar(
+fun CustomBottomNavigationBar(
     isDoctor: Boolean,
     itemSelected: Int
 ) {

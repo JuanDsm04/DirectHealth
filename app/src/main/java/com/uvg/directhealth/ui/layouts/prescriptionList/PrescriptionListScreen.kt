@@ -28,7 +28,7 @@ import com.uvg.directhealth.R
 import com.uvg.directhealth.Role
 import com.uvg.directhealth.db.UserDb
 import com.uvg.directhealth.db.PrescriptionDb
-import com.uvg.directhealth.ui.layouts.appointmentList.BottomNavigationBar
+import com.uvg.directhealth.ui.layouts.appointmentList.CustomBottomNavigationBar
 import com.uvg.directhealth.ui.layouts.appointmentList.CustomMediumTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDate
@@ -59,7 +59,7 @@ fun PrescriptionListScreen(userId: String, prescriptionDb: PrescriptionDb, userD
             PrescriptionList(prescriptions = prescriptions, userDb = userDb, isDoctor = user.role == Role.DOCTOR)
         }
 
-        BottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 1)
+        CustomBottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 1)
     }
 }
 
