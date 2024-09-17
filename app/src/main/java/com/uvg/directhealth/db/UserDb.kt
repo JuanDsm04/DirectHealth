@@ -136,4 +136,11 @@ class UserDb {
     fun getAllPatients(): List<User> {
         return users.filter { it.role == Role.PATIENT }
     }
+
+    fun getPatientsByDoctorId(doctorId: String, appointmentDb: AppointmentDb): List<User> {
+        val appointments = appointmentDb.getAppointmentsByDoctorId(doctorId)
+        val patientIds = appointments.map { it.patientId }.distinct()
+        return getAllPatients().filter { it.id in patientIds }
+    }
+
 }

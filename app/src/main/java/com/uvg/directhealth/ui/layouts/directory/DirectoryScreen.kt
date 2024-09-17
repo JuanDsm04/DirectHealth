@@ -1,4 +1,4 @@
-package com.uvg.directhealth.ui.layouts.doctorDirectory
+package com.uvg.directhealth.ui.layouts.directory
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,8 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -39,21 +41,27 @@ import androidx.compose.ui.unit.dp
 import com.uvg.directhealth.R
 import com.uvg.directhealth.Role
 import com.uvg.directhealth.Specialty
+import com.uvg.directhealth.db.AppointmentDb
 import com.uvg.directhealth.db.UserDb
 import com.uvg.directhealth.ui.layouts.appointmentList.CustomBottomNavigationBar
 import com.uvg.directhealth.ui.layouts.login.CustomTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 @Composable
-fun DoctorDirectoryScreen(idUser: String, userDb: UserDb){
+fun DirectoryScreen(idUser: String, userDb: UserDb, appointmentDb: AppointmentDb){
     val user = userDb.getUserById(idUser)
     var selectedSpecialty by remember { mutableStateOf<Specialty?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     val users = if (user.role == Role.DOCTOR) {
-        userDb.getAllPatients()
+        userDb.getPatientsByDoctorId(user.id, appointmentDb)
+            .filter { it.name.contains(searchQuery, ignoreCase = true) }
     } else {
         userDb.getAllDoctors().filter { doctor ->
-            selectedSpecialty == null || doctor.doctorInfo?.specialty == selectedSpecialty
+            (selectedSpecialty == null || doctor.doctorInfo?.specialty == selectedSpecialty) && doctor.name.contains(searchQuery, ignoreCase = true)
         }
     }
 
@@ -66,58 +74,81 @@ fun DoctorDirectoryScreen(idUser: String, userDb: UserDb){
             backgroundColor = MaterialTheme.colorScheme.surface
         )
 
-        WelcomeHeader(nameUser = user.name, helloMessage = stringResource(id = R.string.hello_message))
+        Column (
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+        ){
+            if (user.role == Role.DOCTOR){
+                WelcomeHeader(nameUser = user.name, helloMessage = stringResource(id = R.string.hello_message_doctor))
+            } else {
+                WelcomeHeader(nameUser = user.name, helloMessage = stringResource(id = R.string.hello_message_patient))
+            }
 
-        Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            SearchBar(
+                searchQuery = searchQuery,
+                onSearchQueryChanged = { searchQuery = it },
+                onSearch = {}
+            )
 
-        SpecialtySelector(
-            selectedSpecialty = selectedSpecialty,
-            onSpecialtySelected = { selected -> selectedSpecialty = selected }
-        )
+            Spacer(modifier = Modifier.height(10.dp))
+            if (user.role == Role.PATIENT) {
+                SpecialtySelector(
+                    selectedSpecialty = selectedSpecialty,
+                    onSpecialtySelected = { selected -> selectedSpecialty = selected }
+                )
+            }
 
-        Spacer(modifier = Modifier.height(10.dp))
-        Box (
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(start = 20.dp, top = 20.dp, end = 20.dp)
-        ){
+        ) {
             if (users.isNotEmpty()) {
                 LazyColumn {
                     items(users.size) { index ->
-                        users[index].doctorInfo?.let {
-                            UserCard(
-                                users[index].name
-                            )
-                        }
+                        UserCard(
+                            nameUser = users[index].name
+                        )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
-
             } else {
                 Column (
                     modifier = Modifier
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
-                ){
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_person_off),
                         contentDescription = stringResource(id = R.string.person_off_icon),
                         modifier = Modifier.size(50.dp),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
+
+                    val emptyMessageRes = if (user.role == Role.PATIENT) {
+                        R.string.empty_doctors
+                    } else {
+                        R.string.empty_patients
+                    }
+
                     Text(
-                        text = stringResource(id = R.string.empty_doctors),
+                        text = stringResource(id = emptyMessageRes),
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
         }
-        CustomBottomNavigationBar(isDoctor = false, itemSelected = 0)
+
+        CustomBottomNavigationBar(isDoctor = user.role == Role.DOCTOR, itemSelected = 0)
     }
 }
 
@@ -159,7 +190,6 @@ fun WelcomeHeader(
     Box (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp)
     ){
         Column {
             Text(
@@ -188,32 +218,30 @@ fun SpecialtySelector(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp)
     ) {
         Column {
-            Text(stringResource(id = R.string.specialties), style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.size(10.dp))
-
             Box {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(55.dp)
                         .clip(RoundedCornerShape(28.dp))
                         .clickable { expanded = true }
                         .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(horizontal = 20.dp, vertical = 15.dp),
+                        .padding(horizontal = 17.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = selectedSpecialty?.let { specialtyNames[specialties.indexOf(it)] }
-                            ?: stringResource(id = R.string.select_specialty),
-                        style = MaterialTheme.typography.bodyMedium.copy()
+                            ?: stringResource(id = R.string.search_specialty),
+                        style = MaterialTheme.typography.bodyMedium.copy(),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = stringResource(id = R.string.deploy_specialties),
-                        tint = MaterialTheme.colorScheme.onSurface
+                        Icons.Default.ArrowDropDown,
+                        contentDescription = stringResource(id = R.string.arrow_drop_down_icon),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
 
@@ -249,14 +277,101 @@ fun SpecialtySelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    searchQuery: String,
+    onSearchQueryChanged: (String) -> Unit,
+    onSearch: () -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Column {
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = onSearchQueryChanged,
+                onSearch = {
+                    onSearch()
+                    keyboardController?.hide()
+                },
+                placeholder = { Text(
+                    text = stringResource(id = R.string.search_placeholder),
+                    style = MaterialTheme.typography.bodyMedium.copy(),
+                    color = MaterialTheme.colorScheme.onSurface
+                ) },
+                active = false,
+                onActiveChange = {},
+                trailingIcon = {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable {
+                                onSearch()
+                                keyboardController?.hide()
+                            }
+                            .padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = stringResource(id = R.string.search_icon),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .align(Alignment.Center)
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = SearchBarDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                content = {}
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun PreviewDoctorDirectoryScreen() {
     val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {
-            DoctorDirectoryScreen("7", userDb)
+            DirectoryScreen("7", userDb, appointmentDb)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewPatientDirectoryScreen() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            DirectoryScreen("1", userDb, appointmentDb)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewDoctorEmptyDirectoryScreen() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            DirectoryScreen("6", userDb, appointmentDb)
         }
     }
 }
