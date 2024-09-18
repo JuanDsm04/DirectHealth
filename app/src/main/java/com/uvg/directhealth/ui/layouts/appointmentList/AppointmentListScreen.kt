@@ -226,7 +226,7 @@ fun AppointmentListItem(
                     )
                     doctorAddress?.let {
                         Text(
-                            text = stringResource(id = R.string.appointment_address) + ": $it",
+                            text = stringResource(id = R.string.address) + ": $it",
                             style = MaterialTheme.typography.bodyMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                             )

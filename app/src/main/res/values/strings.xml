@@ -114,7 +114,7 @@
     <string name="appointment_date">Fecha</string>
     <string name="appointment_time">Hora</string>
     <string name="appointment_contact">Contacto</string>
-    <string name="appointment_address">Dirección</string>
+    <string name="address">Dirección</string>
     <string name="appointment_emissionDate">Fecha emisión</string>
     <string name="appointment_empty">Aún no hay citas</string>
 
@@ -135,7 +135,9 @@
     <string name="empty_doctors">No hay médicos disponibles</string>
     <string name="empty_patients">No hay pacientes disponibles</string>
     <string name="search_placeholder">Buscar por nombre</string>
-
+    <string name="select_date">Seleccione la fecha para su cita</string>
+    <string name="available_times">Horarios disponibles el</string>
+    <string name="confirm_appointment">Confirmar cita</string>
 
     <string name="nav_doctors">Médicos</string>
     <string name="nav_patients">Pacientes</string>
