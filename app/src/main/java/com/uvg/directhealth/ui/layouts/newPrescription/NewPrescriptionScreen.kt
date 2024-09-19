@@ -72,26 +72,32 @@ fun NewPrescription(prescriptionId: String, prescriptionDb: PrescriptionDb, user
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
-                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(20.dp)
                 ){
                     Row {
                         Text(
                             text = stringResource(id = R.string.name) + ": ",
-                            style = MaterialTheme.typography.titleMedium.copy(
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        Text(text = user.name)
+                        Text(
+                            text = user.name,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                     Row {
                         Text(
                             text = stringResource(id = R.string.age) + ": ",
-                            style = MaterialTheme.typography.titleMedium.copy(
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        Text(text = "$age")
+                        Text(
+                            text = "$age",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
@@ -102,7 +108,7 @@ fun NewPrescription(prescriptionId: String, prescriptionDb: PrescriptionDb, user
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     MedicationList(prescription = prescription)
 
@@ -124,7 +130,7 @@ fun NewPrescription(prescriptionId: String, prescriptionDb: PrescriptionDb, user
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .background(MaterialTheme.colorScheme.surface)
                 ){
                     NoteList(prescription = prescription)
 
@@ -142,8 +148,7 @@ fun NewPrescription(prescriptionId: String, prescriptionDb: PrescriptionDb, user
                 onClick = { /* */ },
                 colorBackground = MaterialTheme.colorScheme.secondaryContainer,
                 colorText = MaterialTheme.colorScheme.onSecondaryContainer,
-                maxWidth = true,
-                cornerRadius = 100.dp,
+                maxWidth = true
             )
             Spacer(modifier = Modifier.height(5.dp))
         }
@@ -156,7 +161,7 @@ fun MedicationList(
 ){
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceContainer),
+            .background(MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         prescription.medicationList.forEach { item ->
@@ -174,7 +179,7 @@ fun NoteList(
 ){
     Column(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surfaceContainer),
+            .background(MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
         prescription.notes.forEach { item ->
@@ -194,7 +199,7 @@ fun DropdownForm(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.onPrimary)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(vertical = 10.dp),
         Arrangement.Center,
         Alignment.CenterHorizontally
@@ -206,8 +211,7 @@ fun DropdownForm(
                 colorBackground = MaterialTheme.colorScheme.tertiaryContainer,
                 colorText = MaterialTheme.colorScheme.onTertiaryContainer,
                 icon = Icons.Filled.Add,
-                contentDescriptionIcon = stringResource(id = R.string.add_icon),
-                cornerRadius = 100.dp
+                contentDescriptionIcon = stringResource(id = R.string.add_icon)
             )
         }
 
@@ -230,8 +234,7 @@ fun DropdownForm(
                         colorBackground = MaterialTheme.colorScheme.errorContainer,
                         colorText = MaterialTheme.colorScheme.onErrorContainer,
                         icon = Icons.Filled.Close,
-                        contentDescriptionIcon = stringResource(id = R.string.close_icon),
-                        cornerRadius = 100.dp
+                        contentDescriptionIcon = stringResource(id = R.string.close_icon)
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     CustomButton(
@@ -240,8 +243,7 @@ fun DropdownForm(
                         colorBackground = MaterialTheme.colorScheme.secondaryContainer,
                         colorText = MaterialTheme.colorScheme.onSecondaryContainer,
                         icon = Icons.Filled.Check,
-                        contentDescriptionIcon = stringResource(id = R.string.check_icon),
-                        cornerRadius = 100.dp
+                        contentDescriptionIcon = stringResource(id = R.string.check_icon)
                     )
                 }
             }
@@ -322,9 +324,41 @@ private fun PreviewNewPrescriptionScreen() {
     }
 }
 
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewNewPrescriptionScreenDark() {
+    val prescriptionDb = PrescriptionDb()
+    val userDb = UserDb()
+
+    DirectHealthTheme {
+        Surface {
+            NewPrescription("1", prescriptionDb, userDb)
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun PreviewNewPrescriptionEmptyScreen() {
+    val prescriptionDb = PrescriptionDb()
+    val userDb = UserDb()
+
+    DirectHealthTheme {
+        Surface {
+            NewPrescription("3", prescriptionDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewNewPrescriptionEmptyScreenDark() {
     val prescriptionDb = PrescriptionDb()
     val userDb = UserDb()
 

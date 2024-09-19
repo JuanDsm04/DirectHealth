@@ -1,4 +1,4 @@
-package com.uvg.directhealth.ui.layouts.directory
+package com.uvg.directhealth.ui.layouts.userDirectory
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,14 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uvg.directhealth.R
-import com.uvg.directhealth.Role
-import com.uvg.directhealth.Specialty
+import com.uvg.directhealth.db.Role
+import com.uvg.directhealth.db.Specialty
 import com.uvg.directhealth.db.AppointmentDb
 import com.uvg.directhealth.db.UserDb
 import com.uvg.directhealth.ui.layouts.appointmentList.CustomBottomNavigationBar
@@ -49,9 +48,10 @@ import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.uvg.directhealth.ui.layouts.register.specialtyToStringResource
 
 @Composable
-fun DirectoryScreen(idUser: String, userDb: UserDb, appointmentDb: AppointmentDb){
+fun UserDirectoryScreen(idUser: String, userDb: UserDb, appointmentDb: AppointmentDb){
     val user = userDb.getUserById(idUser)
     var selectedSpecialty by remember { mutableStateOf<Specialty?>(null) }
     var searchQuery by remember { mutableStateOf("") }
@@ -107,7 +107,7 @@ fun DirectoryScreen(idUser: String, userDb: UserDb, appointmentDb: AppointmentDb
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 .padding(start = 20.dp, top = 20.dp, end = 20.dp)
         ) {
             if (users.isNotEmpty()) {
@@ -161,7 +161,7 @@ fun UserCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(15.dp))
             .clickable { /*TODO*/ }
-            .background(MaterialTheme.colorScheme.onPrimary)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(15.dp)
     ){
         Row (
@@ -209,10 +209,8 @@ fun WelcomeHeader(
 fun SpecialtySelector(
     selectedSpecialty: Specialty?,
     onSpecialtySelected: (Specialty?) -> Unit
-){
+) {
     var expanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val specialtyNames = context.resources.getStringArray(R.array.specialties).toList()
     val specialties = Specialty.entries
 
     Box(
@@ -233,15 +231,16 @@ fun SpecialtySelector(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = selectedSpecialty?.let { specialtyNames[specialties.indexOf(it)] }
-                            ?: stringResource(id = R.string.search_specialty),
+                        text = selectedSpecialty?.let {
+                            stringResource(id = specialtyToStringResource(it))
+                        } ?: stringResource(id = R.string.search_specialty),
                         style = MaterialTheme.typography.bodyMedium.copy(),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Icon(
                         Icons.Default.ArrowDropDown,
                         contentDescription = stringResource(id = R.string.arrow_drop_down_icon),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -262,9 +261,11 @@ fun SpecialtySelector(
                         }
                     )
 
-                    specialties.forEachIndexed { index, specialty ->
+                    specialties.forEach { specialty ->
                         DropdownMenuItem(
-                            text = { Text(specialtyNames[index]) },
+                            text = {
+                                Text(stringResource(id = specialtyToStringResource(specialty)))
+                            },
                             onClick = {
                                 onSpecialtySelected(specialty)
                                 expanded = false
@@ -299,7 +300,7 @@ fun SearchBar(
                     keyboardController?.hide()
                 },
                 placeholder = { Text(
-                    text = stringResource(id = R.string.search_placeholder),
+                    text = stringResource(id = R.string.search_name),
                     style = MaterialTheme.typography.bodyMedium.copy(),
                     color = MaterialTheme.colorScheme.onSurface
                 ) },
@@ -319,7 +320,7 @@ fun SearchBar(
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = stringResource(id = R.string.search_icon),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .align(Alignment.Center)
@@ -339,39 +340,87 @@ fun SearchBar(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewDoctorDirectoryScreen() {
+private fun PreviewDoctorUserDirectoryScreen() {
     val userDb = UserDb()
     val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {
-            DirectoryScreen("7", userDb, appointmentDb)
+            UserDirectoryScreen("7", userDb, appointmentDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewDoctorUserDirectoryScreenDark() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            UserDirectoryScreen("7", userDb, appointmentDb)
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewPatientDirectoryScreen() {
+private fun PreviewPatientUserDirectoryScreen() {
     val userDb = UserDb()
     val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {
-            DirectoryScreen("1", userDb, appointmentDb)
+            UserDirectoryScreen("1", userDb, appointmentDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewPatientUserDirectoryScreenDark() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            UserDirectoryScreen("1", userDb, appointmentDb)
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewDoctorEmptyDirectoryScreen() {
+private fun PreviewDoctorUserEmptyDirectoryScreen() {
     val userDb = UserDb()
     val appointmentDb = AppointmentDb()
 
     DirectHealthTheme {
         Surface {
-            DirectoryScreen("6", userDb, appointmentDb)
+            UserDirectoryScreen("6", userDb, appointmentDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewDoctorUserEmptyDirectoryScreenDark() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            UserDirectoryScreen("6", userDb, appointmentDb)
         }
     }
 }

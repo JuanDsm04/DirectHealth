@@ -39,7 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uvg.directhealth.R
-import com.uvg.directhealth.Role
+import com.uvg.directhealth.db.Role
 import com.uvg.directhealth.db.Appointment
 import com.uvg.directhealth.db.AppointmentDb
 import com.uvg.directhealth.db.UserDb
@@ -119,7 +119,7 @@ fun AppointmentList(appointments: List<Appointment>, userDb: UserDb, isDoctor: B
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(15.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainer),
+                .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha =0.5f )),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -199,27 +199,27 @@ fun AppointmentListItem(
                     )
                 }
                 Text(
-                    text = stringResource(id = R.string.appointment_date) + ": ${appointmentDate.format(dateFormatter)}",
+                    text = stringResource(id = R.string.date) + ": ${appointmentDate.format(dateFormatter)}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                 )
                 Text(
-                    text = stringResource(id = R.string.appointment_time) + ": ${appointmentDate.toLocalTime().format(timeFormatter)}",
+                    text = stringResource(id = R.string.time) + ": ${appointmentDate.toLocalTime().format(timeFormatter)}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                 )
                 if(isDoctor){
                     Text(
-                        text = stringResource(id = R.string.appointment_contact) + ": $patientPhone",
+                        text = stringResource(id = R.string.contact) + ": $patientPhone",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
                     )
                 } else {
                     Text(
-                        text = stringResource(id = R.string.appointment_contact) + ": $doctorPhone",
+                        text = stringResource(id = R.string.contact) + ": $doctorPhone",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
@@ -300,7 +300,23 @@ fun CustomBottomNavigationBar(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewDoctorAppointmentListScreen() {
+private fun PreviewPatientAppointmentListScreen() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            AppointmentListScreen("1", appointmentDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewPatientAppointmentListScreenDark() {
     val userDb = UserDb()
     val appointmentDb = AppointmentDb()
 
@@ -313,7 +329,23 @@ private fun PreviewDoctorAppointmentListScreen() {
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewPatientAppointmentListScreen() {
+private fun PreviewDoctorAppointmentListScreen() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            AppointmentListScreen("2", appointmentDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewDoctorAppointmentListScreenDark() {
     val userDb = UserDb()
     val appointmentDb = AppointmentDb()
 
@@ -327,6 +359,22 @@ private fun PreviewPatientAppointmentListScreen() {
 @Preview(showBackground = true)
 @Composable
 private fun PreviewAppointmentListEmptyScreen() {
+    val userDb = UserDb()
+    val appointmentDb = AppointmentDb()
+
+    DirectHealthTheme {
+        Surface {
+            AppointmentListScreen("5", appointmentDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewAppointmentListEmptyScreenDark() {
     val userDb = UserDb()
     val appointmentDb = AppointmentDb()
 

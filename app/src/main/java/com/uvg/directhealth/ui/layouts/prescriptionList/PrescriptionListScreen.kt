@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uvg.directhealth.R
-import com.uvg.directhealth.Role
+import com.uvg.directhealth.db.Role
 import com.uvg.directhealth.db.UserDb
 import com.uvg.directhealth.db.PrescriptionDb
 import com.uvg.directhealth.ui.layouts.appointmentList.CustomBottomNavigationBar
@@ -70,7 +70,7 @@ fun PrescriptionList(prescriptions: List<Prescription>, userDb: UserDb, isDoctor
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(15.dp)
-                .background(MaterialTheme.colorScheme.surfaceContainer),
+                .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha =0.5f )),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -138,7 +138,7 @@ fun PrescriptionListItem(
                 )
                 if (!isDoctor) {
                     Text(
-                        text = stringResource(id = R.string.prescription_doctor) + ": $doctorName",
+                        text = stringResource(id = R.string.doctor) + ": $doctorName",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
@@ -146,14 +146,14 @@ fun PrescriptionListItem(
                 }
                 if (isDoctor) {
                     Text(
-                        text = stringResource(id = R.string.prescription_patient) + ": $patientName",
+                        text = stringResource(id = R.string.patient) + ": $patientName",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
                     )
                 }
                 Text(
-                    text = stringResource(id = R.string.prescription_emissionDate) + ": ${emissionDate.format(dateFormatter)}",
+                    text = stringResource(id = R.string.emissionDate) + ": ${emissionDate.format(dateFormatter)}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
@@ -166,6 +166,22 @@ fun PrescriptionListItem(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewDoctorPrescriptionListScreen() {
+    val userDb = UserDb()
+    val prescriptionDb = PrescriptionDb()
+
+    DirectHealthTheme {
+        Surface {
+            PrescriptionListScreen("1", prescriptionDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewDoctorPrescriptionListScreenDark() {
     val userDb = UserDb()
     val prescriptionDb = PrescriptionDb()
 
@@ -189,9 +205,42 @@ private fun PreviewPatientPrescriptionListScreen() {
     }
 }
 
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewPatientPrescriptionListScreenDark() {
+    val userDb = UserDb()
+    val prescriptionDb = PrescriptionDb()
+
+    DirectHealthTheme {
+        Surface {
+            PrescriptionListScreen("2", prescriptionDb, userDb)
+        }
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 private fun PreviewPrescriptionListEmptyScreen() {
+    val userDb = UserDb()
+    val prescriptionDb = PrescriptionDb()
+
+    DirectHealthTheme {
+        Surface {
+            PrescriptionListScreen("5", prescriptionDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewPrescriptionListEmptyScreenDark() {
     val userDb = UserDb()
     val prescriptionDb = PrescriptionDb()
 

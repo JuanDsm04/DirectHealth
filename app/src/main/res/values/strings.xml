@@ -7,17 +7,17 @@
     <string name="register_button">Registrarse</string>
 
     <string name="register_title">Forma parte de Direct Health</string>
-    <string name="register_text1">Seleciona tu rol para continuar:</string>
-    <string name="register_text2">Si necesitas buscar médicos, agendar citas y ver tus recetas:</string>
-    <string name="register_text3">Si deseas gestionar tus citas y recetarle medicamentos a tus pacientes:</string>
+    <string name="register_rol">Seleciona tu rol para continuar:</string>
+    <string name="register_option1">Si necesitas buscar médicos, agendar citas y ver tus recetas:</string>
+    <string name="register_option2">Si deseas gestionar tus citas y recetarle medicamentos a tus pacientes:</string>
     <string name="register_patient_button">Registrarme como paciente</string>
     <string name="register_doctor_button">Registrarme como médico</string>
 
     <string name="login_title">Bienvenido de nuevo</string>
-    <string name="login_text_field1">Ingresa tu email</string>
-    <string name="login_text_field2">Ingresa tu contraseña</string>
-    <string name="login_text1">No tienes una cuenta?</string>
-    <string name="login_text2"> Registrate</string>
+    <string name="enter_email">Ingresa tu email</string>
+    <string name="enter_password">Ingresa tu contraseña</string>
+    <string name="not_account">No tienes una cuenta?</string>
+    <string name="register_option"> Registrate</string>
 
     <string name="patient_register_title">Nuevo paciente</string>
     <string name="patient_register_name">Nombre</string>
@@ -60,62 +60,59 @@
     <string name="error_certifications">Certificaciones inválidas</string>
     <string name="error_specialty">Especialidad inválida</string>
 
-    <string-array name="specialties">
-        <item>Médico General</item>
-        <item>Cardiología</item>
-        <item>Dermatología</item>
-        <item>Endocrinología</item>
-        <item>Gastroenterología</item>
-        <item>Ginecología</item>
-        <item>Hematología</item>
-        <item>Infectología</item>
-        <item>Nefrología</item>
-        <item>Neurología</item>
-        <item>Neumología</item>
-        <item>Oftalmología</item>
-        <item>Oncología</item>
-        <item>Ortopedia</item>
-        <item>Otorrinolaringología</item>
-        <item>Pediatría</item>
-        <item>Psiquiatría</item>
-        <item>Radiología</item>
-        <item>Reumatología</item>
-        <item>Traumatología</item>
-        <item>Urología</item>
-        <item>Alergología</item>
-        <item>Angiología</item>
-        <item>Cirugía plástica</item>
-        <item>Geriatría</item>
-    </string-array>
+    <string name="specialty_general">Médico General</string>
+    <string name="specialty_cardiology">Cardiología</string>
+    <string name="specialty_dermatology">Dermatología</string>
+    <string name="specialty_endocrinology">Endocrinología</string>
+    <string name="specialty_gastroenterology">Gastroenterología</string>
+    <string name="specialty_gynecology">Ginecología</string>
+    <string name="specialty_hematology">Hematología</string>
+    <string name="specialty_infectiology">Infectología</string>
+    <string name="specialty_nephrology">Nefrología</string>
+    <string name="specialty_neurology">Neurología</string>
+    <string name="specialty_pulmonology">Neumología</string>
+    <string name="specialty_ophthalmology">Oftalmología</string>
+    <string name="specialty_oncology">Oncología</string>
+    <string name="specialty_orthopedics">Ortopedia</string>
+    <string name="specialty_otolaryngology">Otorrinolaringología</string>
+    <string name="specialty_pediatrics">Pediatría</string>
+    <string name="specialty_psychiatry">Psiquiatría</string>
+    <string name="specialty_radiology">Radiología</string>
+    <string name="specialty_rheumatology">Reumatología</string>
+    <string name="specialty_traumatology">Traumatología</string>
+    <string name="specialty_urology">Urología</string>
+    <string name="specialty_allergology">Alergología</string>
+    <string name="specialty_angiology">Angiología</string>
+    <string name="specialty_plastic">Cirugía plástica</string>
+    <string name="specialty_geriatrics">Geriatría</string>
 
-    <string name="edit_profile_title">Mi perfil</string>
+    <string name="my_profile">Mi perfil</string>
     <string name="edit_profile_photo">Editar foto</string>
-    <string name="edit_profile_log_out">Cerrar sesión</string>
-    <string name="edit_profile_edit">Editar</string>
+    <string name="log_out">Cerrar sesión</string>
+    <string name="edit">Editar</string>
 
     <string name="prescription_list_title">Recetas médicas</string>
     <string name="prescription_id">Receta #</string>
-    <string name="prescription_doctor">Médico</string>
-    <string name="prescription_patient">Paciente</string>
-    <string name="prescription_emissionDate">Fecha emisión</string>
-    <string name="prescription_empty">Aún no hay recetas médicas</string>
+    <string name="doctor">Médico</string>
     <string name="patient">Paciente</string>
+    <string name="prescription_empty">Aún no hay recetas médicas</string>
     <string name="medications">Medicamentos</string>
     <string name="notes">Notas</string>
     <string name="name">Nombre</string>
     <string name="age">Edad</string>
     <string name="phone_number">Teléfono</string>
     <string name="empty_list">No se agregaron</string>
+
     <string name="general_data">Datos generales</string>
     <string name="medical_history">Historial médico básico</string>
     <string name="create_prescription">Realizar receta</string>
 
     <string name="appointment_list_title">Citas agendadas</string>
-    <string name="appointment_date">Fecha</string>
-    <string name="appointment_time">Hora</string>
-    <string name="appointment_contact">Contacto</string>
+    <string name="date">Fecha</string>
+    <string name="time">Hora</string>
+    <string name="contact">Contacto</string>
     <string name="address">Dirección</string>
-    <string name="appointment_emissionDate">Fecha emisión</string>
+    <string name="emissionDate">Fecha emisión</string>
     <string name="appointment_empty">Aún no hay citas</string>
 
     <string name="new_prescription">Nueva receta</string>
@@ -130,11 +127,12 @@
     <string name="hello_message_patient">Busca médicos para agendar una cita.</string>
     <string name="hello_message_doctor">Encuentra a tus pacientes.</string>
     <string name="specialties">Especialidades</string>
+    <string name="search_name">Buscar por nombre</string>
     <string name="search_specialty">Buscar por especialidad</string>
     <string name="all_users">Todos</string>
     <string name="empty_doctors">No hay médicos disponibles</string>
     <string name="empty_patients">No hay pacientes disponibles</string>
-    <string name="search_placeholder">Buscar por nombre</string>
+
     <string name="select_date">Seleccione la fecha para su cita</string>
     <string name="available_times">Horarios disponibles el</string>
     <string name="confirm_appointment">Confirmar cita</string>
@@ -147,7 +145,6 @@
     <string name="add_icon">Add icon</string>
     <string name="close_icon">Close icon</string>
     <string name="check_icon">Check icon</string>
-
     <string name="back_icon">Back icon</string>
     <string name="visibility_icon">Visibility icon</string>
     <string name="visibility_off_icon">Visibility off icon</string>

@@ -1,10 +1,5 @@
 package com.uvg.directhealth.db
 
-import com.uvg.directhealth.DoctorInfo
-import com.uvg.directhealth.PatientInfo
-import com.uvg.directhealth.Role
-import com.uvg.directhealth.Specialty
-import com.uvg.directhealth.User
 import java.time.LocalDate
 
 class UserDb {

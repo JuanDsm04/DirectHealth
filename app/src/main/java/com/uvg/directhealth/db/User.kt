@@ -1,4 +1,4 @@
-package com.uvg.directhealth
+package com.uvg.directhealth.db
 
 import java.time.LocalDate
 

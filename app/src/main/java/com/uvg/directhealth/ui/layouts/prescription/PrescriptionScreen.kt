@@ -70,26 +70,32 @@ fun PrescriptionScreen(prescriptionId: String, prescriptionDb: PrescriptionDb, u
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
-                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(20.dp)
                 ){
                     Row {
                         Text(
                             text = stringResource(id = R.string.name) + ": ",
-                            style = MaterialTheme.typography.titleMedium.copy(
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        Text(text = user.name)
+                        Text(
+                            text = user.name,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                     Row {
                         Text(
                             text = stringResource(id = R.string.age) + ": ",
-                            style = MaterialTheme.typography.titleMedium.copy(
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        Text(text = "$age")
+                        Text(
+                            text = "$age",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
             }
@@ -160,7 +166,7 @@ fun <T> SectionWithItems(
                 Column (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.onPrimary),
+                        .background(MaterialTheme.colorScheme.surfaceContainer),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ){
                     Text(
@@ -174,7 +180,7 @@ fun <T> SectionWithItems(
             } else {
                 Column(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surfaceContainer),
+                        .background(MaterialTheme.colorScheme.surface),
                     verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     items.forEach { item ->
@@ -195,7 +201,7 @@ fun CustomListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.onPrimary)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(20.dp)
     ) {
         Column {
@@ -229,7 +235,7 @@ fun CustomLargeTopAppBar(
                     text = stringResource(id = R.string.prescription_id) + prescriptionId,
                 )
                 Text(
-                    text = stringResource(id = R.string.prescription_emissionDate) + ": " + prescriptionEmissionDate.format(dateFormatter),
+                    text = stringResource(id = R.string.emissionDate) + ": " + prescriptionEmissionDate.format(dateFormatter),
                     style = MaterialTheme.typography.bodyLarge.copy()
                 )
             }
@@ -266,9 +272,41 @@ private fun PreviewPrescriptionScreen() {
     }
 }
 
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewPrescriptionScreenDark() {
+    val prescriptionDb = PrescriptionDb()
+    val userDb = UserDb()
+
+    DirectHealthTheme {
+        Surface {
+            PrescriptionScreen("1", prescriptionDb, userDb)
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun PreviewPrescriptionNotesEmptyScreen() {
+    val prescriptionDb = PrescriptionDb()
+    val userDb = UserDb()
+
+    DirectHealthTheme {
+        Surface {
+            PrescriptionScreen("2", prescriptionDb, userDb)
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewPrescriptionNotesEmptyScreenDark() {
     val prescriptionDb = PrescriptionDb()
     val userDb = UserDb()
 

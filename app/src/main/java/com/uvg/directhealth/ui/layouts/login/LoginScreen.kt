@@ -103,7 +103,7 @@ fun LoginScreen(){
                     value = text1,
                     onValueChange = { text1 = it },
                     label = {
-                        Text(text = stringResource(id = R.string.login_text_field1))
+                        Text(text = stringResource(id = R.string.enter_email))
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,7 +116,7 @@ fun LoginScreen(){
                     value = text2,
                     onValueChange = { text2 = it },
                     label = {
-                        Text(text = stringResource(id = R.string.login_text_field2))
+                        Text(text = stringResource(id = R.string.enter_password))
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -143,13 +143,13 @@ fun LoginScreen(){
 
                 Row {
                     Text(
-                        text = stringResource(id = R.string.login_text1),
+                        text = stringResource(id = R.string.not_account),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 14.sp,
                         )
                     )
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text(text = stringResource(id = R.string.login_text2),
+                    Text(text = stringResource(id = R.string.register_option),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
@@ -165,8 +165,7 @@ fun LoginScreen(){
                     onClick = {/**/},
                     colorBackground = MaterialTheme.colorScheme.primary,
                     colorText = MaterialTheme.colorScheme.onPrimary,
-                    maxWidth = true,
-                    cornerRadius = 15.dp
+                    maxWidth = true
                 )
             }
         }
@@ -216,6 +215,19 @@ fun CustomTopAppBar(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewLoginScreen() {
+    DirectHealthTheme {
+        Surface {
+            LoginScreen()
+        }
+    }
+}
+
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+private fun PreviewLoginScreenDark() {
     DirectHealthTheme {
         Surface {
             LoginScreen()
