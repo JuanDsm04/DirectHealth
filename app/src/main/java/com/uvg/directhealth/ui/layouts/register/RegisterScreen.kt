@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.uvg.directhealth.R
 import com.uvg.directhealth.db.Role
 import com.uvg.directhealth.db.Specialty
@@ -55,18 +56,71 @@ import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.util.Calendar
 
 @Composable
-fun RegisterScreen(role: Role){
+fun RegisterRoute(role: Role) {
+    var isPasswordError by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+
+    var dpi by remember { mutableStateOf("") }
+    var isDpiError by remember { mutableStateOf(false) }
+
+    var phoneNumber by remember { mutableStateOf("") }
+    var isPhoneNumberError by remember { mutableStateOf(false) }
+
+    var membership by remember { mutableStateOf("") }
+    var isMembershipError by remember { mutableStateOf(false) }
+
+    RegisterScreen(
+        role = role,
+        password = password,
+        isPasswordError = isPasswordError,
+        onPasswordChange = {
+            password = it
+            isPasswordError = password.length <= 8
+        },
+        dpi = dpi,
+        isDpiError = isDpiError,
+        onDpiChange = {
+            dpi = it
+            isDpiError = !dpi.isDigitsOnly()
+        },
+        phoneNumber = phoneNumber,
+        isPhoneNumberError = isPhoneNumberError,
+        onPhoneNumberChange = {
+            phoneNumber = it
+            isPhoneNumberError = !phoneNumber.isDigitsOnly()
+        },
+        membership = membership,
+        isMembershipError = isMembershipError,
+        onMembershipChange = {
+            membership = it
+            isMembershipError = !membership.isDigitsOnly()
+        }
+    )
+}
+
+@Composable
+private fun RegisterScreen(
+    role: Role,
+    password: String,
+    isPasswordError: Boolean,
+    onPasswordChange: (String) -> Unit,
+    dpi: String,
+    isDpiError: Boolean,
+    onDpiChange: (String) -> Unit,
+    phoneNumber: String,
+    isPhoneNumberError: Boolean,
+    onPhoneNumberChange: (String) -> Unit,
+    membership: String,
+    isMembershipError: Boolean,
+    onMembershipChange: (String) -> Unit
+){
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var birthdate by remember { mutableStateOf("") }
-    var dpi by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
 
     var medicalHistory by remember { mutableStateOf("") }
 
-    var membership by remember { mutableStateOf("") }
     var direction by remember { mutableStateOf("") }
     var experience by remember { mutableStateOf("") }
 
@@ -116,7 +170,8 @@ fun RegisterScreen(role: Role){
                     keyboardType = KeyboardType.Text,
                     value = name,
                     onValueChange = { name = it },
-                    singleLine = true
+                    singleLine = true,
+                    isError = false
                 )
                 FormComponent(
                     textId = R.string.patient_register_email,
@@ -124,14 +179,15 @@ fun RegisterScreen(role: Role){
                     keyboardType = KeyboardType.Email,
                     value = email,
                     onValueChange = { email = it },
-                    singleLine = true
+                    singleLine = true,
+                    isError = false
                 )
                 FormComponent(
                     textId = R.string.patient_register_password,
                     textFieldId = R.string.patient_register_text_field_password,
                     keyboardType = KeyboardType.Password,
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = onPasswordChange,
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -144,6 +200,10 @@ fun RegisterScreen(role: Role){
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         }
+                    },
+                    isError = isPasswordError,
+                    supportingText = {
+                        if (isPasswordError) Text(text = "La contraseña debe tener más de 8 caracteres")
                     }
                 )
                 FormComponent(
@@ -163,23 +223,32 @@ fun RegisterScreen(role: Role){
                                 datePickerDialog.show()
                             }
                         )
-                    }
+                    },
+                    isError = false
                 )
                 FormComponent(
                     textId = R.string.patient_register_dpi,
                     textFieldId = R.string.patient_register_text_field_dpi,
                     keyboardType = KeyboardType.Phone,
                     value = dpi,
-                    onValueChange = { dpi = it },
-                    singleLine = true
+                    onValueChange = onDpiChange,
+                    singleLine = true,
+                    isError = isDpiError,
+                    supportingText = {
+                        if (isDpiError) Text("El DPI solo debe contener dígitos")
+                    }
                 )
                 FormComponent(
                     textId = R.string.patient_register_phone_number,
                     textFieldId = R.string.patient_register_text_field_phone_number,
                     keyboardType = KeyboardType.Phone,
                     value = phoneNumber,
-                    onValueChange = { phoneNumber = it },
-                    singleLine = true
+                    onValueChange = onPhoneNumberChange,
+                    singleLine = true,
+                    isError = isPhoneNumberError,
+                    supportingText = {
+                        if (isPhoneNumberError) Text("El número de teléfono solo debe contener dígitos")
+                    }
                 )
 
                 if (role == Role.PATIENT){
@@ -189,7 +258,8 @@ fun RegisterScreen(role: Role){
                         keyboardType = KeyboardType.Text,
                         value = medicalHistory,
                         onValueChange = { medicalHistory = it },
-                        singleLine = false
+                        singleLine = false,
+                        isError = false
                     )
                 }
 
@@ -199,8 +269,12 @@ fun RegisterScreen(role: Role){
                         textFieldId = R.string.doctor_register_text_field_membership_number,
                         keyboardType = KeyboardType.Text,
                         value = membership,
-                        onValueChange = { membership = it },
-                        singleLine = true
+                        onValueChange = onMembershipChange,
+                        singleLine = true,
+                        isError = isMembershipError,
+                        supportingText = {
+                            if (isMembershipError) Text("El número de colegiado solo debe contener dígitos")
+                        }
                     )
                     FormComponent(
                         textId = R.string.doctor_register_direction,
@@ -286,7 +360,9 @@ fun FormComponent(
     expanded: Boolean = false,
     onExpandedChange: (Boolean) -> Unit = {},
     dropdownItems: List<String> = emptyList(),
-    onDropdownSelect: (String) -> Unit = {}
+    onDropdownSelect: (String) -> Unit = {},
+    isError: Boolean = false,
+    supportingText: @Composable() (() -> Unit) = {}
 ) {
     Column {
         Text(
@@ -297,6 +373,8 @@ fun FormComponent(
         )
         Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
+            isError = isError,
+            supportingText = supportingText,
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier
@@ -392,7 +470,21 @@ fun getSpecialtyItems(): List<Pair<Specialty, String>> {
 private fun PreviewPatientRegisterScreen() {
     DirectHealthTheme {
         Surface {
-            RegisterScreen(Role.PATIENT)
+            RegisterScreen(
+                role = Role.PATIENT,
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {},
+                membership = "",
+                isMembershipError = false,
+                onMembershipChange = {}
+            )
         }
     }
 }
@@ -405,7 +497,21 @@ private fun PreviewPatientRegisterScreen() {
 private fun PreviewPatientRegisterScreenDark() {
     DirectHealthTheme {
         Surface {
-            RegisterScreen(Role.PATIENT)
+            RegisterScreen(
+                Role.PATIENT,
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {},
+                membership = "",
+                isMembershipError = false,
+                onMembershipChange = {}
+            )
         }
     }
 }
@@ -415,7 +521,21 @@ private fun PreviewPatientRegisterScreenDark() {
 private fun PreviewDoctorRegisterScreen() {
     DirectHealthTheme {
         Surface {
-            RegisterScreen(Role.DOCTOR)
+            RegisterScreen(
+                Role.DOCTOR,
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {},
+                membership = "",
+                isMembershipError = false,
+                onMembershipChange = {}
+            )
         }
     }
 }
@@ -428,7 +548,69 @@ private fun PreviewDoctorRegisterScreen() {
 private fun PreviewDoctorRegisterScreenDark() {
     DirectHealthTheme {
         Surface {
-            RegisterScreen(Role.DOCTOR)
+            RegisterScreen(
+                Role.DOCTOR,
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {},
+                membership = "",
+                isMembershipError = false,
+                onMembershipChange = {}
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewRegisterErrorScreen() {
+    DirectHealthTheme {
+        Surface {
+            RegisterScreen(
+                Role.PATIENT,
+                password = "",
+                isPasswordError = true,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = true,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = true,
+                onPhoneNumberChange = {},
+                membership = "",
+                isMembershipError = true,
+                onMembershipChange = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewRegisterErrorScreenDark() {
+    DirectHealthTheme {
+        Surface {
+            RegisterScreen(
+                Role.PATIENT,
+                password = "",
+                isPasswordError = true,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = true,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = true,
+                onPhoneNumberChange = {},
+                membership = "",
+                isMembershipError = true,
+                onMembershipChange = {}
+            )
         }
     }
 }
