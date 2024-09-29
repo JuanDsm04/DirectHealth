@@ -5,8 +5,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,12 +34,32 @@ import java.time.LocalDate
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import com.uvg.directhealth.ui.layouts.prescription.CustomListItem
 
 @Composable
-fun NewPrescription(prescriptionId: String, prescriptionDb: PrescriptionDb, userDb: UserDb){
-    val prescription = prescriptionDb.getPrescriptionById(prescriptionId)
+private fun NewPrescriptionRoute(
+    prescriptionId: String
+) {
+    val isError by remember { mutableStateOf(false) }
+    val prescription = PrescriptionDb().getPrescriptionById(prescriptionId)
+    
+    NewPrescription(
+        prescription = prescription,
+        userDb = UserDb(),
+        isError = isError
+    )
+}
+
+@Composable
+fun NewPrescription(
+    prescription: Prescription,
+    userDb: UserDb,
+    isError: Boolean
+){
     val user = userDb.getUserById(prescription.patientId)
     val age = LocalDate.now().year - user.birthDate.year
     var nameMedicine by remember { mutableStateOf("") }
@@ -150,7 +172,40 @@ fun NewPrescription(prescriptionId: String, prescriptionDb: PrescriptionDb, user
                 colorText = MaterialTheme.colorScheme.onSecondaryContainer,
                 maxWidth = true
             )
-            Spacer(modifier = Modifier.height(5.dp))
+
+            if (isError) {
+                Box(
+                    modifier = Modifier
+                        .height(75.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(color = MaterialTheme.colorScheme.errorContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_error),
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(40.dp),
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Text(
+                            text = "La receta no puede estar vacía",
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -315,11 +370,14 @@ fun NoteForm(
 @Composable
 private fun PreviewNewPrescriptionScreen() {
     val prescriptionDb = PrescriptionDb()
-    val userDb = UserDb()
 
     DirectHealthTheme {
         Surface {
-            NewPrescription("1", prescriptionDb, userDb)
+            NewPrescription(
+                prescriptionDb.getPrescriptionById("1"),
+                UserDb(),
+                isError = false
+            )
         }
     }
 }
@@ -335,7 +393,11 @@ private fun PreviewNewPrescriptionScreenDark() {
 
     DirectHealthTheme {
         Surface {
-            NewPrescription("1", prescriptionDb, userDb)
+            NewPrescription(
+                prescriptionDb.getPrescriptionById("1"),
+                UserDb(),
+                isError = false
+            )
         }
     }
 }
@@ -348,15 +410,16 @@ private fun PreviewNewPrescriptionEmptyScreen() {
 
     DirectHealthTheme {
         Surface {
-            NewPrescription("3", prescriptionDb, userDb)
+            NewPrescription(
+                prescriptionDb.getPrescriptionById("3"),
+                UserDb(),
+                isError = true
+            )
         }
     }
 }
 
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewNewPrescriptionEmptyScreenDark() {
     val prescriptionDb = PrescriptionDb()
@@ -364,7 +427,11 @@ private fun PreviewNewPrescriptionEmptyScreenDark() {
 
     DirectHealthTheme {
         Surface {
-            NewPrescription("3", prescriptionDb, userDb)
+            NewPrescription(
+                prescriptionDb.getPrescriptionById("3"),
+                UserDb(),
+                isError = true
+            )
         }
     }
 }
