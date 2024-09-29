@@ -52,11 +52,39 @@ import com.uvg.directhealth.ui.layouts.welcome.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 
 @Composable
-fun LoginScreen(){
-    var text1 by remember { mutableStateOf("") }
-    var text2 by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+fun LoginRoute() {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) }
 
+    LoginScreen(
+        email =  email,
+        password = password,
+        isPasswordVisible = isPasswordVisible,
+        isError = isError,
+        onEmailChange = {
+            email = it
+        },
+        onPasswordChange = {
+            password = it
+        },
+        onIsPasswordVisibleChange = {
+            isPasswordVisible = !isPasswordVisible
+        }
+    )
+}
+
+@Composable
+private fun LoginScreen(
+    email: String,
+    password: String,
+    isPasswordVisible: Boolean,
+    isError: Boolean,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onIsPasswordVisibleChange: () -> Unit
+) {
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -100,8 +128,8 @@ fun LoginScreen(){
                 Spacer(modifier = Modifier.height(20.dp))
 
                 OutlinedTextField(
-                    value = text1,
-                    onValueChange = { text1 = it },
+                    value = email,
+                    onValueChange = onEmailChange,
                     label = {
                         Text(text = stringResource(id = R.string.enter_email))
                     },
@@ -109,12 +137,13 @@ fun LoginScreen(){
                         .fillMaxWidth()
                         .padding(10.dp),
                     shape = RoundedCornerShape(16.dp),
-                    singleLine = true
+                    singleLine = true,
+                    isError = isError
                 )
 
                 OutlinedTextField(
-                    value = text2,
-                    onValueChange = { text2 = it },
+                    value = password,
+                    onValueChange = onPasswordChange,
                     label = {
                         Text(text = stringResource(id = R.string.enter_password))
                     },
@@ -123,12 +152,12 @@ fun LoginScreen(){
                         .padding(10.dp),
                     shape = RoundedCornerShape(16.dp),
                     singleLine = true,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val imageResource = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                        val imageDescription = if (passwordVisible) stringResource(id = R.string.visibility_off_icon) else stringResource(id = R.string.visibility_icon)
+                        val imageResource = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                        val imageDescription = if (isPasswordVisible) stringResource(id = R.string.visibility_off_icon) else stringResource(id = R.string.visibility_icon)
 
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = onIsPasswordVisibleChange) {
                             Icon(
                                 painter = painterResource(id = imageResource),
                                 contentDescription = imageDescription,
@@ -136,7 +165,11 @@ fun LoginScreen(){
                             )
                         }
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    isError = isError,
+                    supportingText = {
+                        if (isError) Text(text = "El correo o la contraseña son incorrectos")
+                    }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -217,7 +250,15 @@ fun CustomTopAppBar(
 private fun PreviewLoginScreen() {
     DirectHealthTheme {
         Surface {
-            LoginScreen()
+            LoginScreen(
+                email = "",
+                password = "",
+                isError = false,
+                isPasswordVisible = false,
+                onEmailChange = {},
+                onPasswordChange = {},
+                onIsPasswordVisibleChange = {}
+            )
         }
     }
 }
@@ -230,7 +271,51 @@ private fun PreviewLoginScreen() {
 private fun PreviewLoginScreenDark() {
     DirectHealthTheme {
         Surface {
-            LoginScreen()
+            LoginScreen(
+                email = "",
+                password = "",
+                isError = false,
+                isPasswordVisible = false,
+                onEmailChange = {},
+                onPasswordChange = {},
+                onIsPasswordVisibleChange = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewLoginScreenError() {
+    DirectHealthTheme {
+        Surface {
+            LoginScreen(
+                email = "",
+                password = "",
+                isError = true,
+                isPasswordVisible = false,
+                onEmailChange = {},
+                onPasswordChange = {},
+                onIsPasswordVisibleChange = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewLoginScreenErrorDark() {
+    DirectHealthTheme {
+        Surface {
+            LoginScreen(
+                email = "",
+                password = "",
+                isError = true,
+                isPasswordVisible = false,
+                onEmailChange = {},
+                onPasswordChange = {},
+                onIsPasswordVisibleChange = {}
+            )
         }
     }
 }

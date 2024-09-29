@@ -41,8 +41,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 import com.uvg.directhealth.R
 import com.uvg.directhealth.db.Role
+import com.uvg.directhealth.db.User
 import com.uvg.directhealth.db.UserDb
 import com.uvg.directhealth.ui.layouts.register.FormComponent
 import com.uvg.directhealth.ui.layouts.register.CustomMediumTopAppBar
@@ -55,21 +57,102 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun EditProfileScreen(idUser: String, userDb: UserDb){
+fun EditProfileRoute(
+    userId: String
+) {
+    val user = UserDb().getUserById(userId)
+
+    var password by remember { mutableStateOf(user.password) }
+    var isPasswordError by remember { mutableStateOf(false) }
+
+    var dpi by remember { mutableStateOf(user.dpi) }
+    var isDpiError by remember { mutableStateOf(false) }
+
+    var phoneNumber by remember { mutableStateOf(user.phoneNumber) }
+    var isPhoneNumberError by remember { mutableStateOf(false) }
+
+    if (user.role == Role.DOCTOR) {
+        var membership by remember { mutableStateOf(user.doctorInfo?.number.toString()) }
+        var isMembershipError by remember { mutableStateOf(false) }
+
+        EditProfileScreen(
+            user = user,
+            password = password,
+            isPasswordError = isPasswordError,
+            onPasswordChange = {
+                password = it
+                isPasswordError = password.length <= 8
+            },
+            dpi = dpi,
+            isDpiError = isDpiError,
+            onDpiChange = {
+                dpi = it
+                isDpiError = !dpi.isDigitsOnly()
+            },
+            phoneNumber = phoneNumber,
+            isPhoneNumberError = isPhoneNumberError,
+            onPhoneNumberChange = {
+                phoneNumber = it
+                isPhoneNumberError = !phoneNumber.isDigitsOnly()
+            },
+            membership = membership.toString(),
+            isMembershipError = isMembershipError,
+            onMembershipChange = {
+                membership = it
+                isMembershipError = !membership.isDigitsOnly()
+            }
+        )
+
+    } else {
+        EditProfileScreen(
+            user = user,
+            password = password,
+            isPasswordError = isPasswordError,
+            onPasswordChange = {
+                password = it
+                isPasswordError = password.length <= 8
+            },
+            dpi = dpi,
+            isDpiError = isDpiError,
+            onDpiChange = {
+                dpi = it
+                isDpiError = !dpi.isDigitsOnly()
+            },
+            phoneNumber = phoneNumber,
+            isPhoneNumberError = isPhoneNumberError,
+            onPhoneNumberChange = {
+                phoneNumber = it
+                isPhoneNumberError = !phoneNumber.isDigitsOnly()
+            }
+        )
+    }
+}
+
+@Composable
+private fun EditProfileScreen(
+    user: User,
+    password: String,
+    isPasswordError: Boolean,
+    onPasswordChange: (String) -> Unit,
+    dpi: String,
+    isDpiError: Boolean,
+    onDpiChange: (String) -> Unit,
+    phoneNumber: String,
+    isPhoneNumberError: Boolean,
+    onPhoneNumberChange: (String) -> Unit,
+    membership: String = "",
+    isMembershipError: Boolean = false,
+    onMembershipChange: ((String) -> Unit) = {}
+){
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-    val user = userDb.getUserById(idUser)
     var name by remember { mutableStateOf(user.name) }
     var email by remember { mutableStateOf(user.email) }
-    var password by remember { mutableStateOf(user.password) }
     var passwordVisible by remember { mutableStateOf(false) }
     var birthdate by remember { mutableStateOf(dateFormat.format(SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(user.birthDate.toString()) ?: "")) }
-    var dpi by remember { mutableStateOf(user.dpi) }
-    var phoneNumber by remember { mutableStateOf(user.phoneNumber) }
 
     var medicalHistory by remember { mutableStateOf(user.patientInfo?.medicalHistory ?: "") }
 
-    var membership by remember { mutableStateOf(user.doctorInfo?.number ?: "") }
     var direction by remember { mutableStateOf(user.doctorInfo?.address ?: "") }
     var experience by remember { mutableStateOf(user.doctorInfo?.summary ?: "") }
 
@@ -164,7 +247,7 @@ fun EditProfileScreen(idUser: String, userDb: UserDb){
                     textFieldId = R.string.patient_register_text_field_password,
                     keyboardType = KeyboardType.Password,
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = onPasswordChange,
                     singleLine = true,
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -177,6 +260,10 @@ fun EditProfileScreen(idUser: String, userDb: UserDb){
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
                         }
+                    },
+                    isError = isPasswordError,
+                    supportingText = {
+                        if (isPasswordError) Text(text = "La contraseña debe tener más de 8 caracteres")
                     }
                 )
                 FormComponent(
@@ -203,16 +290,24 @@ fun EditProfileScreen(idUser: String, userDb: UserDb){
                     textFieldId = R.string.patient_register_text_field_dpi,
                     keyboardType = KeyboardType.Phone,
                     value = dpi,
-                    onValueChange = { dpi = it },
-                    singleLine = true
+                    onValueChange = onDpiChange,
+                    singleLine = true,
+                    isError = isDpiError,
+                    supportingText = {
+                        if (isDpiError) Text(text = "El DPI solo debe contener dígitos")
+                    }
                 )
                 FormComponent(
                     textId = R.string.patient_register_phone_number,
                     textFieldId = R.string.patient_register_text_field_phone_number,
                     keyboardType = KeyboardType.Phone,
                     value = phoneNumber,
-                    onValueChange = { phoneNumber = it },
-                    singleLine = true
+                    onValueChange = onPhoneNumberChange,
+                    singleLine = true,
+                    isError = isPhoneNumberError,
+                    supportingText = {
+                        if (isPhoneNumberError) Text(text = "El número de teléfono solo debe contener dígitos")
+                    }
                 )
 
                 if (user.role == Role.PATIENT){
@@ -231,9 +326,13 @@ fun EditProfileScreen(idUser: String, userDb: UserDb){
                         textId = R.string.doctor_register_membership_number,
                         textFieldId = R.string.doctor_register_text_field_membership_number,
                         keyboardType = KeyboardType.Text,
-                        value = membership.toString(),
-                        onValueChange = { membership = it },
-                        singleLine = true
+                        value = membership,
+                        onValueChange = onMembershipChange,
+                        singleLine = true,
+                        isError = isMembershipError,
+                        supportingText = {
+                            if (isMembershipError) Text(text = "El número de colegiado solo debe contener dígitos")
+                        }
                     )
                     FormComponent(
                         textId = R.string.doctor_register_direction,
@@ -285,7 +384,18 @@ private fun PreviewPatientEditProfileScreen() {
         val userDb = UserDb()
 
         Surface {
-            EditProfileScreen("2", userDb)
+            EditProfileScreen(
+                user = userDb.getUserById("2"),
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {}
+            )
         }
     }
 }
@@ -300,7 +410,18 @@ private fun PreviewPatientEditProfileScreenDark() {
         val userDb = UserDb()
 
         Surface {
-            EditProfileScreen("2", userDb)
+            EditProfileScreen(
+                user = userDb.getUserById("2"),
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {}
+            )
         }
     }
 }
@@ -312,7 +433,18 @@ private fun PreviewDoctorEditProfileScreen() {
         val userDb = UserDb()
 
         Surface {
-            EditProfileScreen("1", userDb)
+            EditProfileScreen(
+                user = userDb.getUserById("1"),
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {}
+            )
         }
     }
 }
@@ -327,7 +459,64 @@ private fun PreviewDoctorEditProfileScreenDark() {
         val userDb = UserDb()
 
         Surface {
-            EditProfileScreen("1", userDb)
+            EditProfileScreen(
+                user = userDb.getUserById("1"),
+                password = "",
+                isPasswordError = false,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = false,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = false,
+                onPhoneNumberChange = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewDoctorEditProfileScreenError() {
+    DirectHealthTheme {
+        val userDb = UserDb()
+
+        Surface {
+            EditProfileScreen(
+                user = userDb.getUserById("1"),
+                password = "",
+                isPasswordError = true,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = true,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = true,
+                onPhoneNumberChange = {}
+            )
+        }
+    }
+}
+
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDoctorEditProfileScreenErrorDark() {
+    DirectHealthTheme {
+        val userDb = UserDb()
+
+        Surface {
+            EditProfileScreen(
+                user = userDb.getUserById("1"),
+                password = "",
+                isPasswordError = true,
+                onPasswordChange = {},
+                dpi = "",
+                isDpiError = true,
+                onDpiChange = {},
+                phoneNumber = "",
+                isPhoneNumberError = true,
+                onPhoneNumberChange = {}
+            )
         }
     }
 }
