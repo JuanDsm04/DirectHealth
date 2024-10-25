@@ -43,11 +43,12 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun PrescriptionDetailsRoute(
-    id: String,
+    prescriptionId: String,
     onNavigateBack: () -> Unit
 ) {
     val prescriptionDb = PrescriptionDb()
-    val prescription = prescriptionDb.getPrescriptionById(id)
+    val prescription = prescriptionDb.getPrescriptionById(prescriptionId)
+
     PrescriptionDetailsScreen(
         prescription = prescription,
         onNavigateBack = onNavigateBack
@@ -71,7 +72,8 @@ private fun PrescriptionDetailsScreen(
     ){
         CustomLargeTopAppBar(
             prescription.id,
-            prescription.emissionDate
+            prescription.emissionDate,
+            onNavigateBack = onNavigateBack
         )
 
         Column (
@@ -180,7 +182,7 @@ fun <T> SectionWithItems(
                 .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
                 .background(MaterialTheme.colorScheme.surface)
         ) {
-            if(items.isEmpty()){
+            if (items.isEmpty()){
                 Column (
                     modifier = Modifier
                         .fillMaxWidth()
@@ -243,7 +245,9 @@ fun CustomListItem(
 @Composable
 fun CustomLargeTopAppBar(
     prescriptionId: String,
-    prescriptionEmissionDate: LocalDate
+    prescriptionEmissionDate: LocalDate,
+    onNavigateBack: (() -> Unit)? = null,
+    onActionsClick: (() -> Unit)? = null
 ){
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
     LargeTopAppBar(
@@ -259,19 +263,23 @@ fun CustomLargeTopAppBar(
             }
         },
         navigationIcon = {
-            IconButton({}) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = stringResource(id = R.string.back_icon)
-                )
+            if (onNavigateBack != null) {
+                IconButton( onClick = onNavigateBack ) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back_icon)
+                    )
+                }
             }
         },
         actions = {
-            IconButton({/**/}) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = stringResource(id = R.string.settings_icon)
-                )
+            if (onActionsClick != null) {
+                IconButton( onClick =  onActionsClick ) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = stringResource(id = R.string.settings_icon)
+                    )
+                }
             }
         }
     )

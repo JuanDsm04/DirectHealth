@@ -1,7 +1,6 @@
 package com.uvg.directhealth.layouts.mainFlow.appointment
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,17 +19,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,10 +48,10 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun AppointmentListRoute (
-    id: String
+    userId: String
 ) {
     val userDb = UserDb()
-    val user = userDb.getUserById(id)
+    val user = userDb.getUserById(userId)
     val appointmentDb = AppointmentDb()
 
     val appointments = if (user.role == Role.DOCTOR) {
@@ -72,6 +66,7 @@ fun AppointmentListRoute (
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentListScreen(
     user: User,
@@ -82,17 +77,18 @@ fun AppointmentListScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ){
-        CustomMediumTopAppBar(
-            title = stringResource(id = R.string.appointment_list_title),
-            onActionsClick = {/* */},
-            backgroundColor = MaterialTheme.colorScheme.surface
+        TopAppBar(
+            title = {
+                Text(
+                    text = stringResource(id = R.string.appointment_list_title),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         )
 
         Box(modifier = Modifier.weight(1f)) {
             AppointmentList(appointments = appointments, isDoctor = user.role == Role.DOCTOR)
         }
-
-        CustomBottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 2)
     }
 }
 
@@ -258,77 +254,13 @@ fun AppointmentListItem(
     }
 }
 
-@Composable
-fun CustomBottomNavigationBar(
-    isDoctor: Boolean,
-    itemSelected: Int
-) {
-    var selectedItem by remember { mutableIntStateOf(itemSelected) }
-
-    NavigationBar (
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
-    ){
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_groups),
-                    contentDescription = stringResource(id = R.string.groups_icon)
-                )},
-            selected = selectedItem == 0,
-            onClick = { selectedItem = 0 },
-            label = {
-                if (!isDoctor) {
-                    Text(text = stringResource(id = R.string.nav_doctors))
-                } else {
-                    Text(text = stringResource(id = R.string.nav_patients))
-                }},
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
-            )
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_prescriptions),
-                    contentDescription = stringResource(id = R.string.prescriptions_icon)
-                )},
-            selected = selectedItem == 1,
-            onClick = { selectedItem = 1 },
-            label = { Text(text = stringResource(id = R.string.nav_prescriptions)) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
-            )
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    Icons.Filled.DateRange,
-                    contentDescription = stringResource(id = R.string.date_icon),
-                )},
-            selected = selectedItem == 2,
-            onClick = { selectedItem = 2 },
-            label = { Text(text = stringResource(id = R.string.nav_appointments)) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
-            )
-        )
-    }
-}
-
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewPatientAppointmentListScreen() {
     DirectHealthTheme {
         Surface {
             val appointmentDb = AppointmentDb()
-
             AppointmentListScreen(
                 user = User(
                     id = "2",
@@ -351,13 +283,9 @@ private fun PreviewPatientAppointmentListScreen() {
 }
 
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDoctorAppointmentListScreen() {
-
     DirectHealthTheme {
         val appointmentDb = AppointmentDb()
         Surface {
@@ -386,16 +314,12 @@ private fun PreviewDoctorAppointmentListScreen() {
 }
 
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewAppointmentListEmptyScreen() {
     DirectHealthTheme {
         Surface {
             val appointmentDb = AppointmentDb()
-
             AppointmentListScreen(
                 user = User(
                     id = "5",

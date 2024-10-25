@@ -1,8 +1,6 @@
 package com.uvg.directhealth.layouts.mainFlow.prescription.list
 
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
@@ -12,13 +10,6 @@ data class PrescriptionListDestination(
     val userId: String
 )
 
-fun NavController.navigateToPrescriptionDetailsScreen (
-    userId: String,
-    navOptions: NavOptions? = null
-) {
-
-}
-
 fun NavGraphBuilder.prescriptionListScreen (
     onPrescriptionClick: (String) -> Unit
 ) {
@@ -26,7 +17,7 @@ fun NavGraphBuilder.prescriptionListScreen (
         val destination: PrescriptionListDestination = backStackEntry.toRoute()
 
         PrescriptionListRoute(
-            id = "1",
+            userId = destination.userId,
             onPrescriptionClick = onPrescriptionClick
         )
     }

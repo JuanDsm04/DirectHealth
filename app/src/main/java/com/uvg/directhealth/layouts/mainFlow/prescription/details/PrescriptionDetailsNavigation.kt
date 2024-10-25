@@ -27,8 +27,9 @@ fun NavGraphBuilder.prescriptionDetailsScreen (
 ) {
     composable<PrescriptionDetailsDestination> { backStackEntry ->
         val destination: PrescriptionDetailsDestination = backStackEntry.toRoute()
+
         PrescriptionDetailsRoute(
-            id = destination.prescriptionId,
+            prescriptionId = destination.prescriptionId,
             onNavigateBack = onNavigateBack
         )
     }

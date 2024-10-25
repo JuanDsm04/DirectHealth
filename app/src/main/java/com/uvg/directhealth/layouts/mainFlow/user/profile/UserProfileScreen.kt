@@ -44,8 +44,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Appointment
+import com.uvg.directhealth.data.model.DoctorInfo
+import com.uvg.directhealth.data.model.PatientInfo
 import com.uvg.directhealth.data.source.AppointmentDb
 import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.data.model.Specialty
 import com.uvg.directhealth.data.model.User
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.layouts.login.CustomTopAppBar
@@ -59,9 +62,32 @@ import java.util.Locale
 import java.util.UUID
 
 @Composable
-fun UserProfileScreen(idUser: String, idUserSelected: String, userDb: UserDb, appointmentDb: AppointmentDb) {
-    val user = userDb.getUserById(idUser)
-    val userSelected = userDb.getUserById(idUserSelected)
+fun UserProfileRoute(
+    loggedUserId: String,
+    userProfileId: String,
+    createNewPrescription: (String) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    val userDb = UserDb()
+    val loggedUser = userDb.getUserById(loggedUserId)
+    val userProfile = userDb.getUserById(userProfileId)
+
+    UserProfileScreen(
+        loggedUser = loggedUser,
+        userProfile = userProfile,
+        createNewPrescription = createNewPrescription,
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@Composable
+private fun UserProfileScreen(
+    loggedUser: User,
+    userProfile: User,
+    createNewPrescription: (String) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    val appointmentDb = AppointmentDb()
 
     Column (
         modifier = Modifier
@@ -69,8 +95,7 @@ fun UserProfileScreen(idUser: String, idUserSelected: String, userDb: UserDb, ap
             .verticalScroll(rememberScrollState())
     ) {
         CustomTopAppBar(
-            onNavigationClick = { /* */ },
-            onActionsClick = { /* */ },
+            onNavigationClick = { onNavigateBack() },
             backgroundColor = MaterialTheme.colorScheme.surface
         )
         Column(
@@ -79,16 +104,16 @@ fun UserProfileScreen(idUser: String, idUserSelected: String, userDb: UserDb, ap
             verticalArrangement = Arrangement.spacedBy(20.dp),
             Alignment.CenterHorizontally,
         ) {
-            ProfileHeader(name = userSelected.name)
+            ProfileHeader(name = userProfile.name)
 
             // Patient Profile
-            if (userSelected.role == Role.PATIENT){
-                PatientProfile(userSelected)
+            if (userProfile.role == Role.PATIENT){
+                PatientProfile(userProfile, createNewPrescription)
             }
 
             // Doctor Profile
-            if (userSelected.role == Role.DOCTOR){
-                DoctorProfile(user, userSelected, appointmentDb)
+            if (userProfile.role == Role.DOCTOR){
+                DoctorProfile(loggedUser, userProfile, appointmentDb)
             }
 
         }
@@ -129,7 +154,8 @@ fun ProfileHeader(
 
 @Composable
 fun PatientProfile(
-    userSelected: User
+    userSelected: User,
+    createNewPrescription: (String) -> Unit
 ) {
     val age = LocalDate.now().year - userSelected.birthDate.year
     Box{
@@ -194,7 +220,7 @@ fun PatientProfile(
 
     CustomButton(
         text = stringResource(id = R.string.create_prescription),
-        onClick = {/**/},
+        onClick = { createNewPrescription(userSelected.id) },
         colorBackground = MaterialTheme.colorScheme.secondaryContainer,
         colorText = MaterialTheme.colorScheme.onSecondaryContainer,
         icon = Icons.Filled.Create,
@@ -448,35 +474,91 @@ fun CalendarLazyRow(idUser: String, idDoctor: String, appointmentDb: Appointment
 }
 
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewPatientUserProfileScreen() {
-    val userDb = UserDb()
-    val appointmentDb = AppointmentDb()
-
     DirectHealthTheme {
         Surface {
-            UserProfileScreen("1","2", userDb, appointmentDb)
+            UserProfileScreen(
+                loggedUser = User(
+                    id = "1",
+                    role = Role.DOCTOR,
+                    name = "Dr. Juan Pérez",
+                    email = "juan.perez@directhealth.com",
+                    password = "password123",
+                    birthDate = LocalDate.of(1975, 5, 12),
+                    dpi = "1234567890123",
+                    phoneNumber = "12345678",
+                    patientInfo = null,
+                    doctorInfo = DoctorInfo(
+                        number = 1122,
+                        address = "Calle Salud 123",
+                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
+                        specialty = Specialty.CARDIOLOGY
+                    )
+                ),
+                userProfile = User(
+                    id = "2",
+                    role = Role.PATIENT,
+                    name = "Ana Martínez",
+                    email = "ana.martinez@gmail.com",
+                    password = "password123",
+                    birthDate = LocalDate.of(1990, 2, 20),
+                    dpi = "9876543210123",
+                    phoneNumber = "87654321",
+                    patientInfo = PatientInfo(
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                    ),
+                    doctorInfo = null
+                ),
+                onNavigateBack = {},
+                createNewPrescription = {}
+            )
         }
     }
 }
 
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDoctorUserProfileScreen() {
-    val userDb = UserDb()
-    val appointmentDb = AppointmentDb()
-
     DirectHealthTheme {
         Surface {
-            UserProfileScreen("2","1", userDb, appointmentDb)
+            UserProfileScreen(
+                loggedUser = User(
+                    id = "2",
+                    role = Role.PATIENT,
+                    name = "Ana Martínez",
+                    email = "ana.martinez@gmail.com",
+                    password = "password123",
+                    birthDate = LocalDate.of(1990, 2, 20),
+                    dpi = "9876543210123",
+                    phoneNumber = "87654321",
+                    patientInfo = PatientInfo(
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                    ),
+                    doctorInfo = null
+                ),
+                userProfile = User(
+                    id = "1",
+                    role = Role.DOCTOR,
+                    name = "Dr. Juan Pérez",
+                    email = "juan.perez@directhealth.com",
+                    password = "password123",
+                    birthDate = LocalDate.of(1975, 5, 12),
+                    dpi = "1234567890123",
+                    phoneNumber = "12345678",
+                    patientInfo = null,
+                    doctorInfo = DoctorInfo(
+                        number = 1122,
+                        address = "Calle Salud 123",
+                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
+                        specialty = Specialty.CARDIOLOGY
+                    )
+                ),
+                onNavigateBack = {},
+                createNewPrescription = {}
+            )
         }
     }
 }

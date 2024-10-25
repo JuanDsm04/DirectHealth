@@ -211,7 +211,7 @@ private fun RegisterScreen(
                     },
                     isError = isPasswordError,
                     supportingText = {
-                        if (isPasswordError) Text(text = "La contraseña debe tener más de 8 caracteres")
+                        if (isPasswordError) Text(text = stringResource(id = R.string.password_format_error))
                     }
                 )
                 FormComponent(
@@ -243,7 +243,7 @@ private fun RegisterScreen(
                     singleLine = true,
                     isError = isDpiError,
                     supportingText = {
-                        if (isDpiError) Text("El DPI solo debe contener dígitos")
+                        if (isDpiError) Text(stringResource(id = R.string.dpi_format_error))
                     }
                 )
                 FormComponent(
@@ -255,7 +255,7 @@ private fun RegisterScreen(
                     singleLine = true,
                     isError = isPhoneNumberError,
                     supportingText = {
-                        if (isPhoneNumberError) Text("El número de teléfono solo debe contener dígitos")
+                        if (isPhoneNumberError) Text(stringResource(id = R.string.phone_format_error))
                     }
                 )
 
@@ -281,7 +281,7 @@ private fun RegisterScreen(
                         singleLine = true,
                         isError = isMembershipError,
                         supportingText = {
-                            if (isMembershipError) Text("El número de colegiado solo debe contener dígitos")
+                            if (isMembershipError) Text(stringResource(id = R.string.membership_format_error))
                         }
                     )
                     FormComponent(

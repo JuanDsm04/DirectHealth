@@ -3,10 +3,14 @@ package com.uvg.directhealth.layouts.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.uvg.directhealth.layouts.login.LoginDestination
 import com.uvg.directhealth.layouts.login.loginScreen
+import com.uvg.directhealth.layouts.mainFlow.mainNavigationGraph
+import com.uvg.directhealth.layouts.mainFlow.navigateToMainGraph
+import com.uvg.directhealth.layouts.register.RegisterDestination
 import com.uvg.directhealth.layouts.register.navigateToRegisterScreen
 import com.uvg.directhealth.layouts.register.registerScreen
 import com.uvg.directhealth.layouts.roleRegister.RoleRegisterDestination
@@ -33,7 +37,14 @@ fun AppNavigation(
             }
         )
         loginScreen(
-            onLogIn = {},
+            onLogIn = {
+                navController.navigateToMainGraph(
+                    navOptions = NavOptions.Builder().setPopUpTo<LoginDestination>(
+                        inclusive = true
+                    ).build(),
+                    userId = "1" // Flujo de la app para un usuario de tipo médico
+                )
+            },
             onRegister = {
                 navController.navigate(RoleRegisterDestination)
             },
@@ -53,7 +64,21 @@ fun AppNavigation(
             onBackNavigation = {
                 navController.navigateUp()
             },
-            onConfirmRegistration = {}
+            onConfirmRegistration = {
+                navController.navigateToMainGraph(
+                    navOptions = NavOptions.Builder().setPopUpTo<RegisterDestination>(
+                        inclusive = true
+                    ).build(),
+                    userId = "2" // Flujo de la app para un usuario de tipo paciente
+                )
+            }
+        )
+        mainNavigationGraph(
+            onLogOutClick = {
+                navController.navigate(LoginDestination) {
+                    popUpTo(0)
+                }
+            }
         )
     }
 }

@@ -178,7 +178,7 @@ private fun LoginScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     isError = isError,
                     supportingText = {
-                        if (isError) Text(text = "El correo o la contraseña son incorrectos")
+                        if (isError) Text(text = stringResource(id = R.string.login_error))
                     }
                 )
 

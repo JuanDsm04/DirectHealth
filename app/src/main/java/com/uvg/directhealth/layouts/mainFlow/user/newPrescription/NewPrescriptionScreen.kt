@@ -1,6 +1,5 @@
 package com.uvg.directhealth.layouts.mainFlow.user.newPrescription
 
-import com.uvg.directhealth.data.model.Prescription
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -35,33 +34,47 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import com.uvg.directhealth.data.model.DoctorInfo
+import com.uvg.directhealth.data.model.Medication
+import com.uvg.directhealth.data.model.PatientInfo
+import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.data.model.Specialty
+import com.uvg.directhealth.data.model.User
 import com.uvg.directhealth.layouts.mainFlow.prescription.details.CustomListItem
 
 @Composable
-private fun NewPrescriptionRoute(
-    prescriptionId: String
+fun NewPrescriptionRoute(
+    loggedUserId: String,
+    userProfileId: String,
+    onNavigateBack: () -> Unit
 ) {
+    val userDb = UserDb()
+    val loggedUser = userDb.getUserById(loggedUserId)
+    val userPatient = userDb.getUserById(userProfileId)
     val isError by remember { mutableStateOf(false) }
-    val prescription = PrescriptionDb().getPrescriptionById(prescriptionId)
     
-    NewPrescription(
-        prescription = prescription,
-        userDb = UserDb(),
-        isError = isError
+    NewPrescriptionScreen(
+        loggedUser = loggedUser,
+        userPatient = userPatient,
+        isError = isError,
+        onNavigateBack = onNavigateBack
     )
 }
 
 @Composable
-fun NewPrescription(
-    prescription: Prescription,
-    userDb: UserDb,
-    isError: Boolean
+private fun NewPrescriptionScreen(
+    loggedUser: User,
+    userPatient: User,
+    isError: Boolean,
+    onNavigateBack: () -> Unit
 ){
-    val user = userDb.getUserById(prescription.patientId)
-    val age = LocalDate.now().year - user.birthDate.year
+    val age = LocalDate.now().year - userPatient.birthDate.year
     var nameMedicine by remember { mutableStateOf("") }
     var descriptionMedicine by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+
+    val medicationList = remember { mutableStateListOf<Medication>() }
+    val noteList = remember { mutableStateListOf<String>() }
 
     Column (
         modifier = Modifier
@@ -71,8 +84,7 @@ fun NewPrescription(
     ){
         CustomMediumTopAppBar(
             title = stringResource(id = R.string.new_prescription),
-            onNavigationClick = {/**/},
-            onActionsClick = {/**/},
+            onNavigationClick = { onNavigateBack() },
             backgroundColor = MaterialTheme.colorScheme.surface
         )
 
@@ -102,7 +114,7 @@ fun NewPrescription(
                             )
                         )
                         Text(
-                            text = user.name,
+                            text = userPatient.name,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -129,7 +141,7 @@ fun NewPrescription(
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
                         .background(MaterialTheme.colorScheme.surface)
                 ) {
-                    MedicationList(prescription = prescription)
+                    MedicationList(medicationList)
 
                     Spacer(modifier = Modifier.height(1.dp))
 
@@ -151,7 +163,7 @@ fun NewPrescription(
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
                         .background(MaterialTheme.colorScheme.surface)
                 ){
-                    NoteList(prescription = prescription)
+                    NoteList(noteList)
 
                     Spacer(modifier = Modifier.height(1.dp))
 
@@ -209,14 +221,14 @@ fun NewPrescription(
 
 @Composable
 fun MedicationList(
-    prescription: Prescription
+    medicationList: List<Medication>
 ){
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
-        prescription.medicationList.forEach { item ->
+        medicationList.forEach { item ->
             CustomListItem(
                 title = item.name,
                 content = item.description
@@ -227,14 +239,14 @@ fun MedicationList(
 
 @Composable
 fun NoteList(
-    prescription: Prescription
+    noteList: List<String>
 ){
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface),
         verticalArrangement = Arrangement.spacedBy(1.dp)
     ) {
-        prescription.notes.forEach { item ->
+        noteList.forEach { item ->
             CustomListItem(
                 content = item
             )
@@ -364,70 +376,45 @@ fun NoteForm(
 }
 
 @Preview(showBackground = true)
-@Composable
-private fun PreviewNewPrescriptionScreen() {
-    val prescriptionDb = PrescriptionDb()
-
-    DirectHealthTheme {
-        Surface {
-            NewPrescription(
-                prescriptionDb.getPrescriptionById("1"),
-                UserDb(),
-                isError = false
-            )
-        }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-private fun PreviewNewPrescriptionScreenDark() {
-    val prescriptionDb = PrescriptionDb()
-    val userDb = UserDb()
-
-    DirectHealthTheme {
-        Surface {
-            NewPrescription(
-                prescriptionDb.getPrescriptionById("1"),
-                UserDb(),
-                isError = false
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewNewPrescriptionEmptyScreen() {
-    val prescriptionDb = PrescriptionDb()
-    val userDb = UserDb()
-
-    DirectHealthTheme {
-        Surface {
-            NewPrescription(
-                prescriptionDb.getPrescriptionById("3"),
-                UserDb(),
-                isError = true
-            )
-        }
-    }
-}
-
 @Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewNewPrescriptionEmptyScreenDark() {
-    val prescriptionDb = PrescriptionDb()
-    val userDb = UserDb()
-
+private fun PreviewNewPrescriptionScreen() {
     DirectHealthTheme {
         Surface {
-            NewPrescription(
-                prescriptionDb.getPrescriptionById("3"),
-                UserDb(),
-                isError = true
+            NewPrescriptionScreen(
+                loggedUser = User(
+                    id = "1",
+                    role = Role.DOCTOR,
+                    name = "Dr. Juan Pérez",
+                    email = "juan.perez@directhealth.com",
+                    password = "password123",
+                    birthDate = LocalDate.of(1975, 5, 12),
+                    dpi = "1234567890123",
+                    phoneNumber = "12345678",
+                    patientInfo = null,
+                    doctorInfo = DoctorInfo(
+                        number = 1122,
+                        address = "Calle Salud 123",
+                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
+                        specialty = Specialty.CARDIOLOGY
+                    )
+                ),
+                userPatient = User(
+                    id = "2",
+                    role = Role.PATIENT,
+                    name = "Ana Martínez",
+                    email = "ana.martinez@gmail.com",
+                    password = "password123",
+                    birthDate = LocalDate.of(1990, 2, 20),
+                    dpi = "9876543210123",
+                    phoneNumber = "87654321",
+                    patientInfo = PatientInfo(
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                    ),
+                    doctorInfo = null
+                ),
+                isError = false,
+                onNavigateBack = {}
             )
         }
     }

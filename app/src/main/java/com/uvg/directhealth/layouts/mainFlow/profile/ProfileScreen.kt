@@ -8,8 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -34,11 +36,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
@@ -58,7 +58,9 @@ import java.util.Locale
 
 @Composable
 fun ProfileRoute(
-    userId: String
+    userId: String,
+    onLogOut: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val user = UserDb().getUserById(userId)
 
@@ -100,7 +102,9 @@ fun ProfileRoute(
             onMembershipChange = {
                 membership = it
                 isMembershipError = !membership.isDigitsOnly()
-            }
+            },
+            onLogOut = onLogOut,
+            onNavigateBack = onNavigateBack
         )
 
     } else {
@@ -123,7 +127,9 @@ fun ProfileRoute(
             onPhoneNumberChange = {
                 phoneNumber = it
                 isPhoneNumberError = !phoneNumber.isDigitsOnly()
-            }
+            },
+            onLogOut = onLogOut,
+            onNavigateBack = onNavigateBack
         )
     }
 }
@@ -142,7 +148,9 @@ private fun ProfileScreen(
     onPhoneNumberChange: (String) -> Unit,
     membership: String = "",
     isMembershipError: Boolean = false,
-    onMembershipChange: ((String) -> Unit) = {}
+    onMembershipChange: ((String) -> Unit) = {},
+    onLogOut: () -> Unit,
+    onNavigateBack: () -> Unit
 ){
     val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -181,7 +189,7 @@ private fun ProfileScreen(
     ){
         CustomMediumTopAppBar(
             title = stringResource(R.string.my_profile),
-            onNavigationClick = {/*TODO*/}
+            onNavigationClick = { onNavigateBack() }
         )
 
         Box(
@@ -201,17 +209,14 @@ private fun ProfileScreen(
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f))
                 )
-                Text(
-                    text = stringResource(id = R.string.edit_profile_photo),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .clickable { }
+                Spacer(modifier = Modifier.height(10.dp))
+                CustomButton(
+                    text = stringResource(id = R.string.log_out),
+                    onClick = { onLogOut() },
+                    colorBackground = MaterialTheme.colorScheme.errorContainer,
+                    colorText = MaterialTheme.colorScheme.onErrorContainer
                 )
+                Spacer(modifier = Modifier.height(10.dp))
             }
         }
 
@@ -263,7 +268,7 @@ private fun ProfileScreen(
                     },
                     isError = isPasswordError,
                     supportingText = {
-                        if (isPasswordError) Text(text = "La contraseña debe tener más de 8 caracteres")
+                        if (isPasswordError) Text(text = stringResource(id = R.string.password_format_error))
                     }
                 )
                 FormComponent(
@@ -294,7 +299,7 @@ private fun ProfileScreen(
                     singleLine = true,
                     isError = isDpiError,
                     supportingText = {
-                        if (isDpiError) Text(text = "El DPI solo debe contener dígitos")
+                        if (isDpiError) Text(text = stringResource(id = R.string.dpi_format_error))
                     }
                 )
                 FormComponent(
@@ -306,7 +311,7 @@ private fun ProfileScreen(
                     singleLine = true,
                     isError = isPhoneNumberError,
                     supportingText = {
-                        if (isPhoneNumberError) Text(text = "El número de teléfono solo debe contener dígitos")
+                        if (isPhoneNumberError) Text(text = stringResource(id = R.string.phone_format_error))
                     }
                 )
 
@@ -331,7 +336,7 @@ private fun ProfileScreen(
                         singleLine = true,
                         isError = isMembershipError,
                         supportingText = {
-                            if (isMembershipError) Text(text = "El número de colegiado solo debe contener dígitos")
+                            if (isMembershipError) Text(text = stringResource(id = R.string.membership_format_error))
                         }
                     )
                     FormComponent(
@@ -366,8 +371,8 @@ private fun ProfileScreen(
                 }
 
                 CustomButton(
-                    text = stringResource(id = R.string.register_button),
-                    onClick = { /*TODO*/ },
+                    text = stringResource(id = R.string.edit),
+                    onClick = { /*TODO*/},
                     colorBackground = MaterialTheme.colorScheme.primary,
                     maxWidth = true,
                     colorText = MaterialTheme.colorScheme.onPrimary
@@ -378,10 +383,7 @@ private fun ProfileScreen(
 }
 
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewPatientProfileScreen() {
     DirectHealthTheme {
@@ -398,17 +400,16 @@ private fun PreviewPatientProfileScreen() {
                 onDpiChange = {},
                 phoneNumber = "",
                 isPhoneNumberError = false,
-                onPhoneNumberChange = {}
+                onPhoneNumberChange = {},
+                onNavigateBack = {},
+                onLogOut = {}
             )
         }
     }
 }
 
 @Preview(showBackground = true)
-@Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PreviewDoctorProfileScreen() {
     DirectHealthTheme {
@@ -425,7 +426,9 @@ private fun PreviewDoctorProfileScreen() {
                 onDpiChange = {},
                 phoneNumber = "",
                 isPhoneNumberError = false,
-                onPhoneNumberChange = {}
+                onPhoneNumberChange = {},
+                onLogOut = {},
+                onNavigateBack = {}
             )
         }
     }
@@ -449,7 +452,9 @@ private fun PreviewDoctorEditProfileScreenError() {
                 onDpiChange = {},
                 phoneNumber = "",
                 isPhoneNumberError = true,
-                onPhoneNumberChange = {}
+                onPhoneNumberChange = {},
+                onLogOut = {},
+                onNavigateBack = {}
             )
         }
     }

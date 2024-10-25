@@ -1,8 +1,6 @@
 package com.uvg.directhealth.layouts.mainFlow.user.directory
 
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
@@ -12,19 +10,14 @@ data class UserDirectoryDestination(
     val userId: String
 )
 
-fun NavController.navigateToUserProfileScreen(
-    userId: String,
-    navOptions: NavOptions? = null
-){
-
-}
-
 fun NavGraphBuilder.userDirectoryScreen(
     onUserClick: (String) -> Unit
 ) {
-    composable<UserDirectoryDestination> {
+    composable<UserDirectoryDestination> { backStackEntry ->
+        val destination: UserDirectoryDestination = backStackEntry.toRoute()
+
         UserDirectoryRoute(
-            id = "1",
+            userId = destination.userId,
             onUserClick = onUserClick
         )
     }

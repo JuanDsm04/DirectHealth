@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,7 +35,6 @@ import com.uvg.directhealth.data.model.Specialty
 import com.uvg.directhealth.data.model.User
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.data.source.PrescriptionDb
-import com.uvg.directhealth.layouts.mainFlow.appointment.CustomBottomNavigationBar
 import com.uvg.directhealth.layouts.mainFlow.appointment.CustomMediumTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDate
@@ -41,17 +42,17 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun PrescriptionListRoute (
-    id: String,
+    userId: String,
     onPrescriptionClick: (String) -> Unit
 ) {
     val userDb = UserDb()
-    val user = userDb.getUserById(id)
+    val user = userDb.getUserById(userId)
     val prescriptionDb = PrescriptionDb()
 
     val prescriptions = if (user.role == Role.DOCTOR) {
-        prescriptionDb.getPrescriptionsByDoctorId(id)
+        prescriptionDb.getPrescriptionsByDoctorId(userId)
     } else {
-        prescriptionDb.getPrescriptionsByPatientId(id)
+        prescriptionDb.getPrescriptionsByPatientId(userId)
     }
 
     PrescriptionListScreen(
@@ -61,6 +62,7 @@ fun PrescriptionListRoute (
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PrescriptionListScreen(
     user: User,
@@ -72,17 +74,18 @@ private fun PrescriptionListScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
     ){
-        CustomMediumTopAppBar(
-            title = stringResource(id = R.string.prescription_list_title),
-            onActionsClick = {/* */},
-            backgroundColor = MaterialTheme.colorScheme.surface
+        TopAppBar(
+            title = {
+                Text(
+                    text = stringResource(id = R.string.prescription_list_title),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
         )
 
         Box(modifier = Modifier.weight(1f)) {
             PrescriptionList(prescriptions = prescriptions, onPrescriptionClick = onPrescriptionClick, isDoctor = user.role == Role.DOCTOR)
         }
-
-        CustomBottomNavigationBar(isDoctor = user.role == Role.DOCTOR, 1)
     }
 }
 

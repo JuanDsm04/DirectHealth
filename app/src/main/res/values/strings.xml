@@ -164,4 +164,9 @@
     <string name="welcome_img">Welcome image</string>
     <string name="user_img">User image</string>
 
+    <string name="password_format_error">La contraseña debe tener más de 8 caracteres</string>
+    <string name="dpi_format_error">El DPI solo debe contener dígitos</string>
+    <string name="phone_format_error">El número de teléfono solo debe contener dígitos</string>
+    <string name="membership_format_error">El número de colegiado solo debe contener dígitos</string>
+    <string name="login_error">El correo o la contraseña son incorrectos</string>
 </resources>

@@ -41,9 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Role
 import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.source.AppointmentDb
 import com.uvg.directhealth.data.source.UserDb
-import com.uvg.directhealth.layouts.mainFlow.appointment.CustomBottomNavigationBar
 import com.uvg.directhealth.layouts.login.CustomTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import androidx.compose.material3.SearchBar
@@ -57,11 +55,11 @@ import java.time.LocalDate
 
 @Composable
 fun UserDirectoryRoute(
-    id: String,
+    userId: String,
     onUserClick: (String) -> Unit
 ) {
     val userDb = UserDb()
-    val user = userDb.getUserById(id)
+    val user = userDb.getUserById(userId)
     val users = if (user.role == Role.DOCTOR) {
         userDb.getPatientsByDoctorId(user.id)
     } else {
@@ -86,6 +84,7 @@ private fun UserDirectoryScreen(
 
     val usersList = if (user.role == Role.DOCTOR) {
         users.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
     } else {
         users.filter { doctor ->
             (selectedSpecialty == null || doctor.doctorInfo?.specialty == selectedSpecialty) &&
@@ -97,11 +96,6 @@ private fun UserDirectoryScreen(
         modifier = Modifier
             .fillMaxSize()
     ){
-        CustomTopAppBar(
-            onActionsClick = {/*TODO*/},
-            backgroundColor = MaterialTheme.colorScheme.surface
-        )
-
         Column (
             modifier = Modifier
                 .padding(horizontal = 20.dp)
@@ -126,7 +120,6 @@ private fun UserDirectoryScreen(
                     onSpecialtySelected = { selected -> selectedSpecialty = selected }
                 )
             }
-
             Spacer(modifier = Modifier.height(10.dp))
         }
 
@@ -140,7 +133,7 @@ private fun UserDirectoryScreen(
         ) {
             if (usersList.isNotEmpty()) {
                 LazyColumn {
-                    items(users) { item ->
+                    items(usersList) { item ->
                         UserCard(
                             user = item,
                             onUserClick
@@ -176,8 +169,6 @@ private fun UserDirectoryScreen(
                 }
             }
         }
-
-        CustomBottomNavigationBar(isDoctor = user.role == Role.DOCTOR, itemSelected = 0)
     }
 }
 
@@ -375,7 +366,6 @@ private fun PreviewPatientUserDirectoryScreen() {
     DirectHealthTheme {
         Surface {
             val userDb = UserDb()
-            val appointmentDb = AppointmentDb()
 
             UserDirectoryScreen(
                 user = User(
@@ -393,7 +383,6 @@ private fun PreviewPatientUserDirectoryScreen() {
                     doctorInfo = null
                 ),
                 users = userDb.getAllDoctors(),
-                //appointments = appointmentDb.getAllAppointments(),
                 onUserClick = { }
             )
         }
