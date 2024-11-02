@@ -19,7 +19,7 @@ fun NavController.navigateToMainGraph(
 ) {
     this.navigate(
         MainNavigationGraph(userId = userId),
-        navOptions,
+        navOptions
     )
 }
 

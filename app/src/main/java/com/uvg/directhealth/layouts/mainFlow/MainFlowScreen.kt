@@ -100,7 +100,7 @@ fun MainFlowScreen (
         ) {
             userGraph(navController, userId)
             prescriptionGraph(navController, userId)
-            appointmentListScreen(userId)
+            appointmentListScreen()
             profileScreen(
                 onNavigateBack = { navController.navigateUp() },
                 onLogOut = onLogOutClick

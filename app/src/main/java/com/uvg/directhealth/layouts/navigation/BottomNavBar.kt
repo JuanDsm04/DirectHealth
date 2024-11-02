@@ -70,11 +70,11 @@ fun BottomNavBar(
                 indicatorColor = MaterialTheme.colorScheme.tertiaryContainer
             )
         )
-        val isItemSelected3 = checkItemSelected(AppointmentListDestination)
+        val isItemSelected3 = checkItemSelected(AppointmentListDestination(userId))
         NavigationBarItem(
             selected = isItemSelected3,
             label = { Text(text = stringResource(id = R.string.nav_appointments)) },
-            onClick = { onNavItemClick(AppointmentListDestination) },
+            onClick = { onNavItemClick(AppointmentListDestination(userId)) },
             icon = {
                 Icon(
                     Icons.Filled.DateRange,

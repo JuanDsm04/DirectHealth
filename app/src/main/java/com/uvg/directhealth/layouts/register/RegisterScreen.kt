@@ -47,7 +47,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Role
 import com.uvg.directhealth.data.model.Specialty
@@ -58,85 +59,76 @@ import java.util.Calendar
 @Composable
 fun RegisterRoute(
     role: Role,
+    viewModel: RegisterViewModel = viewModel(),
     onBackNavigation: () -> Unit,
     onConfirmRegistration: () -> Unit
 ) {
-    var isPasswordError by remember { mutableStateOf(false) }
-    var password by remember { mutableStateOf("") }
-
-    var dpi by remember { mutableStateOf("") }
-    var isDpiError by remember { mutableStateOf(false) }
-
-    var phoneNumber by remember { mutableStateOf("") }
-    var isPhoneNumberError by remember { mutableStateOf(false) }
-
-    var membership by remember { mutableStateOf("") }
-    var isMembershipError by remember { mutableStateOf(false) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     RegisterScreen(
+        state = state,
         role = role,
         onBackNavigation = onBackNavigation,
         onConfirmRegistration = onConfirmRegistration,
-        password = password,
-        isPasswordError = isPasswordError,
+        onNameChange = {
+            viewModel.onEvent(RegisterEvent.NameChange(it))
+        },
+        onEmailChange = {
+            viewModel.onEvent(RegisterEvent.EmailChange(it))
+        },
         onPasswordChange = {
-            password = it
-            isPasswordError = password.length <= 8
+            viewModel.onEvent(RegisterEvent.PasswordChange(it))
         },
-        dpi = dpi,
-        isDpiError = isDpiError,
+        onPasswordVisibleChange = {
+            viewModel.onEvent(RegisterEvent.PasswordVisibleChange)
+        },
+        onBirthDateChange = {
+            viewModel.onEvent(RegisterEvent.BirthDateChange(it))
+        },
         onDpiChange = {
-            dpi = it
-            isDpiError = !dpi.isDigitsOnly()
+            viewModel.onEvent(RegisterEvent.DpiChange(it))
         },
-        phoneNumber = phoneNumber,
-        isPhoneNumberError = isPhoneNumberError,
         onPhoneNumberChange = {
-            phoneNumber = it
-            isPhoneNumberError = !phoneNumber.isDigitsOnly()
+            viewModel.onEvent(RegisterEvent.PhoneNumberChange(it))
         },
-        membership = membership,
-        isMembershipError = isMembershipError,
+        onMedicalHistoryChange = {
+            viewModel.onEvent(RegisterEvent.MedicalHistoryChange(it))
+        },
         onMembershipChange = {
-            membership = it
-            isMembershipError = !membership.isDigitsOnly()
+            viewModel.onEvent(RegisterEvent.MembershipChange(it))
+        },
+        onAddressChange = {
+            viewModel.onEvent(RegisterEvent.AddressChange(it))
+        },
+        onExperienceChange = {
+            viewModel.onEvent(RegisterEvent.ExperienceChange(it))
         }
     )
 }
 
 @Composable
 private fun RegisterScreen(
+    state: RegisterState,
     role: Role,
+    onNameChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onBirthDateChange: (String) -> Unit,
+    onDpiChange: (String) -> Unit,
+    onPhoneNumberChange: (String) -> Unit,
+    onMedicalHistoryChange: (String) -> Unit,
+    onMembershipChange: (String) -> Unit,
+    onAddressChange: (String) -> Unit,
+    onExperienceChange: (String) -> Unit,
+    onPasswordVisibleChange: () -> Unit,
     onBackNavigation: () -> Unit,
     onConfirmRegistration: () -> Unit,
-    password: String,
-    isPasswordError: Boolean,
-    onPasswordChange: (String) -> Unit,
-    dpi: String,
-    isDpiError: Boolean,
-    onDpiChange: (String) -> Unit,
-    phoneNumber: String,
-    isPhoneNumberError: Boolean,
-    onPhoneNumberChange: (String) -> Unit,
-    membership: String,
-    isMembershipError: Boolean,
-    onMembershipChange: (String) -> Unit,
 ){
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var birthdate by remember { mutableStateOf("") }
-
-    var medicalHistory by remember { mutableStateOf("") }
-
-    var direction by remember { mutableStateOf("") }
-    var experience by remember { mutableStateOf("") }
-
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
         LocalContext.current,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            birthdate = "$dayOfMonth/${month + 1}/$year"
+            state.birthDate = "$dayOfMonth/${month + 1}/$year"
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -176,32 +168,34 @@ private fun RegisterScreen(
                     textId = R.string.patient_register_name,
                     textFieldId = R.string.patient_register_text_field_name,
                     keyboardType = KeyboardType.Text,
-                    value = name,
-                    onValueChange = { name = it },
+                    value = state.name,
+                    onValueChange = onNameChange,
                     singleLine = true,
                     isError = false
                 )
+
                 FormComponent(
                     textId = R.string.patient_register_email,
                     textFieldId = R.string.patient_register_text_field_email,
                     keyboardType = KeyboardType.Email,
-                    value = email,
-                    onValueChange = { email = it },
+                    value = state.email,
+                    onValueChange = onEmailChange,
                     singleLine = true,
                     isError = false
                 )
+
                 FormComponent(
                     textId = R.string.patient_register_password,
                     textFieldId = R.string.patient_register_text_field_password,
                     keyboardType = KeyboardType.Password,
-                    value = password,
+                    value = state.password,
                     onValueChange = onPasswordChange,
                     singleLine = true,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val imageResource = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                        val imageResource = if (state.isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
 
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = onPasswordVisibleChange) {
                             Icon(
                                 painter = painterResource(id = imageResource),
                                 contentDescription = null,
@@ -209,17 +203,18 @@ private fun RegisterScreen(
                             )
                         }
                     },
-                    isError = isPasswordError,
+                    isError = state.hasPasswordError,
                     supportingText = {
-                        if (isPasswordError) Text(text = stringResource(id = R.string.password_format_error))
+                        if (state.hasPasswordError) Text(text = stringResource(id = R.string.password_format_error))
                     }
                 )
+
                 FormComponent(
                     textId = R.string.patient_register_birthdate,
                     textFieldId = R.string.patient_register_text_field_birthdate,
                     keyboardType = KeyboardType.Text,
-                    value = birthdate,
-                    onValueChange = { birthdate = it },
+                    value = state.birthDate,
+                    onValueChange = onBirthDateChange,
                     singleLine = true,
                     readOnly = true,
                     trailingIcon = {
@@ -234,28 +229,30 @@ private fun RegisterScreen(
                     },
                     isError = false
                 )
+
                 FormComponent(
                     textId = R.string.patient_register_dpi,
                     textFieldId = R.string.patient_register_text_field_dpi,
                     keyboardType = KeyboardType.Phone,
-                    value = dpi,
+                    value = state.dpi,
                     onValueChange = onDpiChange,
                     singleLine = true,
-                    isError = isDpiError,
+                    isError = state.hasDpiError,
                     supportingText = {
-                        if (isDpiError) Text(stringResource(id = R.string.dpi_format_error))
+                        if (state.hasDpiError) Text(stringResource(id = R.string.dpi_format_error))
                     }
                 )
+
                 FormComponent(
                     textId = R.string.patient_register_phone_number,
                     textFieldId = R.string.patient_register_text_field_phone_number,
                     keyboardType = KeyboardType.Phone,
-                    value = phoneNumber,
+                    value = state.phoneNumber,
                     onValueChange = onPhoneNumberChange,
                     singleLine = true,
-                    isError = isPhoneNumberError,
+                    isError = state.hasPhoneNumberError,
                     supportingText = {
-                        if (isPhoneNumberError) Text(stringResource(id = R.string.phone_format_error))
+                        if (state.hasPhoneNumberError) Text(stringResource(id = R.string.phone_format_error))
                     }
                 )
 
@@ -264,8 +261,8 @@ private fun RegisterScreen(
                         textId = R.string.patient_register_medical_history,
                         textFieldId = R.string.patient_register_text_field_medical_history,
                         keyboardType = KeyboardType.Text,
-                        value = medicalHistory,
-                        onValueChange = { medicalHistory = it },
+                        value = state.medicalHistory,
+                        onValueChange = onMedicalHistoryChange,
                         singleLine = false,
                         isError = false
                     )
@@ -276,30 +273,33 @@ private fun RegisterScreen(
                         textId = R.string.doctor_register_membership_number,
                         textFieldId = R.string.doctor_register_text_field_membership_number,
                         keyboardType = KeyboardType.Text,
-                        value = membership,
+                        value = state.membership,
                         onValueChange = onMembershipChange,
                         singleLine = true,
-                        isError = isMembershipError,
+                        isError = state.hasMembershipError,
                         supportingText = {
-                            if (isMembershipError) Text(stringResource(id = R.string.membership_format_error))
+                            if (state.hasMembershipError) Text(stringResource(id = R.string.membership_format_error))
                         }
                     )
+
                     FormComponent(
                         textId = R.string.doctor_register_direction,
                         textFieldId = R.string.doctor_register_text_field_direction,
                         keyboardType = KeyboardType.Text,
-                        value = direction,
-                        onValueChange = { direction = it },
+                        value = state.address,
+                        onValueChange = onAddressChange,
                         singleLine = true
                     )
+
                     FormComponent(
                         textId = R.string.doctor_register_professional_experience,
                         textFieldId = R.string.doctor_register_text_field_professional_experience,
                         keyboardType = KeyboardType.Text,
-                        value = experience,
-                        onValueChange = { experience = it },
+                        value = state.experience,
+                        onValueChange = onExperienceChange,
                         singleLine = false
                     )
+
                     FormComponent(
                         textId = R.string.doctor_register_specialty,
                         textFieldId = R.string.doctor_register_text_field_specialty,
@@ -316,6 +316,7 @@ private fun RegisterScreen(
                         }
                     )
                 }
+
                 CustomButton(
                     text = stringResource(id = R.string.register_button),
                     onClick = { onConfirmRegistration() },
@@ -480,74 +481,20 @@ private fun PreviewPatientRegisterScreen() {
         Surface {
             RegisterScreen(
                 role = Role.PATIENT,
-                onBackNavigation = {},
-                onConfirmRegistration = {},
-                password = "",
-                isPasswordError = false,
-                onPasswordChange = {},
-                dpi = "",
-                isDpiError = false,
+                state = RegisterState(),
+                onAddressChange = {},
+                onMedicalHistoryChange = {},
+                onEmailChange = {},
+                onNameChange = {},
+                onBirthDateChange = {},
                 onDpiChange = {},
-                phoneNumber = "",
-                isPhoneNumberError = false,
-                onPhoneNumberChange = {},
-                membership = "",
-                isMembershipError = false,
-                onMembershipChange = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewDoctorRegisterScreen() {
-    DirectHealthTheme {
-        Surface {
-            RegisterScreen(
-                Role.DOCTOR,
-                onBackNavigation = {},
-                onConfirmRegistration = {},
-                password = "",
-                isPasswordError = false,
                 onPasswordChange = {},
-                dpi = "",
-                isDpiError = false,
-                onDpiChange = {},
-                phoneNumber = "",
-                isPhoneNumberError = false,
+                onMembershipChange = {},
                 onPhoneNumberChange = {},
-                membership = "",
-                isMembershipError = false,
-                onMembershipChange = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewRegisterErrorScreen() {
-    DirectHealthTheme {
-        Surface {
-            RegisterScreen(
-                Role.PATIENT,
-                onBackNavigation = {},
+                onPasswordVisibleChange = {},
                 onConfirmRegistration = {},
-                password = "",
-                isPasswordError = true,
-                onPasswordChange = {},
-                dpi = "",
-                isDpiError = true,
-                onDpiChange = {},
-                phoneNumber = "",
-                isPhoneNumberError = true,
-                onPhoneNumberChange = {},
-                membership = "",
-                isMembershipError = true,
-                onMembershipChange = {}
+                onBackNavigation = {},
+                onExperienceChange = {}
             )
         }
     }

@@ -5,12 +5,12 @@ import androidx.navigation.compose.composable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object AppointmentListDestination
+data class AppointmentListDestination(
+    val userId: String
+)
 
-fun NavGraphBuilder.appointmentListScreen(
-    userId: String
-) {
+fun NavGraphBuilder.appointmentListScreen() {
     composable<AppointmentListDestination> {
-        AppointmentListRoute(userId = userId)
+        AppointmentListRoute()
     }
 }

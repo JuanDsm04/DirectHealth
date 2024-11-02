@@ -30,9 +30,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
 import com.uvg.directhealth.layouts.welcome.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
@@ -55,26 +54,21 @@ import com.uvg.directhealth.ui.theme.DirectHealthTheme
 fun LoginRoute(
     onLogIn: () -> Unit,
     onRegister: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var isError by remember { mutableStateOf(false) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LoginScreen(
-        email =  email,
-        password = password,
-        isPasswordVisible = isPasswordVisible,
-        isError = isError,
+        state = state,
         onEmailChange = {
-            email = it
+            viewModel.onEvent(LoginEvent.EmailChange(it))
         },
         onPasswordChange = {
-            password = it
+            viewModel.onEvent(LoginEvent.PasswordChange(it))
         },
         onIsPasswordVisibleChange = {
-            isPasswordVisible = !isPasswordVisible
+            viewModel.onEvent(LoginEvent.IsPasswordVisibleChange)
         },
         onLogIn = onLogIn,
         onRegister = onRegister,
@@ -84,10 +78,7 @@ fun LoginRoute(
 
 @Composable
 private fun LoginScreen(
-    email: String,
-    password: String,
-    isPasswordVisible: Boolean,
-    isError: Boolean,
+    state: LoginState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onIsPasswordVisibleChange: () -> Unit,
@@ -138,7 +129,7 @@ private fun LoginScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 OutlinedTextField(
-                    value = email,
+                    value = state.email,
                     onValueChange = onEmailChange,
                     label = {
                         Text(text = stringResource(id = R.string.enter_email))
@@ -148,11 +139,11 @@ private fun LoginScreen(
                         .padding(10.dp),
                     shape = RoundedCornerShape(16.dp),
                     singleLine = true,
-                    isError = isError
+                    isError = state.hasError
                 )
 
                 OutlinedTextField(
-                    value = password,
+                    value = state.password,
                     onValueChange = onPasswordChange,
                     label = {
                         Text(text = stringResource(id = R.string.enter_password))
@@ -162,10 +153,10 @@ private fun LoginScreen(
                         .padding(10.dp),
                     shape = RoundedCornerShape(16.dp),
                     singleLine = true,
-                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
-                        val imageResource = if (isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                        val imageDescription = if (isPasswordVisible) stringResource(id = R.string.visibility_off_icon) else stringResource(id = R.string.visibility_icon)
+                        val imageResource = if (state.isPasswordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
+                        val imageDescription = if (state.isPasswordVisible) stringResource(id = R.string.visibility_off_icon) else stringResource(id = R.string.visibility_icon)
 
                         IconButton(onClick = onIsPasswordVisibleChange) {
                             Icon(
@@ -176,9 +167,9 @@ private fun LoginScreen(
                         }
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    isError = isError,
+                    isError = state.hasError,
                     supportingText = {
-                        if (isError) Text(text = stringResource(id = R.string.login_error))
+                        if (state.hasError) Text(text = stringResource(id = R.string.login_error))
                     }
                 )
 
@@ -262,10 +253,12 @@ private fun PreviewLoginScreen() {
     DirectHealthTheme {
         Surface {
             LoginScreen(
-                email = "",
-                password = "",
-                isError = false,
-                isPasswordVisible = false,
+                state = LoginState(
+                    email = "",
+                    password = "",
+                    isPasswordVisible = false,
+                    hasError = false
+                ),
                 onEmailChange = {},
                 onPasswordChange = {},
                 onIsPasswordVisibleChange = {},
@@ -285,10 +278,12 @@ private fun PreviewLoginScreenError() {
     DirectHealthTheme {
         Surface {
             LoginScreen(
-                email = "",
-                password = "",
-                isError = true,
-                isPasswordVisible = false,
+                state = LoginState(
+                    email = "",
+                    password = "",
+                    isPasswordVisible = false,
+                    hasError = true
+                ),
                 onEmailChange = {},
                 onPasswordChange = {},
                 onIsPasswordVisibleChange = {},

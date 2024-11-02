@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,46 +33,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Role
 import com.uvg.directhealth.data.model.Appointment
-import com.uvg.directhealth.data.model.DoctorInfo
-import com.uvg.directhealth.data.model.PatientInfo
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
 import com.uvg.directhealth.data.source.AppointmentDb
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun AppointmentListRoute (
-    userId: String
+fun AppointmentListRoute(
+    viewModel: AppointmentListViewModel = viewModel()
 ) {
-    val userDb = UserDb()
-    val user = userDb.getUserById(userId)
-    val appointmentDb = AppointmentDb()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.onEvent(AppointmentListEvent.PopulateData)
 
-    val appointments = if (user.role == Role.DOCTOR) {
-        appointmentDb.getAppointmentsByDoctorId(user.id)
-    } else {
-        appointmentDb.getAppointmentsByPatientId(user.id)
-    }
-
-    AppointmentListScreen(
-        user = user,
-        appointments = appointments,
-    )
+    AppointmentListScreen(state = state)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppointmentListScreen(
-    user: User,
-    appointments: List<Appointment>
-){
+fun AppointmentListScreen(state: AppointmentListState){
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -87,7 +72,10 @@ fun AppointmentListScreen(
         )
 
         Box(modifier = Modifier.weight(1f)) {
-            AppointmentList(appointments = appointments, isDoctor = user.role == Role.DOCTOR)
+            AppointmentList(
+                appointments = state.appointmentList,
+                isDoctor = state.role == Role.DOCTOR
+            )
         }
     }
 }
@@ -106,7 +94,7 @@ fun CustomMediumTopAppBar(
             if (onNavigationClick != null) {
                 IconButton(onClick = { onNavigationClick() }) {
                     Icon(
-                        Icons.Default.ArrowBack,
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(id = R.string.back_icon)
                     )
                 }
@@ -202,37 +190,44 @@ fun AppointmentListItem(
                 contentDescription = stringResource(id = R.string.date_icon),
                 tint = MaterialTheme.colorScheme.primary
             )
+
             Column {
+
                 if (isDoctor) {
                     Text(
                         text = patientName,
                         style = MaterialTheme.typography.titleMedium.copy()
                     )
+
                 } else {
                     Text(
                         text = doctorName,
                         style = MaterialTheme.typography.titleMedium.copy()
                     )
                 }
+
                 Text(
                     text = stringResource(id = R.string.date) + ": ${appointmentDate.format(dateFormatter)}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                 )
+
                 Text(
                     text = stringResource(id = R.string.time) + ": ${appointmentDate.toLocalTime().format(timeFormatter)}",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                 )
-                if(isDoctor){
+
+                if (isDoctor){
                     Text(
                         text = stringResource(id = R.string.contact) + ": $patientPhone",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
                     )
+
                 } else {
                     Text(
                         text = stringResource(id = R.string.contact) + ": $doctorPhone",
@@ -240,6 +235,7 @@ fun AppointmentListItem(
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                         )
                     )
+
                     doctorAddress?.let {
                         Text(
                             text = stringResource(id = R.string.address) + ": $it",
@@ -262,80 +258,10 @@ private fun PreviewPatientAppointmentListScreen() {
         Surface {
             val appointmentDb = AppointmentDb()
             AppointmentListScreen(
-                user = User(
-                    id = "2",
-                    role = Role.PATIENT,
-                    name = "Ana Martínez",
-                    email = "ana.martinez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1990, 2, 20),
-                    dpi = "9876543210123",
-                    phoneNumber = "87654321",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-                    ),
-                    doctorInfo = null
-                ),
-                appointments = appointmentDb.getAppointmentsByPatientId("2")
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewDoctorAppointmentListScreen() {
-    DirectHealthTheme {
-        val appointmentDb = AppointmentDb()
-        Surface {
-            AppointmentListScreen(
-                user = User(
-                    id = "1",
-                    role = Role.DOCTOR,
-                    name = "Dr. Juan Pérez",
-                    email = "juan.perez@directhealth.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1975, 5, 12),
-                    dpi = "1234567890123",
-                    phoneNumber = "12345678",
-                    patientInfo = null,
-                    doctorInfo = DoctorInfo(
-                        number = 1122,
-                        address = "Calle Salud 123",
-                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
-                        specialty = Specialty.CARDIOLOGY
-                    )
-                ),
-                appointments = appointmentDb.getAppointmentsByDoctorId("1")
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewAppointmentListEmptyScreen() {
-    DirectHealthTheme {
-        Surface {
-            val appointmentDb = AppointmentDb()
-            AppointmentListScreen(
-                user = User(
-                    id = "5",
-                    role = Role.PATIENT,
-                    name = "Luis Fernández",
-                    email = "luis.fernandez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1985, 4, 10),
-                    dpi = "1472583690123",
-                    phoneNumber = "34567890",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Alergia a la penicilina. Sin cirugías previas."
-                    ),
-                    doctorInfo = null
-                ),
-                appointments = appointmentDb.getAppointmentsByPatientId("5")
+                state = AppointmentListState(
+                    appointmentList = appointmentDb.getAppointmentsByPatientId("2"),
+                    role = Role.PATIENT
+                )
             )
         }
     }

@@ -42,6 +42,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Appointment
 import com.uvg.directhealth.data.model.DoctorInfo
@@ -50,7 +52,6 @@ import com.uvg.directhealth.data.source.AppointmentDb
 import com.uvg.directhealth.data.model.Role
 import com.uvg.directhealth.data.model.Specialty
 import com.uvg.directhealth.data.model.User
-import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.layouts.login.CustomTopAppBar
 import com.uvg.directhealth.layouts.mainFlow.prescription.details.SectionHeader
 import com.uvg.directhealth.layouts.welcome.CustomButton
@@ -65,16 +66,15 @@ import java.util.UUID
 fun UserProfileRoute(
     loggedUserId: String,
     userProfileId: String,
+    viewModel: UserProfileViewModel = viewModel(),
     createNewPrescription: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val userDb = UserDb()
-    val loggedUser = userDb.getUserById(loggedUserId)
-    val userProfile = userDb.getUserById(userProfileId)
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.onEvent(UserProfileEvent.PopulateData(loggedUserId, userProfileId))
 
     UserProfileScreen(
-        loggedUser = loggedUser,
-        userProfile = userProfile,
+        state = state,
         createNewPrescription = createNewPrescription,
         onNavigateBack = onNavigateBack
     )
@@ -82,12 +82,13 @@ fun UserProfileRoute(
 
 @Composable
 private fun UserProfileScreen(
-    loggedUser: User,
-    userProfile: User,
+    state: UserProfileState,
     createNewPrescription: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val appointmentDb = AppointmentDb()
+    val userProfile = state.userProfile
+    val loggedUser = state.loggedUser
 
     Column (
         modifier = Modifier
@@ -104,16 +105,20 @@ private fun UserProfileScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             Alignment.CenterHorizontally,
         ) {
-            ProfileHeader(name = userProfile.name)
+            if (userProfile != null) {
+                ProfileHeader(name = userProfile.name)
 
-            // Patient Profile
-            if (userProfile.role == Role.PATIENT){
-                PatientProfile(userProfile, createNewPrescription)
-            }
+                // Patient Profile
+                if (userProfile.role == Role.PATIENT){
+                    PatientProfile(userProfile, createNewPrescription)
+                }
 
-            // Doctor Profile
-            if (userProfile.role == Role.DOCTOR){
-                DoctorProfile(loggedUser, userProfile, appointmentDb)
+                // Doctor Profile
+                if (userProfile.role == Role.DOCTOR){
+                    if (loggedUser != null) {
+                        DoctorProfile(loggedUser, userProfile, appointmentDb)
+                    }
+                }
             }
 
         }
@@ -480,81 +485,38 @@ private fun PreviewPatientUserProfileScreen() {
     DirectHealthTheme {
         Surface {
             UserProfileScreen(
-                loggedUser = User(
-                    id = "1",
-                    role = Role.DOCTOR,
-                    name = "Dr. Juan Pérez",
-                    email = "juan.perez@directhealth.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1975, 5, 12),
-                    dpi = "1234567890123",
-                    phoneNumber = "12345678",
-                    patientInfo = null,
-                    doctorInfo = DoctorInfo(
-                        number = 1122,
-                        address = "Calle Salud 123",
-                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
-                        specialty = Specialty.CARDIOLOGY
-                    )
-                ),
-                userProfile = User(
-                    id = "2",
-                    role = Role.PATIENT,
-                    name = "Ana Martínez",
-                    email = "ana.martinez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1990, 2, 20),
-                    dpi = "9876543210123",
-                    phoneNumber = "87654321",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                state = UserProfileState(
+                    loggedUser = User(
+                        id = "1",
+                        role = Role.DOCTOR,
+                        name = "Dr. Juan Pérez",
+                        email = "juan.perez@directhealth.com",
+                        password = "password123",
+                        birthDate = LocalDate.of(1975, 5, 12),
+                        dpi = "1234567890123",
+                        phoneNumber = "12345678",
+                        patientInfo = null,
+                        doctorInfo = DoctorInfo(
+                            number = 1122,
+                            address = "Calle Salud 123",
+                            summary = "Cardiólogo experimentado con más de 20 años en el campo.",
+                            specialty = Specialty.CARDIOLOGY
+                        )
                     ),
-                    doctorInfo = null
-                ),
-                onNavigateBack = {},
-                createNewPrescription = {}
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewDoctorUserProfileScreen() {
-    DirectHealthTheme {
-        Surface {
-            UserProfileScreen(
-                loggedUser = User(
-                    id = "2",
-                    role = Role.PATIENT,
-                    name = "Ana Martínez",
-                    email = "ana.martinez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1990, 2, 20),
-                    dpi = "9876543210123",
-                    phoneNumber = "87654321",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                    userProfile = User(
+                        id = "2",
+                        role = Role.PATIENT,
+                        name = "Ana Martínez",
+                        email = "ana.martinez@gmail.com",
+                        password = "password123",
+                        birthDate = LocalDate.of(1990, 2, 20),
+                        dpi = "9876543210123",
+                        phoneNumber = "87654321",
+                        patientInfo = PatientInfo(
+                            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                        ),
+                        doctorInfo = null
                     ),
-                    doctorInfo = null
-                ),
-                userProfile = User(
-                    id = "1",
-                    role = Role.DOCTOR,
-                    name = "Dr. Juan Pérez",
-                    email = "juan.perez@directhealth.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1975, 5, 12),
-                    dpi = "1234567890123",
-                    phoneNumber = "12345678",
-                    patientInfo = null,
-                    doctorInfo = DoctorInfo(
-                        number = 1122,
-                        address = "Calle Salud 123",
-                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
-                        specialty = Specialty.CARDIOLOGY
-                    )
                 ),
                 onNavigateBack = {},
                 createNewPrescription = {}
