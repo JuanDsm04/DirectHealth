@@ -80,42 +80,6 @@ fun AppointmentListScreen(state: AppointmentListState){
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomMediumTopAppBar(
-    title: String,
-    onNavigationClick: (() -> Unit)? = null,
-    onActionsClick: (() -> Unit)? = null,
-    backgroundColor: Color
-){
-    MediumTopAppBar(
-        title = { Text(text = title)},
-        navigationIcon = {
-            if (onNavigationClick != null) {
-                IconButton(onClick = { onNavigationClick() }) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back_icon)
-                    )
-                }
-            }
-        },
-        actions = {
-            if (onActionsClick != null) {
-                IconButton(onClick = { onActionsClick() }) {
-                    Icon(
-                        Icons.Default.Settings,
-                        contentDescription = stringResource(id = R.string.settings_icon)
-                    )
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = backgroundColor
-        )
-    )
-}
-
 @Composable
 fun AppointmentList(appointments: List<Appointment>, isDoctor: Boolean) {
     val userDb = UserDb()
@@ -261,6 +225,40 @@ private fun PreviewPatientAppointmentListScreen() {
                 state = AppointmentListState(
                     appointmentList = appointmentDb.getAppointmentsByPatientId("2"),
                     role = Role.PATIENT
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewDoctorAppointmentListScreen() {
+    DirectHealthTheme {
+        Surface {
+            val appointmentDb = AppointmentDb()
+            AppointmentListScreen(
+                state = AppointmentListState(
+                    appointmentList = appointmentDb.getAppointmentsByDoctorId("1"),
+                    role = Role.DOCTOR
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewAppointmentListScreenEmpty() {
+    DirectHealthTheme {
+        Surface {
+            val appointmentDb = AppointmentDb()
+            AppointmentListScreen(
+                state = AppointmentListState(
+                    appointmentList = appointmentDb.getAppointmentsByDoctorId("6"),
+                    role = Role.DOCTOR
                 )
             )
         }

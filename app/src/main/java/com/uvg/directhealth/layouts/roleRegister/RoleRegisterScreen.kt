@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.layouts.login.CustomTopAppBar
-import com.uvg.directhealth.layouts.welcome.CustomButton
+import com.uvg.directhealth.layouts.common.CustomTopAppBar
+import com.uvg.directhealth.layouts.common.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 
 @Composable

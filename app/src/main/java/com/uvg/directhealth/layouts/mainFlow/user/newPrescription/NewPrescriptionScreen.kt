@@ -20,61 +20,74 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.uvg.directhealth.R
-import com.uvg.directhealth.data.source.PrescriptionDb
-import com.uvg.directhealth.data.source.UserDb
-import com.uvg.directhealth.layouts.mainFlow.appointment.CustomMediumTopAppBar
-import com.uvg.directhealth.layouts.mainFlow.prescription.details.SectionHeader
-import com.uvg.directhealth.layouts.welcome.CustomButton
-import com.uvg.directhealth.ui.theme.DirectHealthTheme
-import java.time.LocalDate
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.uvg.directhealth.R
+import com.uvg.directhealth.layouts.common.SectionHeader
+import com.uvg.directhealth.layouts.common.CustomButton
+import com.uvg.directhealth.layouts.common.CustomListItem
 import com.uvg.directhealth.data.model.DoctorInfo
 import com.uvg.directhealth.data.model.Medication
 import com.uvg.directhealth.data.model.PatientInfo
 import com.uvg.directhealth.data.model.Role
 import com.uvg.directhealth.data.model.Specialty
 import com.uvg.directhealth.data.model.User
-import com.uvg.directhealth.layouts.mainFlow.prescription.details.CustomListItem
+import com.uvg.directhealth.ui.theme.DirectHealthTheme
+import java.time.LocalDate
 
 @Composable
 fun NewPrescriptionRoute(
     loggedUserId: String,
     userProfileId: String,
-    onNavigateBack: () -> Unit
-) {
-    val userDb = UserDb()
-    val loggedUser = userDb.getUserById(loggedUserId)
-    val userPatient = userDb.getUserById(userProfileId)
-    val isError by remember { mutableStateOf(false) }
-    
+    viewModel: NewPrescriptionViewModel = viewModel(),
+    onBackNavigation: () -> Unit,
+    onConfirmPrescription: () -> Unit
+    ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.onEvent(NewPrescriptionEvent.PopulateData(loggedUserId, userProfileId))
+
     NewPrescriptionScreen(
-        loggedUser = loggedUser,
-        userPatient = userPatient,
-        isError = isError,
-        onNavigateBack = onNavigateBack
+        state = state,
+        onBackNavigation = onBackNavigation,
+        onConfirmPrescription = onConfirmPrescription,
+        onEvent = viewModel::onEvent,
+        onNameMedicineChange = {
+            viewModel.onEvent(NewPrescriptionEvent.NameMedicineChange(it))
+        },
+        onDescriptionMedicineChange = {
+            viewModel.onEvent(NewPrescriptionEvent.DescriptionMedicineChange(it))
+        },
+        onNoteChange = {
+            viewModel.onEvent(NewPrescriptionEvent.NoteChange(it))
+        }
     )
 }
 
 @Composable
 private fun NewPrescriptionScreen(
-    loggedUser: User,
-    userPatient: User,
-    isError: Boolean,
-    onNavigateBack: () -> Unit
+    state: NewPrescriptionState,
+    onBackNavigation: () -> Unit,
+    onConfirmPrescription: () -> Unit,
+    onEvent: (NewPrescriptionEvent) -> Unit,
+    onNameMedicineChange: (String) -> Unit,
+    onDescriptionMedicineChange: (String) -> Unit,
+    onNoteChange: (String) -> Unit
 ){
-    val age = LocalDate.now().year - userPatient.birthDate.year
-    var nameMedicine by remember { mutableStateOf("") }
-    var descriptionMedicine by remember { mutableStateOf("") }
-    var note by remember { mutableStateOf("") }
-
-    val medicationList = remember { mutableStateListOf<Medication>() }
-    val noteList = remember { mutableStateListOf<String>() }
+    val patientUser = state.patientUser
+    val age = LocalDate.now().year - (patientUser?.birthDate?.year ?: LocalDate.now().year)
 
     Column (
         modifier = Modifier
@@ -84,7 +97,7 @@ private fun NewPrescriptionScreen(
     ){
         CustomMediumTopAppBar(
             title = stringResource(id = R.string.new_prescription),
-            onNavigationClick = { onNavigateBack() },
+            onNavigationClick = { onBackNavigation() },
             backgroundColor = MaterialTheme.colorScheme.surface
         )
 
@@ -113,10 +126,12 @@ private fun NewPrescriptionScreen(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        Text(
-                            text = userPatient.name,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        if (patientUser != null) {
+                            Text(
+                                text = patientUser.name,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                     Row {
                         Text(
@@ -141,15 +156,15 @@ private fun NewPrescriptionScreen(
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
                         .background(MaterialTheme.colorScheme.surface)
                 ) {
-                    MedicationList(medicationList)
-
-                    Spacer(modifier = Modifier.height(1.dp))
+                    MedicationList(state.medicationList)
 
                     MedicationForm(
-                        nameMedicine = nameMedicine,
-                        onNameMedicineChange = { nameMedicine = it },
-                        descriptionMedicine = descriptionMedicine,
-                        onDescriptionMedicineChange = { descriptionMedicine = it }
+                        nameMedicine = state.nameMedicine,
+                        onNameMedicineChange = onNameMedicineChange,
+                        descriptionMedicine = state.descriptionMedicine,
+                        onDescriptionMedicineChange = onDescriptionMedicineChange,
+                        isFormVisible = state.isMedicationFormVisible,
+                        onToggleFormVisibility = { onEvent(NewPrescriptionEvent.ToggleMedicationFormVisibility) }
                     )
                 }
 
@@ -163,32 +178,33 @@ private fun NewPrescriptionScreen(
                         .clip(RoundedCornerShape(bottomStart = 15.dp, bottomEnd = 15.dp))
                         .background(MaterialTheme.colorScheme.surface)
                 ){
-                    NoteList(noteList)
-
-                    Spacer(modifier = Modifier.height(1.dp))
+                    NoteList(state.noteList)
 
                     NoteForm(
-                        note = note,
-                        onNoteChange = { note = it }
+                        note = state.note,
+                        onNoteChange = onNoteChange,
+                        isFormVisible = state.isNoteFormVisible,
+                        onToggleFormVisibility = { onEvent(NewPrescriptionEvent.ToggleNoteFormVisibility) }
                     )
                 }
             }
 
             CustomButton(
                 text = stringResource(id = R.string.confirm_prescription),
-                onClick = { /* */ },
+                onClick = { onConfirmPrescription() },
                 colorBackground = MaterialTheme.colorScheme.secondaryContainer,
                 colorText = MaterialTheme.colorScheme.onSecondaryContainer,
                 maxWidth = true
             )
 
-            if (isError) {
+            if (state.isErrorCreatePrescription) {
                 Box(
                     modifier = Modifier
                         .height(75.dp)
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(15.dp))
-                        .background(color = MaterialTheme.colorScheme.errorContainer),
+                        .background(color = MaterialTheme.colorScheme.errorContainer)
+                        .padding(10.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Row(
@@ -208,7 +224,7 @@ private fun NewPrescriptionScreen(
                         Spacer(modifier = Modifier.width(10.dp))
 
                         Text(
-                            text = "La receta no puede estar vacía",
+                            text = stringResource(id = R.string.prescription_error),
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -235,6 +251,42 @@ fun MedicationList(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomMediumTopAppBar(
+    title: String,
+    onNavigationClick: (() -> Unit)? = null,
+    onActionsClick: (() -> Unit)? = null,
+    backgroundColor: Color
+){
+    MediumTopAppBar(
+        title = { Text(text = title)},
+        navigationIcon = {
+            if (onNavigationClick != null) {
+                IconButton(onClick = { onNavigationClick() }) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(id = R.string.back_icon)
+                    )
+                }
+            }
+        },
+        actions = {
+            if (onActionsClick != null) {
+                IconButton(onClick = { onActionsClick() }) {
+                    Icon(
+                        Icons.Default.Settings,
+                        contentDescription = stringResource(id = R.string.settings_icon)
+                    )
+                }
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = backgroundColor
+        )
+    )
 }
 
 @Composable
@@ -303,7 +355,7 @@ fun DropdownForm(
                     Spacer(modifier = Modifier.width(10.dp))
                     CustomButton(
                         text = stringResource(id = R.string.confirm),
-                        onClick = { /* */ },
+                        onClick = { /*TODO*/ },
                         colorBackground = MaterialTheme.colorScheme.secondaryContainer,
                         colorText = MaterialTheme.colorScheme.onSecondaryContainer,
                         icon = Icons.Filled.Check,
@@ -320,13 +372,13 @@ fun MedicationForm(
     nameMedicine: String,
     onNameMedicineChange: (String) -> Unit,
     descriptionMedicine: String,
-    onDescriptionMedicineChange: (String) -> Unit
+    onDescriptionMedicineChange: (String) -> Unit,
+    isFormVisible: Boolean,
+    onToggleFormVisibility: () -> Unit
 ) {
-    var isFormVisible by remember { mutableStateOf(false) }
-
     DropdownForm(
         isFormVisible = isFormVisible,
-        onToggleFormVisibility = { isFormVisible = !isFormVisible }
+        onToggleFormVisibility = onToggleFormVisibility
     ) {
         OutlinedTextField(
             value = nameMedicine,
@@ -354,13 +406,13 @@ fun MedicationForm(
 @Composable
 fun NoteForm(
     note: String,
-    onNoteChange: (String) -> Unit
+    onNoteChange: (String) -> Unit,
+    isFormVisible: Boolean,
+    onToggleFormVisibility: () -> Unit
 ) {
-    var isFormVisible by remember { mutableStateOf(false) }
-
     DropdownForm(
         isFormVisible = isFormVisible,
-        onToggleFormVisibility = { isFormVisible = !isFormVisible }
+        onToggleFormVisibility = onToggleFormVisibility
     ) {
         OutlinedTextField(
             value = note,
@@ -382,39 +434,46 @@ private fun PreviewNewPrescriptionScreen() {
     DirectHealthTheme {
         Surface {
             NewPrescriptionScreen(
-                loggedUser = User(
-                    id = "1",
-                    role = Role.DOCTOR,
-                    name = "Dr. Juan Pérez",
-                    email = "juan.perez@directhealth.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1975, 5, 12),
-                    dpi = "1234567890123",
-                    phoneNumber = "12345678",
-                    patientInfo = null,
-                    doctorInfo = DoctorInfo(
-                        number = 1122,
-                        address = "Calle Salud 123",
-                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
-                        specialty = Specialty.CARDIOLOGY
-                    )
-                ),
-                userPatient = User(
-                    id = "2",
-                    role = Role.PATIENT,
-                    name = "Ana Martínez",
-                    email = "ana.martinez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1990, 2, 20),
-                    dpi = "9876543210123",
-                    phoneNumber = "87654321",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                state = NewPrescriptionState(
+                    loggedUser = User(
+                        id = "1",
+                        role = Role.DOCTOR,
+                        name = "Dr. Juan Pérez",
+                        email = "juan.perez@directhealth.com",
+                        password = "password123",
+                        birthDate = LocalDate.of(1975, 5, 12),
+                        dpi = "1234567890123",
+                        phoneNumber = "12345678",
+                        patientInfo = null,
+                        doctorInfo = DoctorInfo(
+                            number = 1122,
+                            address = "Calle Salud 123",
+                            summary = "Cardiólogo experimentado con más de 20 años en el campo.",
+                            specialty = Specialty.CARDIOLOGY
+                        )
                     ),
-                    doctorInfo = null
+                    patientUser = User(
+                        id = "2",
+                        role = Role.PATIENT,
+                        name = "Ana Martínez",
+                        email = "ana.martinez@gmail.com",
+                        password = "password123",
+                        birthDate = LocalDate.of(1990, 2, 20),
+                        dpi = "9876543210123",
+                        phoneNumber = "87654321",
+                        patientInfo = PatientInfo(
+                            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
+                        ),
+                        doctorInfo = null
+                    ),
+                    isErrorCreatePrescription = true
                 ),
-                isError = false,
-                onNavigateBack = {}
+                onBackNavigation = {},
+                onConfirmPrescription = {},
+                onEvent = {},
+                onNameMedicineChange = {},
+                onDescriptionMedicineChange = {},
+                onNoteChange = {}
             )
         }
     }

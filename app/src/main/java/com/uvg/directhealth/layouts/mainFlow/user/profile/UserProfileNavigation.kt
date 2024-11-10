@@ -26,6 +26,7 @@ fun NavController.navigateToUserProfileScreen (
 
 fun NavGraphBuilder.userProfileScreen (
     createNewPrescription: (String) -> Unit,
+    scheduleAppointment: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     composable<UserProfileDestination> { backStackEntry ->
@@ -35,7 +36,8 @@ fun NavGraphBuilder.userProfileScreen (
             loggedUserId = destination.loggedUserId,
             userProfileId = destination.userProfileId,
             createNewPrescription = createNewPrescription,
-            onNavigateBack = onNavigateBack
+            onNavigateBack = onNavigateBack,
+            scheduleAppointment = scheduleAppointment
         )
     }
 }

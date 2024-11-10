@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ProfileDestination (
-    val userId: String
+    val userId: String,
 )
 
 fun NavController.navigateToProfile (

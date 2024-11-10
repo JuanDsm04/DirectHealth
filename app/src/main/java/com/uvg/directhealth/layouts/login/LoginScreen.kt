@@ -16,24 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
-import com.uvg.directhealth.layouts.welcome.CustomButton
+import com.uvg.directhealth.layouts.common.CustomButton
+import com.uvg.directhealth.layouts.common.CustomTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 
 @Composable
@@ -204,46 +198,6 @@ private fun LoginScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomTopAppBar(
-    title: String? = null,
-    onNavigationClick: (() -> Unit)? = null,
-    onActionsClick: (() -> Unit)? = null,
-    backgroundColor: Color
-) {
-    TopAppBar(
-        title = {
-            if (title != null) {
-                Text(text = title)
-            }
-        },
-        navigationIcon = {
-            if (onNavigationClick != null) {
-                IconButton(onClick = onNavigationClick ) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back_icon)
-                    )
-                }
-            }
-        },
-        actions = {
-            if (onActionsClick != null) {
-                IconButton(onClick = { onActionsClick() }) {
-                    Icon(
-                        Icons.Default.Settings,
-                        contentDescription = stringResource(id = R.string.settings_icon)
-                    )
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = backgroundColor
-        )
-    )
 }
 
 @Preview(showBackground = true)

@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,37 +28,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.DoctorInfo
-import com.uvg.directhealth.data.model.PatientInfo
 import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.data.source.PrescriptionDb
-import com.uvg.directhealth.layouts.mainFlow.appointment.CustomMediumTopAppBar
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun PrescriptionListRoute (
-    userId: String,
+    viewModel: PrescriptionListViewModel = viewModel(),
     onPrescriptionClick: (String) -> Unit
 ) {
-    val userDb = UserDb()
-    val user = userDb.getUserById(userId)
-    val prescriptionDb = PrescriptionDb()
-
-    val prescriptions = if (user.role == Role.DOCTOR) {
-        prescriptionDb.getPrescriptionsByDoctorId(userId)
-    } else {
-        prescriptionDb.getPrescriptionsByPatientId(userId)
-    }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.onEvent(PrescriptionListEvent.PopulateData)
 
     PrescriptionListScreen(
-        user = user,
-        prescriptions = prescriptions,
+        state = state,
         onPrescriptionClick = onPrescriptionClick
     )
 }
@@ -65,8 +54,7 @@ fun PrescriptionListRoute (
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PrescriptionListScreen(
-    user: User,
-    prescriptions: List<Prescription>,
+    state: PrescriptionListState,
     onPrescriptionClick: (String) -> Unit
 ){
     Column (
@@ -84,7 +72,7 @@ private fun PrescriptionListScreen(
         )
 
         Box(modifier = Modifier.weight(1f)) {
-            PrescriptionList(prescriptions = prescriptions, onPrescriptionClick = onPrescriptionClick, isDoctor = user.role == Role.DOCTOR)
+            PrescriptionList(prescriptions = state.prescriptionList, onPrescriptionClick = onPrescriptionClick, isDoctor = state.role == Role.DOCTOR)
         }
     }
 }
@@ -112,6 +100,7 @@ fun PrescriptionList(
             Text(text = stringResource(id = R.string.prescription_empty))
             Spacer(modifier = Modifier.weight(1f))
         }
+
     } else {
         LazyColumn(
             modifier = Modifier
@@ -189,24 +178,10 @@ private fun PreviewPrescriptionListScreenDoctor() {
         Surface {
             val prescriptionDb = PrescriptionDb()
             PrescriptionListScreen(
-                user = User(
-                    id = "1",
-                    role = Role.DOCTOR,
-                    name = "Dr. Juan Pérez",
-                    email = "juan.perez@directhealth.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1975, 5, 12),
-                    dpi = "1234567890123",
-                    phoneNumber = "12345678",
-                    patientInfo = null,
-                    doctorInfo = DoctorInfo(
-                        number = 1122,
-                        address = "Calle Salud 123",
-                        summary = "Cardiólogo experimentado con más de 20 años en el campo.",
-                        specialty = Specialty.CARDIOLOGY
-                    )
+                state = PrescriptionListState(
+                    prescriptionList = prescriptionDb.getPrescriptionsByDoctorId("1"),
+                    role = Role.DOCTOR
                 ),
-                prescriptions = prescriptionDb.getPrescriptionsByDoctorId("1"),
                 onPrescriptionClick = { }
             )
         }
@@ -221,21 +196,10 @@ private fun PreviewPrescriptionListScreenPatient() {
         Surface {
             val prescriptionDb = PrescriptionDb()
             PrescriptionListScreen(
-                user = User(
-                    id = "2",
-                    role = Role.PATIENT,
-                    name = "Ana Martínez",
-                    email = "ana.martinez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1990, 2, 20),
-                    dpi = "9876543210123",
-                    phoneNumber = "87654321",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-                    ),
-                    doctorInfo = null
+                state = PrescriptionListState(
+                    prescriptionList = prescriptionDb.getPrescriptionsByPatientId("2"),
+                    role = Role.PATIENT
                 ),
-                prescriptions = prescriptionDb.getPrescriptionsByPatientId("2"),
                 onPrescriptionClick = { }
             )
         }
@@ -245,26 +209,15 @@ private fun PreviewPrescriptionListScreenPatient() {
 @Preview(showBackground = true)
 @Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewPrescriptionListScreenPatientEmpty() {
+private fun PreviewEmptyPrescriptionListScreen() {
     DirectHealthTheme {
         Surface {
             val prescriptionDb = PrescriptionDb()
             PrescriptionListScreen(
-                user = User(
-                    id = "5",
-                    role = Role.PATIENT,
-                    name = "Luis Fernández",
-                    email = "luis.fernandez@gmail.com",
-                    password = "password123",
-                    birthDate = LocalDate.of(1985, 4, 10),
-                    dpi = "1472583690123",
-                    phoneNumber = "34567890",
-                    patientInfo = PatientInfo(
-                        medicalHistory = "Alergia a la penicilina. Sin cirugías previas."
-                    ),
-                    doctorInfo = null
+                state = PrescriptionListState(
+                    prescriptionList = prescriptionDb.getPrescriptionsByPatientId("5"),
+                    role = Role.PATIENT
                 ),
-                prescriptions = prescriptionDb.getPrescriptionsByPatientId("5"),
                 onPrescriptionClick = { }
             )
         }

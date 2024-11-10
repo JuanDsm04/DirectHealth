@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,37 +33,42 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Medication
 import com.uvg.directhealth.data.model.Prescription
-import com.uvg.directhealth.data.source.PrescriptionDb
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
+import com.uvg.directhealth.layouts.common.SectionHeader
+import com.uvg.directhealth.layouts.common.CustomListItem
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun PrescriptionDetailsRoute(
     prescriptionId: String,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: PrescriptionDetailsViewModel = viewModel()
 ) {
-    val prescriptionDb = PrescriptionDb()
-    val prescription = prescriptionDb.getPrescriptionById(prescriptionId)
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.onEvent(PrescriptionDetailsEvent.PopulateData(prescriptionId))
 
     PrescriptionDetailsScreen(
-        prescription = prescription,
+        state = state,
         onNavigateBack = onNavigateBack
     )
 }
 
 @Composable
 private fun PrescriptionDetailsScreen(
-    prescription: Prescription,
+    state: PrescriptionDetailsState,
     onNavigateBack: () -> Unit
-){
+) {
     val userDb = UserDb()
-    val user = userDb.getUserById(prescription.patientId)
-    val age = LocalDate.now().year - user.birthDate.year
+    val prescription = state.prescription
+    val user = prescription?.let { userDb.getUserById(it.patientId) }
+    val age = user?.let { LocalDate.now().year - it.birthDate.year } ?: 0
 
     Column (
         modifier = Modifier
@@ -70,11 +76,13 @@ private fun PrescriptionDetailsScreen(
             .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
     ){
-        CustomLargeTopAppBar(
-            prescription.id,
-            prescription.emissionDate,
-            onNavigateBack = onNavigateBack
-        )
+        if (prescription != null) {
+            CustomLargeTopAppBar(
+                prescription.id,
+                prescription.emissionDate,
+                onNavigateBack = onNavigateBack
+            )
+        }
 
         Column (
             modifier = Modifier
@@ -100,10 +108,12 @@ private fun PrescriptionDetailsScreen(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        Text(
-                            text = user.name,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        if (user != null) {
+                            Text(
+                                text = user.name,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                     }
                     Row {
                         Text(
@@ -120,48 +130,31 @@ private fun PrescriptionDetailsScreen(
                 }
             }
 
-            SectionWithItems(
-                title = stringResource(id = R.string.medications),
-                items = prescription.medicationList
-            ) { medicine ->
-                CustomListItem(
-                    title = medicine.name,
-                    content = medicine.description
-                )
+            if (prescription != null) {
+                SectionWithItems(
+                    title = stringResource(id = R.string.medications),
+                    items = prescription.medicationList
+                ) { medicine ->
+                    CustomListItem(
+                        title = medicine.name,
+                        content = medicine.description
+                    )
+                }
             }
 
-            SectionWithItems(
-                title = stringResource(id = R.string.notes),
-                items = prescription.notes
-            ) { note ->
-                CustomListItem(
-                    content = note
-                )
+            if (prescription != null) {
+                SectionWithItems(
+                    title = stringResource(id = R.string.notes),
+                    items = prescription.notes
+                ) { note ->
+                    CustomListItem(
+                        content = note
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
         }
-    }
-}
-
-@Composable
-fun SectionHeader(
-    title: String
-){
-    Box (
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(20.dp)
-    ){
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        )
     }
 }
 
@@ -211,34 +204,6 @@ fun <T> SectionWithItems(
         }
     }
 
-}
-
-@Composable
-fun CustomListItem(
-    title: String? = null,
-    content: String
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(20.dp)
-    ) {
-        Column {
-            title?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-            }
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium.copy()
-            )
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -292,24 +257,26 @@ private fun PreviewPrescriptionDetailsScreen() {
     DirectHealthTheme {
         Surface {
             PrescriptionDetailsScreen(
-                prescription = Prescription(
-                    id = "1",
-                    doctorId = "1",
-                    patientId = "2",
-                    emissionDate = LocalDate.of(2024, 1, 12),
-                    medicationList = listOf(
-                        Medication(
-                            name = "Aspirina",
-                            description = "Para aliviar el dolor y reducir la inflamación."
+                state = PrescriptionDetailsState(
+                    prescription = Prescription(
+                        id = "1",
+                        doctorId = "1",
+                        patientId = "2",
+                        emissionDate = LocalDate.of(2024, 1, 12),
+                        medicationList = listOf(
+                            Medication(
+                                name = "Aspirina",
+                                description = "Para aliviar el dolor y reducir la inflamación."
+                            ),
+                            Medication(
+                                name = "Atorvastatina",
+                                description = "Ayuda a reducir los niveles de colesterol."
+                            )
                         ),
-                        Medication(
-                            name = "Atorvastatina",
-                            description = "Ayuda a reducir los niveles de colesterol."
+                        notes = listOf(
+                            "Tome aspirina una vez al día después de las comidas.",
+                            "Controlar los niveles de colesterol cada 3 meses."
                         )
-                    ),
-                    notes = listOf(
-                        "Tome aspirina una vez al día después de las comidas.",
-                        "Controlar los niveles de colesterol cada 3 meses."
                     )
                 ),
                 onNavigateBack = { }
@@ -325,18 +292,20 @@ private fun PreviewPrescriptionDetailsScreenNotesEmpty() {
     DirectHealthTheme {
         Surface {
             PrescriptionDetailsScreen(
-                prescription = Prescription(
-                    id = "2",
-                    doctorId = "3",
-                    patientId = "7",
-                    emissionDate = LocalDate.of(2024, 8, 27),
-                    medicationList = listOf(
-                        Medication(
-                            name = "Hidrocortisona",
-                            description = "Se utiliza para reducir la inflamación y tratar afecciones de la piel."
-                        )
-                    ),
-                    notes = listOf()
+                state = PrescriptionDetailsState(
+                    prescription = Prescription(
+                        id = "2",
+                        doctorId = "3",
+                        patientId = "7",
+                        emissionDate = LocalDate.of(2024, 8, 27),
+                        medicationList = listOf(
+                            Medication(
+                                name = "Hidrocortisona",
+                                description = "Se utiliza para reducir la inflamación y tratar afecciones de la piel."
+                            )
+                        ),
+                        notes = listOf()
+                    )
                 ),
                 onNavigateBack = { }
             )

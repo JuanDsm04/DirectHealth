@@ -7,30 +7,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -52,8 +39,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Role
 import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.layouts.welcome.CustomButton
+import com.uvg.directhealth.layouts.common.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
+import com.uvg.directhealth.layouts.common.FormComponent
+import com.uvg.directhealth.layouts.common.CustomMediumTopAppBar
+import com.uvg.directhealth.data.source.specialtyToStringResource
 import java.util.Calendar
 
 @Composable
@@ -128,7 +118,7 @@ private fun RegisterScreen(
     val datePickerDialog = DatePickerDialog(
         LocalContext.current,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            state.birthDate = "$dayOfMonth/${month + 1}/$year"
+            onBirthDateChange("$dayOfMonth/${month + 1}/$year")
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -181,7 +171,10 @@ private fun RegisterScreen(
                     value = state.email,
                     onValueChange = onEmailChange,
                     singleLine = true,
-                    isError = false
+                    isError = state.hasEmailError,
+                    supportingText = {
+                        if (state.hasEmailError) Text(text = stringResource(id = R.string.email_error))
+                    }
                 )
 
                 FormComponent(
@@ -227,7 +220,10 @@ private fun RegisterScreen(
                             }
                         )
                     },
-                    isError = false
+                    isError = state.hasBirthDateError,
+                    supportingText = {
+                        if (state.hasBirthDateError) Text(stringResource(id = R.string.birthdate_error))
+                    }
                 )
 
                 FormComponent(
@@ -329,142 +325,6 @@ private fun RegisterScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomMediumTopAppBar(
-    title: String,
-    onNavigationClick: (() -> Unit),
-){
-    MediumTopAppBar(
-        title = {
-            Text(text = title)
-        },
-        navigationIcon = {
-            IconButton(onClick = { onNavigationClick() }) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-        )
-    )
-}
-
-@Composable
-fun FormComponent(
-    textId: Int,
-    textFieldId: Int,
-    keyboardType: KeyboardType,
-    value: String,
-    onValueChange: (String) -> Unit,
-    singleLine: Boolean,
-    trailingIcon: (@Composable (() -> Unit))? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    readOnly: Boolean = false,
-    expanded: Boolean = false,
-    onExpandedChange: (Boolean) -> Unit = {},
-    dropdownItems: List<String> = emptyList(),
-    onDropdownSelect: (String) -> Unit = {},
-    isError: Boolean = false,
-    supportingText: @Composable() (() -> Unit) = {}
-) {
-    Column {
-        Text(
-            text = stringResource(id = textId),
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.SemiBold
-            )
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        OutlinedTextField(
-            isError = isError,
-            supportingText = supportingText,
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { if (dropdownItems.isNotEmpty()) onExpandedChange(true) },
-            placeholder = {
-                Text(
-                    text = stringResource(id = textFieldId),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            textStyle = MaterialTheme.typography.bodyMedium,
-            readOnly = readOnly,
-            shape = RoundedCornerShape(10.dp),
-            singleLine = singleLine,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = keyboardType
-            ),
-            trailingIcon = trailingIcon
-                ?: if (dropdownItems.isNotEmpty()) {
-                    {
-                        IconButton(onClick = { onExpandedChange(!expanded) }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                } else null,
-            visualTransformation = visualTransformation
-        )
-        if (dropdownItems.isNotEmpty()) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { onExpandedChange(false) },
-                modifier = Modifier
-                    .height(200.dp)
-            ) {
-                dropdownItems.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(item) },
-                        onClick = {
-                            onDropdownSelect(item)
-                            onExpandedChange(false)
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-fun specialtyToStringResource(specialty: Specialty): Int {
-    return when (specialty) {
-        Specialty.GENERAL -> R.string.specialty_general
-        Specialty.CARDIOLOGY -> R.string.specialty_cardiology
-        Specialty.DERMATOLOGY -> R.string.specialty_dermatology
-        Specialty.ENDOCRINOLOGY -> R.string.specialty_endocrinology
-        Specialty.GASTROENTEROLOGY -> R.string.specialty_gastroenterology
-        Specialty.GYNECOLOGY -> R.string.specialty_gynecology
-        Specialty.HEMATOLOGY -> R.string.specialty_hematology
-        Specialty.INFECTIOLOGY -> R.string.specialty_infectiology
-        Specialty.NEPHROLOGY -> R.string.specialty_nephrology
-        Specialty.NEUROLOGY -> R.string.specialty_neurology
-        Specialty.PULMONOLOGY -> R.string.specialty_pulmonology
-        Specialty.OPHTHALMOLOGY -> R.string.specialty_ophthalmology
-        Specialty.ONCOLOGY -> R.string.specialty_oncology
-        Specialty.ORTHOPEDICS -> R.string.specialty_orthopedics
-        Specialty.OTOLARYNGOLOGY -> R.string.specialty_otolaryngology
-        Specialty.PEDIATRICS -> R.string.specialty_pediatrics
-        Specialty.PSYCHIATRY -> R.string.specialty_psychiatry
-        Specialty.RADIOLOGY -> R.string.specialty_radiology
-        Specialty.RHEUMATOLOGY -> R.string.specialty_rheumatology
-        Specialty.TRAUMATOLOGY -> R.string.specialty_traumatology
-        Specialty.UROLOGY -> R.string.specialty_urology
-        Specialty.ALLERGOLOGY -> R.string.specialty_allergology
-        Specialty.ANGIOLOGY -> R.string.specialty_angiology
-        Specialty.PLASTIC -> R.string.specialty_plastic
-        Specialty.GERIATRICS -> R.string.specialty_geriatrics
-    }
-}
-
 @Composable
 fun getSpecialtyItems(): List<Pair<Specialty, String>> {
     return Specialty.entries.map { specialty ->
@@ -482,6 +342,40 @@ private fun PreviewPatientRegisterScreen() {
             RegisterScreen(
                 role = Role.PATIENT,
                 state = RegisterState(),
+                onAddressChange = {},
+                onMedicalHistoryChange = {},
+                onEmailChange = {},
+                onNameChange = {},
+                onBirthDateChange = {},
+                onDpiChange = {},
+                onPasswordChange = {},
+                onMembershipChange = {},
+                onPhoneNumberChange = {},
+                onPasswordVisibleChange = {},
+                onConfirmRegistration = {},
+                onBackNavigation = {},
+                onExperienceChange = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewPatientRegisterScreenWithErrors() {
+    DirectHealthTheme {
+        Surface {
+            RegisterScreen(
+                role = Role.PATIENT,
+                state = RegisterState(
+                    hasPasswordError = true,
+                    hasMembershipError = true,
+                    hasEmailError = true,
+                    hasPhoneNumberError = true,
+                    hasDpiError = true,
+                    hasBirthDateError = true
+                ),
                 onAddressChange = {},
                 onMedicalHistoryChange = {},
                 onEmailChange = {},

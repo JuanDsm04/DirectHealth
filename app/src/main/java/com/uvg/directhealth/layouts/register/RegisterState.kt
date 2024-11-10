@@ -18,5 +18,7 @@ data class RegisterState(
     val hasPasswordError: Boolean = false,
     val hasDpiError: Boolean = false,
     val hasPhoneNumberError: Boolean = false,
-    val hasMembershipError: Boolean = false
+    val hasMembershipError: Boolean = false,
+    val hasBirthDateError: Boolean = false,
+    val hasEmailError: Boolean = false
 )

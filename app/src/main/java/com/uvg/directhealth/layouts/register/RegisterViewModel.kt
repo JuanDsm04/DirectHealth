@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.Calendar
 
 class RegisterViewModel: ViewModel() {
     private val _state = MutableStateFlow(RegisterState())
@@ -35,12 +36,17 @@ class RegisterViewModel: ViewModel() {
     }
 
     private fun onEmailChange(email: String) {
+        val emailPattern = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
+        val hasError = !email.matches(emailPattern.toRegex())
+
         _state.update { state ->
             state.copy(
-                email = email
+                email = email,
+                hasEmailError = hasError
             )
         }
     }
+
 
     private fun onPasswordChange(password: String) {
         val hasError = password.length <= 8
@@ -62,9 +68,24 @@ class RegisterViewModel: ViewModel() {
     }
 
     private fun onBirthDateChange(birthDate: String) {
+        val parts = birthDate.split("/")
+        val day = parts[0].toIntOrNull() ?: return
+        val month = parts[1].toIntOrNull()?.minus(1) ?: return
+        val year = parts[2].toIntOrNull() ?: return
+
+        val birthDateCalendar = Calendar.getInstance().apply {
+            set(year, month, day)
+        }
+
+        val currentDate = Calendar.getInstance()
+        val age = currentDate.get(Calendar.YEAR) - birthDateCalendar.get(Calendar.YEAR)
+        val hasError = age < 18 || (age == 18 && (currentDate.get(Calendar.MONTH) < month ||
+                (currentDate.get(Calendar.MONTH) == month && currentDate.get(Calendar.DAY_OF_MONTH) < day)))
+
         _state.update { state ->
             state.copy(
-                birthDate = birthDate
+                birthDate = birthDate,
+                hasBirthDateError = hasError
             )
         }
     }
@@ -81,7 +102,7 @@ class RegisterViewModel: ViewModel() {
     }
 
     private fun onPhoneNumberChange(phoneNumber: String) {
-        val hasError = !phoneNumber.isDigitsOnly()
+        val hasError = !phoneNumber.isDigitsOnly() || phoneNumber.length <= 8
 
         _state.update { state ->
             state.copy(

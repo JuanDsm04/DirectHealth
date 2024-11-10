@@ -15,6 +15,14 @@ class UserProfileViewModel: ViewModel() {
     fun onEvent(event: UserProfileEvent) {
         when (event) {
             is UserProfileEvent.PopulateData -> populateData(event.loggedUserId, event.userProfileId)
+            is UserProfileEvent.UpdateSelectedDate -> _state.update { it.copy(selectedDate = event.date) }
+            is UserProfileEvent.UpdateSelectedTime -> _state.update { it.copy(selectedTime = event.time) }
+            is UserProfileEvent.ToggleDatePicker -> {
+                _state.value = state.value.copy(showDatePicker = event.show)
+            }
+            is UserProfileEvent.ToggleTimePicker -> {
+                _state.value = state.value.copy(showTimePicker = event.show)
+            }
         }
     }
 

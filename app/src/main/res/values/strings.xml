@@ -133,8 +133,7 @@
     <string name="empty_doctors">No hay médicos disponibles</string>
     <string name="empty_patients">No hay pacientes disponibles</string>
 
-    <string name="select_date">Seleccione la fecha para su cita</string>
-    <string name="available_times">Horarios disponibles el</string>
+    <string name="select_date">Agendar una cita</string>
     <string name="confirm_appointment">Confirmar cita</string>
 
     <string name="nav_doctors">Médicos</string>
@@ -150,6 +149,7 @@
     <string name="visibility_off_icon">Visibility off icon</string>
     <string name="settings_icon">Settings icon</string>
     <string name="date_icon">Date icon</string>
+    <string name="time_icon">Time icon</string>
     <string name="groups_icon">Groups icon</string>
     <string name="prescriptions_icon">Prescriptions icon</string>
     <string name="folder_off_icon">Folder Off icon</string>
@@ -166,7 +166,10 @@
 
     <string name="password_format_error">La contraseña debe tener más de 8 caracteres</string>
     <string name="dpi_format_error">El DPI solo debe contener dígitos</string>
-    <string name="phone_format_error">El número de teléfono solo debe contener dígitos</string>
+    <string name="phone_format_error">El número de teléfono no es válido</string>
     <string name="membership_format_error">El número de colegiado solo debe contener dígitos</string>
     <string name="login_error">El correo o la contraseña son incorrectos</string>
+    <string name="birthdate_error">Debes ser mayor de edad</string>
+    <string name="email_error">El email no es válido</string>
+    <string name="prescription_error">La receta debe tener al menos un medicamento</string>
 </resources>
