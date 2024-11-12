@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,9 +50,15 @@ fun LoginRoute(
     onLogIn: () -> Unit,
     onRegister: () -> Unit,
     onNavigateBack: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    
+    LaunchedEffect(state.successfulLogin) {
+        if (state.successfulLogin) {
+            onLogIn()
+        }
+    }
 
     LoginScreen(
         state = state,
@@ -64,7 +71,9 @@ fun LoginRoute(
         onIsPasswordVisibleChange = {
             viewModel.onEvent(LoginEvent.IsPasswordVisibleChange)
         },
-        onLogIn = onLogIn,
+        onLogIn = {
+            viewModel.onEvent(LoginEvent.Login)
+        },
         onRegister = onRegister,
         onNavigateBack = onNavigateBack
     )

@@ -1,16 +1,20 @@
 [versions]
-agp = "8.5.1"
+agp = "8.5.2"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.5"
-activityCompose = "1.9.2"
-composeBom = "2024.04.01"
-uiTextGoogleFonts = "1.7.0"
-navigationCompose = "2.8.0"
+activityCompose = "1.9.3"
+composeBom = "2024.10.01"
+uiTextGoogleFonts = "1.7.5"
+navigationCompose = "2.8.3"
 kotlinSerialization = "1.6.3"
+dataStore = "1.1.1"
+splashScreen = "1.0.1"
+room = "2.6.1"
+ktor = "2.3.12"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,7 +35,27 @@ androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text
 androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref ="navigationCompose"}
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
+androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashScreen" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room"}
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room"}
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+ktor-client-cio = { group = "io.ktor", name="ktor-client-cio", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name="ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-core = { group = "io.ktor", name="ktor-client-core", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name="ktor-client-logging", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name="ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+[bundles]
+ktor = [
+    "ktor-client-cio",
+    "ktor-client-content-negotiation",
+    "ktor-client-core",
+    "ktor-client-logging",
+    "ktor-serialization-kotlinx-json"
+]
