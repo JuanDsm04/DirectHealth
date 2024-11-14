@@ -1,7 +1,7 @@
 package com.uvg.directhealth.layouts.mainFlow.profile
 
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.Specialty
+import com.uvg.directhealth.domain.model.User
 
 data class ProfileState(
     val loggedUser: User? = null,

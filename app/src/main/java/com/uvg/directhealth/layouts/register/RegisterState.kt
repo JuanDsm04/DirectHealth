@@ -1,6 +1,7 @@
 package com.uvg.directhealth.layouts.register
 
-import com.uvg.directhealth.data.model.Specialty
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
 
 data class RegisterState(
     val name: String = "",
@@ -20,5 +21,7 @@ data class RegisterState(
     val hasPhoneNumberError: Boolean = false,
     val hasMembershipError: Boolean = false,
     val hasBirthDateError: Boolean = false,
-    val hasEmailError: Boolean = false
+    val hasEmailError: Boolean = false,
+    val role: Role,
+    val successfulRegistration: Boolean = false
 )

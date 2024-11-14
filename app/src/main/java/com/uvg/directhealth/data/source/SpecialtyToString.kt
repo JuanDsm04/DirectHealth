@@ -1,7 +1,7 @@
 package com.uvg.directhealth.data.source
 
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.Specialty
+import com.uvg.directhealth.domain.model.Specialty
 
 fun specialtyToStringResource(specialty: Specialty): Int {
     return when (specialty) {

@@ -45,11 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.DoctorInfo
-import com.uvg.directhealth.data.model.PatientInfo
-import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.DoctorInfo
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
+import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.layouts.common.FormComponent
 import com.uvg.directhealth.layouts.common.CustomMediumTopAppBar
 import com.uvg.directhealth.layouts.register.getSpecialtyItems
@@ -296,7 +295,7 @@ private fun ProfileScreen(
 
                 if (user != null) {
                     if (user.role == Role.PATIENT){
-                        user.patientInfo?.let {
+                        user.medicalHistory?.let {
                             FormComponent(
                                 textId = R.string.patient_register_medical_history,
                                 textFieldId = R.string.patient_register_text_field_medical_history,
@@ -393,9 +392,7 @@ private fun PreviewPatientProfileScreen() {
                         birthDate = LocalDate.of(1990, 2, 20),
                         dpi = "9876543210123",
                         phoneNumber = "87654321",
-                        patientInfo = PatientInfo(
-                            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-                        ),
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010.",
                         doctorInfo = null
                     )
                 ),
@@ -434,7 +431,7 @@ private fun PreviewDoctorProfileScreen() {
                         birthDate = LocalDate.of(1975, 5, 12),
                         dpi = "1234567890123",
                         phoneNumber = "12345678",
-                        patientInfo = null,
+                        medicalHistory = null,
                         doctorInfo = DoctorInfo(
                             number = 1122,
                             address = "Calle Salud 123",

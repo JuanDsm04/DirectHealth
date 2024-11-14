@@ -2,6 +2,7 @@ package com.uvg.directhealth.data.network
 
 import com.uvg.directhealth.data.network.dto.LoginDto
 import com.uvg.directhealth.data.network.dto.LoginResponseDto
+import com.uvg.directhealth.data.network.dto.RegisterDto
 import com.uvg.directhealth.domain.network.DirectHealthApi
 import com.uvg.directhealth.util.NetworkError
 import com.uvg.directhealth.util.Result
@@ -24,6 +25,19 @@ class KtorDirectHealthApi(private val httpClient: HttpClient): DirectHealthApi {
                         email = email,
                         password = password
                     )
+                )
+            }
+        }
+    }
+
+    override suspend fun register(registerDto: RegisterDto): Result<String, NetworkError> {
+        return safeCall<String> {
+            httpClient.post(
+                "https://direct-health-d73893a26328.herokuapp.com/api/auth/register"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    registerDto
                 )
             }
         }

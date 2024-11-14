@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.data.source.PrescriptionDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme

@@ -2,7 +2,7 @@ package com.uvg.directhealth.layouts.mainFlow.profile
 
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
-import com.uvg.directhealth.data.model.Specialty
+import com.uvg.directhealth.domain.model.Specialty
 import com.uvg.directhealth.data.source.UserDb
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,7 +55,7 @@ class ProfileViewModel: ViewModel() {
                 birthDate = formatDate(loggedUser.birthDate.toString()),
                 dpi = loggedUser.dpi,
                 phoneNumber = loggedUser.phoneNumber,
-                medicalHistory = loggedUser.patientInfo?.medicalHistory ?: "",
+                medicalHistory = loggedUser.medicalHistory?: "",
                 membership = loggedUser.doctorInfo?.number?.toString() ?: "",
                 address = loggedUser.doctorInfo?.address ?: "",
                 experience = loggedUser.doctorInfo?.summary ?: "",

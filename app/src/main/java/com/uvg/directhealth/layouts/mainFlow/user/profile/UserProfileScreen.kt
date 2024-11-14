@@ -49,11 +49,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.DoctorInfo
-import com.uvg.directhealth.data.model.PatientInfo
-import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.DoctorInfo
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
+import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.layouts.common.CustomTopAppBar
 import com.uvg.directhealth.layouts.common.SectionHeader
 import com.uvg.directhealth.layouts.common.CustomButton
@@ -215,9 +214,9 @@ fun PatientProfile(
                     .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(20.dp)
             ){
-                userSelected.patientInfo?.let {
+                userSelected.medicalHistory?.let {
                     Text(
-                        text = it.medicalHistory,
+                        text = userSelected.medicalHistory,
                         style = MaterialTheme.typography.bodyMedium.copy()
                     )
                 }
@@ -481,7 +480,7 @@ private fun PreviewPatientUserProfileScreen() {
                         birthDate = LocalDate.of(1975, 5, 12),
                         dpi = "1234567890123",
                         phoneNumber = "12345678",
-                        patientInfo = null,
+                        medicalHistory = null,
                         doctorInfo = DoctorInfo(
                             number = 1122,
                             address = "Calle Salud 123",
@@ -498,9 +497,7 @@ private fun PreviewPatientUserProfileScreen() {
                         birthDate = LocalDate.of(1990, 2, 20),
                         dpi = "9876543210123",
                         phoneNumber = "87654321",
-                        patientInfo = PatientInfo(
-                            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-                        ),
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010.",
                         doctorInfo = null
                     ),
                 ),
@@ -530,9 +527,7 @@ private fun PreviewDoctorUserProfileScreen() {
                         birthDate = LocalDate.of(1990, 2, 20),
                         dpi = "9876543210123",
                         phoneNumber = "87654321",
-                        patientInfo = PatientInfo(
-                            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-                        ),
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010.",
                         doctorInfo = null
                     ),
                     userProfile = User(
@@ -544,7 +539,7 @@ private fun PreviewDoctorUserProfileScreen() {
                         birthDate = LocalDate.of(1975, 5, 12),
                         dpi = "1234567890123",
                         phoneNumber = "12345678",
-                        patientInfo = null,
+                        medicalHistory = null,
                         doctorInfo = DoctorInfo(
                             number = 1122,
                             address = "Calle Salud 123",

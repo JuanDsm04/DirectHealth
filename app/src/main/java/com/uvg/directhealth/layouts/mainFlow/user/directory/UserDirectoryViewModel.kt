@@ -3,7 +3,7 @@ package com.uvg.directhealth.layouts.mainFlow.user.directory
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
-import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.data.source.UserDb
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -39,12 +39,11 @@ import com.uvg.directhealth.R
 import com.uvg.directhealth.layouts.common.SectionHeader
 import com.uvg.directhealth.layouts.common.CustomButton
 import com.uvg.directhealth.layouts.common.CustomListItem
-import com.uvg.directhealth.data.model.DoctorInfo
+import com.uvg.directhealth.domain.model.DoctorInfo
 import com.uvg.directhealth.data.model.Medication
-import com.uvg.directhealth.data.model.PatientInfo
-import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
+import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDate
 
@@ -444,7 +443,7 @@ private fun PreviewNewPrescriptionScreen() {
                         birthDate = LocalDate.of(1975, 5, 12),
                         dpi = "1234567890123",
                         phoneNumber = "12345678",
-                        patientInfo = null,
+                        medicalHistory = null,
                         doctorInfo = DoctorInfo(
                             number = 1122,
                             address = "Calle Salud 123",
@@ -461,9 +460,7 @@ private fun PreviewNewPrescriptionScreen() {
                         birthDate = LocalDate.of(1990, 2, 20),
                         dpi = "9876543210123",
                         phoneNumber = "87654321",
-                        patientInfo = PatientInfo(
-                            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-                        ),
+                        medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010.",
                         doctorInfo = null
                     ),
                     isErrorCreatePrescription = true

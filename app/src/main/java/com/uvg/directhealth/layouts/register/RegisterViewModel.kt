@@ -1,14 +1,43 @@
 package com.uvg.directhealth.layouts.register
 
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.toRoute
+import com.uvg.directhealth.data.local.DataStoreUserPrefs
+import com.uvg.directhealth.data.network.KtorDirectHealthApi
+import com.uvg.directhealth.data.network.dto.RegisterDto
+import com.uvg.directhealth.data.network.repository.AuthRepositoryImpl
+import com.uvg.directhealth.dataStore
+import com.uvg.directhealth.di.KtorDependencies
+import com.uvg.directhealth.domain.UserPreferences
+import com.uvg.directhealth.domain.model.DoctorInfo
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
+import com.uvg.directhealth.domain.repository.AuthRepository
+import com.uvg.directhealth.util.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
-class RegisterViewModel: ViewModel() {
-    private val _state = MutableStateFlow(RegisterState())
+class RegisterViewModel(
+    private val authRepository: AuthRepository,
+    savedStateHandle: SavedStateHandle
+): ViewModel() {
+    val register = savedStateHandle.toRoute<RegisterDestination>()
+    private val _state = MutableStateFlow(
+        RegisterState(role = register.roleUser)
+    )
     val state = _state.asStateFlow()
 
     fun onEvent(event: RegisterEvent) {
@@ -24,6 +53,68 @@ class RegisterViewModel: ViewModel() {
             is RegisterEvent.PasswordChange -> onPasswordChange(event.password)
             is RegisterEvent.PhoneNumberChange -> onPhoneNumberChange(event.phoneNumber)
             is RegisterEvent.PasswordVisibleChange -> onPasswordVisibleChange()
+            is RegisterEvent.SpecialtyChange -> onSpecialtyChange(event.specialty)
+            is RegisterEvent.Register -> onRegister()
+        }
+    }
+
+    private fun onRegister() {
+        viewModelScope.launch {
+
+            if (register.roleUser == Role.PATIENT) {
+                authRepository
+                    .register(
+                        RegisterDto(
+                            email = _state.value.email,
+                            name = _state.value.name,
+                            password = _state.value.password,
+                            birthDate = _state.value.birthDate,
+                            dpi = _state.value.dpi,
+                            phoneNumber = _state.value.phoneNumber,
+                            medicalHistory = _state.value.medicalHistory,
+                            doctorInfo = null,
+                            role = _state.value.role
+                        )
+                    )
+                    .onSuccess {
+                        _state.update { state ->
+                            state.copy(
+                                successfulRegistration = true
+                            )
+                        }
+                    }
+
+            } else {
+                println(_state.value.specialty)
+                val specialty: Specialty = _state.value.specialty!!
+
+                authRepository
+                    .register(
+                        RegisterDto(
+                            email = _state.value.email,
+                            name = _state.value.name,
+                            password = _state.value.password,
+                            birthDate = _state.value.birthDate,
+                            dpi = _state.value.dpi,
+                            phoneNumber = _state.value.phoneNumber,
+                            medicalHistory = null,
+                            doctorInfo =
+                            DoctorInfo(
+                                number = _state.value.membership.toInt(),
+                                address = _state.value.address,
+                                summary = _state.value.experience,
+                                specialty = specialty
+                            ),
+                            role = _state.value.role
+                        )
+                    ).onSuccess {
+                        _state.update { state ->
+                            state.copy(
+                                successfulRegistration = true
+                            )
+                        }
+                    }
+            }
         }
     }
 
@@ -49,7 +140,7 @@ class RegisterViewModel: ViewModel() {
 
 
     private fun onPasswordChange(password: String) {
-        val hasError = password.length <= 8
+        val hasError = password.length < 8
 
         _state.update { state ->
             state.copy(
@@ -68,10 +159,10 @@ class RegisterViewModel: ViewModel() {
     }
 
     private fun onBirthDateChange(birthDate: String) {
-        val parts = birthDate.split("/")
-        val day = parts[0].toIntOrNull() ?: return
+        val parts = birthDate.split("-")
+        val day = parts[2].toIntOrNull() ?: return
         val month = parts[1].toIntOrNull()?.minus(1) ?: return
-        val year = parts[2].toIntOrNull() ?: return
+        val year = parts[0].toIntOrNull() ?: return
 
         val birthDateCalendar = Calendar.getInstance().apply {
             set(year, month, day)
@@ -102,7 +193,7 @@ class RegisterViewModel: ViewModel() {
     }
 
     private fun onPhoneNumberChange(phoneNumber: String) {
-        val hasError = !phoneNumber.isDigitsOnly() || phoneNumber.length <= 8
+        val hasError = !phoneNumber.isDigitsOnly() || phoneNumber.length < 8
 
         _state.update { state ->
             state.copy(
@@ -147,11 +238,24 @@ class RegisterViewModel: ViewModel() {
         }
     }
 
-    private fun onSpecialtyChange(name: String) {
+    private fun onSpecialtyChange(specialty: Specialty) {
         _state.update { state ->
             state.copy(
-                name = name
+                specialty = specialty
             )
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val api = KtorDirectHealthApi(KtorDependencies.provideHttpClient())
+
+                RegisterViewModel(
+                    authRepository = AuthRepositoryImpl(directHealthApi = api),
+                    savedStateHandle = createSavedStateHandle()
+                )
+            }
         }
     }
 }

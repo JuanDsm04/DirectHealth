@@ -2,7 +2,7 @@ package com.uvg.directhealth.layouts.roleRegister
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.domain.model.Role
 import kotlinx.serialization.Serializable
 
 @Serializable

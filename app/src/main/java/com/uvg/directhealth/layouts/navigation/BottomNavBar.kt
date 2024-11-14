@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.layouts.mainFlow.appointment.AppointmentListDestination
 import com.uvg.directhealth.layouts.mainFlow.prescription.PrescriptionNavGraph

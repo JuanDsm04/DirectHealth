@@ -27,7 +27,7 @@
     <string name="patient_register_password">Contraseña</string>
     <string name="patient_register_text_field_password">Contraseña</string>
     <string name="patient_register_birthdate">Fecha de nacimiento</string>
-    <string name="patient_register_text_field_birthdate">DD/MM/YYYY</string>
+    <string name="patient_register_text_field_birthdate">yyyy-MM-dd</string>
     <string name="patient_register_dpi">Número de identificación</string>
     <string name="patient_register_text_field_dpi">DPI</string>
     <string name="patient_register_phone_number">Número de teléfono</string>

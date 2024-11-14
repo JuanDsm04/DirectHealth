@@ -1,5 +1,6 @@
-package com.uvg.directhealth.data.model
+package com.uvg.directhealth.domain.model
 
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
 enum class Role {
@@ -44,14 +45,11 @@ data class User(
     val birthDate: LocalDate,
     val dpi: String,
     val phoneNumber: String,
-    val patientInfo: PatientInfo?,
+    val medicalHistory: String?,
     val doctorInfo: DoctorInfo?
 )
 
-data class PatientInfo(
-    val medicalHistory: String
-)
-
+@Serializable
 data class DoctorInfo(
     val number: Int,
     val address: String,

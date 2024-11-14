@@ -43,11 +43,11 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
 import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.data.source.specialtyToStringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 

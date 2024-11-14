@@ -25,8 +25,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.Role
+import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.layouts.common.CustomTopAppBar
 import com.uvg.directhealth.layouts.common.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
@@ -34,11 +35,15 @@ import com.uvg.directhealth.ui.theme.DirectHealthTheme
 @Composable
 fun RoleRegisterRoute(
     onNavigateBack: () -> Unit,
-    onRoleRegisterClick: (Role) -> Unit
+    onRoleRegisterClick: (Role) -> Unit,
+    viewModel: RoleRegisterViewModel = viewModel(factory = RoleRegisterViewModel.Factory)
 ) {
     RoleRegisterScreen(
         onNavigateBack = onNavigateBack,
-        onRoleRegisterClick = onRoleRegisterClick
+        onRoleRegisterClick = {
+            viewModel.saveRole(it)
+            onRoleRegisterClick(it)
+        }
     )
 }
 

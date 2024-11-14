@@ -56,9 +56,7 @@ fun AppNavigation(
             onNavigateBack = {
                 navController.navigateUp()
             },
-            onRoleRegisterClick = { role ->
-                navController.navigateToRegisterScreen(role = role)
-            }
+            onRoleRegisterClick = navController::navigateToRegisterScreen
         )
         registerScreen(
             onBackNavigation = {

@@ -1,7 +1,7 @@
 package com.uvg.directhealth.layouts.mainFlow.user.newPrescription
 
 import com.uvg.directhealth.data.model.Medication
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.User
 
 data class NewPrescriptionState (
     val loggedUser: User? = null,

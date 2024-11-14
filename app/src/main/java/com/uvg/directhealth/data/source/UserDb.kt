@@ -1,10 +1,9 @@
 package com.uvg.directhealth.data.source
 
-import com.uvg.directhealth.data.model.DoctorInfo
-import com.uvg.directhealth.data.model.PatientInfo
-import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.DoctorInfo
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
+import com.uvg.directhealth.domain.model.User
 import java.time.LocalDate
 
 class UserDb {
@@ -19,7 +18,7 @@ class UserDb {
             birthDate = LocalDate.of(1975, 5, 12),
             dpi = "1234567890123",
             phoneNumber = "12345678",
-            patientInfo = null,
+            medicalHistory = null,
             doctorInfo = DoctorInfo(
                 number = 1122,
                 address = "Calle Salud 123",
@@ -36,9 +35,7 @@ class UserDb {
             birthDate = LocalDate.of(1990, 2, 20),
             dpi = "9876543210123",
             phoneNumber = "87654321",
-            patientInfo = PatientInfo(
-                medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010."
-            ),
+            medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010.",
             doctorInfo = null
         ),
         User(
@@ -50,7 +47,7 @@ class UserDb {
             birthDate = LocalDate.of(1980, 11, 7),
             dpi = "6543210987654",
             phoneNumber = "12398765",
-            patientInfo = null,
+            medicalHistory = null,
             doctorInfo = DoctorInfo(
                 number = 3344,
                 address = "Carrera Médica 456",
@@ -67,7 +64,7 @@ class UserDb {
             birthDate = LocalDate.of(1978, 8, 15),
             dpi = "3216549870123",
             phoneNumber = "23456789",
-            patientInfo = null,
+            medicalHistory = null,
             doctorInfo = DoctorInfo(
                 number = 4455,
                 address = "Avenida Salud 789",
@@ -84,9 +81,7 @@ class UserDb {
             birthDate = LocalDate.of(1985, 4, 10),
             dpi = "1472583690123",
             phoneNumber = "34567890",
-            patientInfo = PatientInfo(
-                medicalHistory = "Alergia a la penicilina. Sin cirugías previas."
-            ),
+            medicalHistory = "Alergia a la penicilina. Sin cirugías previas.",
             doctorInfo = null
         ),
         User(
@@ -98,7 +93,7 @@ class UserDb {
             birthDate = LocalDate.of(1992, 1, 22),
             dpi = "9638527410123",
             phoneNumber = "45678901",
-            patientInfo = null,
+            medicalHistory = null,
             doctorInfo = DoctorInfo(
                 number = 5566,
                 address = "Boulevard Médico 321",
@@ -115,9 +110,7 @@ class UserDb {
             birthDate = LocalDate.of(1995, 7, 30),
             dpi = "8523697410123",
             phoneNumber = "56789012",
-            patientInfo = PatientInfo(
-                medicalHistory = "Sin alergias conocidas. Cirugía de rodilla en 2018."
-            ),
+            medicalHistory = "Sin alergias conocidas. Cirugía de rodilla en 2018.",
             doctorInfo = null
         )
     )

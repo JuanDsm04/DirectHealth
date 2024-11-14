@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,29 +38,40 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
-import com.uvg.directhealth.data.model.Role
-import com.uvg.directhealth.data.model.Specialty
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.model.Specialty
 import com.uvg.directhealth.layouts.common.CustomButton
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import com.uvg.directhealth.layouts.common.FormComponent
 import com.uvg.directhealth.layouts.common.CustomMediumTopAppBar
 import com.uvg.directhealth.data.source.specialtyToStringResource
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun RegisterRoute(
     role: Role,
-    viewModel: RegisterViewModel = viewModel(),
+    viewModel: RegisterViewModel = viewModel(factory = RegisterViewModel.Factory),
     onBackNavigation: () -> Unit,
     onConfirmRegistration: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(state.successfulRegistration) {
+        if (state.successfulRegistration) onConfirmRegistration()
+    }
+
     RegisterScreen(
         state = state,
         role = role,
         onBackNavigation = onBackNavigation,
-        onConfirmRegistration = onConfirmRegistration,
+        onConfirmRegistration = {
+            viewModel.onEvent(RegisterEvent.Register)
+        },
         onNameChange = {
             viewModel.onEvent(RegisterEvent.NameChange(it))
         },
@@ -92,6 +104,10 @@ fun RegisterRoute(
         },
         onExperienceChange = {
             viewModel.onEvent(RegisterEvent.ExperienceChange(it))
+        },
+        onSpecialtyChange = {
+            println(Specialty.valueOf(it))
+            viewModel.onEvent(RegisterEvent.SpecialtyChange(Specialty.valueOf(it)))
         }
     )
 }
@@ -110,15 +126,17 @@ private fun RegisterScreen(
     onMembershipChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onExperienceChange: (String) -> Unit,
+    onSpecialtyChange: (String) -> Unit,
     onPasswordVisibleChange: () -> Unit,
     onBackNavigation: () -> Unit,
-    onConfirmRegistration: () -> Unit,
-){
+    onConfirmRegistration: () -> Unit
+) {
     val calendar = Calendar.getInstance()
     val datePickerDialog = DatePickerDialog(
         LocalContext.current,
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            onBirthDateChange("$dayOfMonth/${month + 1}/$year")
+            val formattedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            onBirthDateChange(formattedDate)
         },
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
@@ -309,6 +327,7 @@ private fun RegisterScreen(
                         dropdownItems = specialties.map { it.second },
                         onDropdownSelect = { selectedName ->
                             selectedSpecialty = specialties.first { it.second == selectedName }
+                            onSpecialtyChange(selectedSpecialty?.first.toString())
                         }
                     )
                 }
@@ -341,7 +360,7 @@ private fun PreviewPatientRegisterScreen() {
         Surface {
             RegisterScreen(
                 role = Role.PATIENT,
-                state = RegisterState(),
+                state = RegisterState(role = Role.PATIENT),
                 onAddressChange = {},
                 onMedicalHistoryChange = {},
                 onEmailChange = {},
@@ -354,7 +373,8 @@ private fun PreviewPatientRegisterScreen() {
                 onPasswordVisibleChange = {},
                 onConfirmRegistration = {},
                 onBackNavigation = {},
-                onExperienceChange = {}
+                onExperienceChange = {},
+                onSpecialtyChange = {}
             )
         }
     }
@@ -374,7 +394,8 @@ private fun PreviewPatientRegisterScreenWithErrors() {
                     hasEmailError = true,
                     hasPhoneNumberError = true,
                     hasDpiError = true,
-                    hasBirthDateError = true
+                    hasBirthDateError = true,
+                    role = Role.PATIENT
                 ),
                 onAddressChange = {},
                 onMedicalHistoryChange = {},
@@ -388,7 +409,8 @@ private fun PreviewPatientRegisterScreenWithErrors() {
                 onPasswordVisibleChange = {},
                 onConfirmRegistration = {},
                 onBackNavigation = {},
-                onExperienceChange = {}
+                onExperienceChange = {},
+                onSpecialtyChange = {}
             )
         }
     }

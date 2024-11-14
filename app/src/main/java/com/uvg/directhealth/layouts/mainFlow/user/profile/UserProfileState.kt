@@ -1,6 +1,6 @@
 package com.uvg.directhealth.layouts.mainFlow.user.profile
 
-import com.uvg.directhealth.data.model.User
+import com.uvg.directhealth.domain.model.User
 import java.util.Calendar
 
 data class UserProfileState(
