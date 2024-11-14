@@ -10,6 +10,13 @@ import kotlinx.coroutines.flow.first
 
 class DataStoreUserPrefs(private val dataStore: DataStore<Preferences>): UserPreferences {
     private val roleKey = stringPreferencesKey("role")
+    private val userIdKey = stringPreferencesKey("userId")
+
+    override suspend fun setUserId(id: String) {
+        dataStore.edit { preferences ->
+            preferences[userIdKey] = id
+        }
+    }
 
     override suspend fun setRole(role: Role) {
         dataStore.edit { preferences ->
@@ -20,6 +27,7 @@ class DataStoreUserPrefs(private val dataStore: DataStore<Preferences>): UserPre
     override suspend fun getValue(key: String?): String? {
         val preferencesKey = when (key) {
             "role" -> roleKey
+            "userId" -> userIdKey
             else -> null
         }
 

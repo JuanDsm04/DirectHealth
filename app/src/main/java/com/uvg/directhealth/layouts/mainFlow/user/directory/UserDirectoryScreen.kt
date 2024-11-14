@@ -53,7 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun UserDirectoryRoute(
-    viewModel: UserDirectoryViewModel = viewModel(),
+    viewModel: UserDirectoryViewModel = viewModel(factory = UserDirectoryViewModel.Factory),
     onUserClick: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()

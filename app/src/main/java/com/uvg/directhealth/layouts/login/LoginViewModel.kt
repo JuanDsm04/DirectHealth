@@ -1,14 +1,19 @@
 package com.uvg.directhealth.layouts.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.uvg.directhealth.data.local.DataStoreUserPrefs
 import com.uvg.directhealth.data.network.KtorDirectHealthApi
 import com.uvg.directhealth.data.network.repository.AuthRepositoryImpl
+import com.uvg.directhealth.dataStore
 import com.uvg.directhealth.di.KtorDependencies
+import com.uvg.directhealth.domain.UserPreferences
+import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.domain.repository.AuthRepository
 import com.uvg.directhealth.util.onError
 import com.uvg.directhealth.util.onSuccess
@@ -17,7 +22,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val authRepository: AuthRepository): ViewModel() {
+class LoginViewModel(
+    private val authRepository: AuthRepository,
+    private val userPreferences: UserPreferences
+): ViewModel() {
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
 
@@ -35,6 +43,9 @@ class LoginViewModel(private val authRepository: AuthRepository): ViewModel() {
             authRepository
                 .login(_state.value.email, _state.value.password)
                 .onSuccess {
+                    userPreferences.setUserId(it.id)
+                    userPreferences.setRole(Role.valueOf(it.role))
+
                     _state.update { state ->
                         state.copy(
                             successfulLogin = true
@@ -81,10 +92,12 @@ class LoginViewModel(private val authRepository: AuthRepository): ViewModel() {
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                val application = checkNotNull(this[APPLICATION_KEY])
                 val api = KtorDirectHealthApi(KtorDependencies.provideHttpClient())
 
                 LoginViewModel(
-                    authRepository = AuthRepositoryImpl(directHealthApi = api)
+                    authRepository = AuthRepositoryImpl(directHealthApi = api),
+                    userPreferences = DataStoreUserPrefs(application.dataStore)
                 )
             }
         }
