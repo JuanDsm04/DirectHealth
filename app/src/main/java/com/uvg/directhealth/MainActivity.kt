@@ -12,6 +12,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.rememberNavController
+import com.uvg.directhealth.data.local.DataStoreUserPrefs
 import com.uvg.directhealth.layouts.navigation.AppNavigation
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 
@@ -20,6 +21,9 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val dataStoreUserPrefs = DataStoreUserPrefs(dataStore = applicationContext.dataStore)
+
         setContent {
             val navController = rememberNavController()
 
@@ -31,7 +35,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        navController = navController
+                        navController = navController,
+                        dataStoreUserPrefs = dataStoreUserPrefs
                     )
                 }
             }

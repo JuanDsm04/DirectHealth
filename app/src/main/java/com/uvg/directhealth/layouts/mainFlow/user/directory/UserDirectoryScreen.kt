@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,7 +58,6 @@ fun UserDirectoryRoute(
     onUserClick: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    viewModel.onEvent(UserDirectoryEvent.PopulateData)
 
     UserDirectoryScreen(
         state = state,
@@ -115,49 +115,65 @@ private fun UserDirectoryScreen(
             Spacer(modifier = Modifier.height(10.dp))
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                .padding(start = 20.dp, top = 20.dp, end = 20.dp)
-        ) {
-            if (usersList.isNotEmpty()) {
-                LazyColumn {
-                    items(usersList) { item ->
-                        UserCard(
-                            user = item,
-                            onUserClick
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .padding(start = 20.dp, top = 20.dp, end = 20.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    .padding(start = 20.dp, top = 20.dp, end = 20.dp)
+            ) {
+                if (usersList.isNotEmpty()) {
+                    LazyColumn {
+                        items(usersList) { item ->
+                            UserCard(
+                                user = item,
+                                onUserClick
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                    }
+                } else {
+                    Column (
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_person_off),
+                            contentDescription = stringResource(id = R.string.person_off_icon),
+                            modifier = Modifier.size(50.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-                }
-            } else {
-                Column (
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_person_off),
-                        contentDescription = stringResource(id = R.string.person_off_icon),
-                        modifier = Modifier.size(50.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
 
-                    val emptyMessageRes = if ((state.userRole?: Role.PATIENT) == Role.PATIENT) {
-                        R.string.empty_doctors
-                    } else {
-                        R.string.empty_patients
-                    }
+                        val emptyMessageRes = if ((state.userRole?: Role.PATIENT) == Role.PATIENT) {
+                            R.string.empty_doctors
+                        } else {
+                            R.string.empty_patients
+                        }
 
-                    Text(
-                        text = stringResource(id = emptyMessageRes),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                        Text(
+                            text = stringResource(id = emptyMessageRes),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
         }

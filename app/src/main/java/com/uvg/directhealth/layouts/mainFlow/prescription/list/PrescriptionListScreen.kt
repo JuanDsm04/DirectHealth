@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
 import com.uvg.directhealth.domain.model.Role
-import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.data.source.PrescriptionDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.format.DateTimeFormatter
@@ -39,7 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun PrescriptionListRoute (
-    viewModel: PrescriptionListViewModel = viewModel(),
+    viewModel: PrescriptionListViewModel = viewModel(factory = PrescriptionListViewModel.Factory),
     onPrescriptionClick: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -71,8 +71,26 @@ private fun PrescriptionListScreen(
             }
         )
 
-        Box(modifier = Modifier.weight(1f)) {
-            PrescriptionList(prescriptions = state.prescriptionList, onPrescriptionClick = onPrescriptionClick, isDoctor = state.role == Role.DOCTOR)
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            Box(modifier = Modifier.weight(1f)) {
+                PrescriptionList(
+                    prescriptions = state.prescriptionList,
+                    onPrescriptionClick = onPrescriptionClick,
+                    isDoctor = state.role == Role.DOCTOR,
+                    userDetails = state.userDetails
+                )
+            }
         }
     }
 }
@@ -81,7 +99,8 @@ private fun PrescriptionListScreen(
 fun PrescriptionList(
     prescriptions: List<Prescription>,
     onPrescriptionClick: (String) -> Unit,
-    isDoctor: Boolean
+    isDoctor: Boolean,
+    userDetails: Map<String, String>
 ) {
     if (prescriptions.isEmpty()){
         Column (
@@ -112,7 +131,8 @@ fun PrescriptionList(
                 PrescriptionListItem(
                     prescription = item,
                     onPrescriptionClick = onPrescriptionClick,
-                    isDoctor = isDoctor
+                    isDoctor = isDoctor,
+                    userDetails = userDetails
                 )
             }
         }
@@ -123,14 +143,15 @@ fun PrescriptionList(
 fun PrescriptionListItem(
     prescription: Prescription,
     onPrescriptionClick: (String) -> Unit,
-    isDoctor: Boolean
+    isDoctor: Boolean,
+    userDetails: Map<String, String>
 ) {
-    val userDb = UserDb()
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
-    val name = if(isDoctor) {
-        userDb.getUserById(prescription.patientId).name
+
+    val name = if (isDoctor) {
+        userDetails[prescription.patientId]
     } else {
-        userDb.getUserById(prescription.doctorId).name
+        userDetails[prescription.doctorId]
     }
 
     Box(
@@ -150,8 +171,12 @@ fun PrescriptionListItem(
             )
             Column {
                 Text(
-                    text = "Receta #${prescription.id}",
+                    text = stringResource(id = R.string.prescription),
                     style = MaterialTheme.typography.titleMedium.copy()
+                )
+                Text(
+                    text = "#${prescription.id}",
+                    style = MaterialTheme.typography.bodySmall.copy()
                 )
                 Text(
                     text = stringResource(id = R.string.patient) + ": " + name,

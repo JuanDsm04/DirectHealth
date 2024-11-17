@@ -1,22 +1,39 @@
 package com.uvg.directhealth.layouts.mainFlow.prescription.list
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.navigation.toRoute
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.uvg.directhealth.data.local.DataStoreUserPrefs
+import com.uvg.directhealth.data.model.Prescription
+import com.uvg.directhealth.data.network.KtorDirectHealthApi
+import com.uvg.directhealth.data.network.dto.toPrescription
+import com.uvg.directhealth.data.network.dto.toUser
+import com.uvg.directhealth.data.network.repository.PrescriptionRepositoryImpl
+import com.uvg.directhealth.data.network.repository.UserRepositoryImpl
+import com.uvg.directhealth.dataStore
+import com.uvg.directhealth.di.KtorDependencies
 import com.uvg.directhealth.domain.model.Role
-import com.uvg.directhealth.data.source.PrescriptionDb
-import com.uvg.directhealth.data.source.UserDb
+import com.uvg.directhealth.util.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class PrescriptionListViewModel(savedStateHandle: SavedStateHandle): ViewModel() {
-    private val prescriptionList = savedStateHandle.toRoute<PrescriptionListDestination>()
+class PrescriptionListViewModel(
+    private val userPrefs: DataStoreUserPrefs,
+    private val prescriptionRepository: PrescriptionRepositoryImpl,
+    private val userRepositoryImpl: UserRepositoryImpl
+
+) : ViewModel() {
     private val _state = MutableStateFlow(PrescriptionListState())
     val state = _state.asStateFlow()
 
-    private val userDb = UserDb()
-    private val prescriptionDb = PrescriptionDb()
+    init {
+        getData()
+    }
 
     fun onEvent(event: PrescriptionListEvent) {
         when (event) {
@@ -25,19 +42,59 @@ class PrescriptionListViewModel(savedStateHandle: SavedStateHandle): ViewModel()
     }
 
     private fun getData() {
-        val user = userDb.getUserById(prescriptionList.userId)
+        viewModelScope.launch {
+            val userId = userPrefs.getValue("userId")
+            val roleString = userPrefs.getValue("role")
+            val role = roleString?.let { Role.valueOf(it) }
 
-        _state.update { state ->
-            if (user.role == Role.DOCTOR) {
-                state.copy(
-                    prescriptionList = prescriptionDb.getPrescriptionsByDoctorId(user.id),
-                    role = Role.DOCTOR
-                )
+            if (userId != null && role != null) {
+                val result = prescriptionRepository.getAllPrescriptions(userId)
 
-            } else {
-                state.copy(
-                    prescriptionList = prescriptionDb.getPrescriptionsByPatientId(user.id),
-                    role = Role.PATIENT
+                _state.update { state ->
+                    if (result is Result.Success) {
+                        val prescriptionList = result.data.map { it.toPrescription() }
+                        val usersResult = getUsersDetails(prescriptionList)
+
+                        state.copy(
+                            prescriptionList = prescriptionList,
+                            userDetails = usersResult,
+                            role = role,
+                            isLoading = false
+                        )
+                    } else {
+                        state.copy(isLoading = false)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun getUsersDetails(prescriptions: List<Prescription>): Map<String, String> {
+        val userIds = prescriptions.flatMap { listOf(it.doctorId, it.patientId) }.distinct()
+        val users = mutableMapOf<String, String>()
+
+        for (userId in userIds) {
+            val result = userRepositoryImpl.getUserById(userId)
+            if (result is Result.Success) {
+                val user = result.data.toUser()
+                users[userId] = user.name
+            }
+        }
+        return users
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = checkNotNull(this[APPLICATION_KEY])
+                val api = KtorDirectHealthApi(KtorDependencies.provideHttpClient())
+                val prescriptionRepository = PrescriptionRepositoryImpl(api)
+                val userRepository = UserRepositoryImpl(api)
+
+                PrescriptionListViewModel(
+                    userPrefs = DataStoreUserPrefs(application.dataStore),
+                    prescriptionRepository = prescriptionRepository,
+                    userRepositoryImpl = userRepository
                 )
             }
         }

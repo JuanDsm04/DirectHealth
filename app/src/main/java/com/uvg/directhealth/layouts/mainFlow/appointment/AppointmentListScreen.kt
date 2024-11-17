@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,14 +34,14 @@ import com.uvg.directhealth.R
 import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.data.model.Appointment
 import com.uvg.directhealth.data.source.AppointmentDb
-import com.uvg.directhealth.data.source.UserDb
+import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun AppointmentListRoute(
-    viewModel: AppointmentListViewModel = viewModel()
+    viewModel: AppointmentListViewModel = viewModel(factory = AppointmentListViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     viewModel.onEvent(AppointmentListEvent.PopulateData)
@@ -65,18 +66,31 @@ fun AppointmentListScreen(state: AppointmentListState){
             }
         )
 
-        Box(modifier = Modifier.weight(1f)) {
-            AppointmentList(
-                appointments = state.appointmentList,
-                isDoctor = state.role == Role.DOCTOR
-            )
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        } else {
+            Box(modifier = Modifier.weight(1f)) {
+                AppointmentList(
+                    appointments = state.appointmentList,
+                    userDetails = state.userDetails,
+                    isDoctor = state.role == Role.DOCTOR
+                )
+            }
         }
     }
 }
 
 @Composable
-fun AppointmentList(appointments: List<Appointment>, isDoctor: Boolean) {
-    val userDb = UserDb()
+fun AppointmentList(appointments: List<Appointment>, userDetails: List<User>, isDoctor: Boolean) {
     if (appointments.isEmpty()){
         Column (
             modifier = Modifier
@@ -104,18 +118,20 @@ fun AppointmentList(appointments: List<Appointment>, isDoctor: Boolean) {
         ) {
             items(appointments.size) { index ->
                 val appointment = appointments[index]
-                val doctor = userDb.getUserById(appointment.doctorId)
-                val patient = userDb.getUserById(appointment.patientId)
+                val doctor = userDetails.find { it.id == appointment.doctorId }
+                val patient = userDetails.find { it.id == appointment.patientId }
 
-                AppointmentListItem(
-                    doctorName = doctor.name,
-                    patientName = patient.name,
-                    patientPhone = patient.phoneNumber,
-                    doctorPhone = doctor.phoneNumber,
-                    doctorAddress = doctor.doctorInfo?.address,
-                    appointmentDate = appointment.date,
-                    isDoctor = isDoctor
-                )
+                if (doctor != null && patient != null) {
+                    AppointmentListItem(
+                        doctorName = doctor.name,
+                        patientName = patient.name,
+                        patientPhone = patient.phoneNumber,
+                        doctorPhone = doctor.phoneNumber,
+                        doctorAddress = doctor.doctorInfo?.address,
+                        appointmentDate = appointment.date,
+                        isDoctor = isDoctor
+                    )
+                }
             }
         }
     }

@@ -26,9 +26,6 @@ fun BottomNavBar(
     onNavItemClick: (Any) -> Unit,
     userId: String
 ) {
-    val userDb = UserDb()
-    val user = userDb.getUserById(userId)
-
     NavigationBar (
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ){
@@ -36,11 +33,7 @@ fun BottomNavBar(
         NavigationBarItem(
             selected = isItemSelected1,
             label = {
-                if (user.role == Role.PATIENT) {
-                    Text(text = stringResource(id = R.string.nav_doctors))
-                } else {
-                    Text(text = stringResource(id = R.string.nav_patients))
-                }
+                Text(text = stringResource(id = R.string.nav_directory))
             },
             onClick = { onNavItemClick(UserNavGraph) },
             icon = {

@@ -8,7 +8,7 @@ data class Prescription(
     val patientId: String,
     val emissionDate: LocalDate,
     val medicationList: List<Medication>,
-    val notes: List<String>
+    val notes: List<String>? = null
 )
 
 data class Medication(

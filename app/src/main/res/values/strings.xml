@@ -92,7 +92,8 @@
     <string name="edit">Editar</string>
 
     <string name="prescription_list_title">Recetas médicas</string>
-    <string name="prescription_id">Receta #</string>
+    <string name="prescription">Receta</string>
+    <string name="prescription_id">#</string>
     <string name="doctor">Médico</string>
     <string name="patient">Paciente</string>
     <string name="prescription_empty">Aún no hay recetas médicas</string>
@@ -138,6 +139,7 @@
 
     <string name="nav_doctors">Médicos</string>
     <string name="nav_patients">Pacientes</string>
+    <string name="nav_directory">Directorio</string>
     <string name="nav_prescriptions">Recetas</string>
     <string name="nav_appointments">Citas</string>
 

@@ -134,19 +134,17 @@ private fun PrescriptionDetailsScreen(
                 SectionWithItems(
                     title = stringResource(id = R.string.medications),
                     items = prescription.medicationList
-                ) { medicine ->
+                ) { medicine: Medication ->
                     CustomListItem(
                         title = medicine.name,
                         content = medicine.description
                     )
                 }
-            }
 
-            if (prescription != null) {
                 SectionWithItems(
                     title = stringResource(id = R.string.notes),
-                    items = prescription.notes
-                ) { note ->
+                    items = prescription.notes ?: emptyList()
+                ) { note: String ->
                     CustomListItem(
                         content = note
                     )
@@ -203,7 +201,6 @@ fun <T> SectionWithItems(
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
