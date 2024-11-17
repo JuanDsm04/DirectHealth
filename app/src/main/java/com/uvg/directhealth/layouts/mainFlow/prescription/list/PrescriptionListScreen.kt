@@ -36,6 +36,9 @@ import com.uvg.directhealth.data.source.PrescriptionDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.format.DateTimeFormatter
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.uvg.directhealth.layouts.common.HasError
+import com.uvg.directhealth.layouts.common.IsLoading
+import com.uvg.directhealth.layouts.mainFlow.appointment.AppointmentList
 
 @Composable
 fun PrescriptionListRoute (
@@ -71,25 +74,18 @@ private fun PrescriptionListScreen(
             }
         )
 
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        } else {
-            Box(modifier = Modifier.weight(1f)) {
-                PrescriptionList(
-                    prescriptions = state.prescriptionList,
-                    onPrescriptionClick = onPrescriptionClick,
-                    isDoctor = state.role == Role.DOCTOR,
-                    userDetails = state.userDetails
-                )
+        when {
+            state.isLoading -> IsLoading()
+            state.hasError -> HasError()
+            else -> {
+                Box(modifier = Modifier.weight(1f)) {
+                    PrescriptionList(
+                        prescriptions = state.prescriptionList,
+                        onPrescriptionClick = onPrescriptionClick,
+                        isDoctor = state.role == Role.DOCTOR,
+                        userDetails = state.userDetails
+                    )
+                }
             }
         }
     }

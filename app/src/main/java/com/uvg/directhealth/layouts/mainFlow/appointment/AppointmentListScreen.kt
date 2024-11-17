@@ -35,6 +35,8 @@ import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.data.model.Appointment
 import com.uvg.directhealth.data.source.AppointmentDb
 import com.uvg.directhealth.domain.model.User
+import com.uvg.directhealth.layouts.common.HasError
+import com.uvg.directhealth.layouts.common.IsLoading
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -66,24 +68,17 @@ fun AppointmentListScreen(state: AppointmentListState){
             }
         )
 
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        } else {
-            Box(modifier = Modifier.weight(1f)) {
-                AppointmentList(
-                    appointments = state.appointmentList,
-                    userDetails = state.userDetails,
-                    isDoctor = state.role == Role.DOCTOR
-                )
+        when {
+            state.isLoading -> IsLoading()
+            state.hasError -> HasError()
+            else -> {
+                Box(modifier = Modifier.weight(1f)) {
+                    AppointmentList(
+                        appointments = state.appointmentList,
+                        userDetails = state.userDetails,
+                        isDoctor = state.role == Role.DOCTOR
+                    )
+                }
             }
         }
     }

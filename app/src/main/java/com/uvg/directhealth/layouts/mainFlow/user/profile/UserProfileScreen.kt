@@ -56,6 +56,9 @@ import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.layouts.common.CustomTopAppBar
 import com.uvg.directhealth.layouts.common.SectionHeader
 import com.uvg.directhealth.layouts.common.CustomButton
+import com.uvg.directhealth.layouts.common.HasError
+import com.uvg.directhealth.layouts.common.IsLoading
+import com.uvg.directhealth.layouts.mainFlow.prescription.list.PrescriptionList
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDate
 import java.util.Calendar
@@ -65,7 +68,7 @@ import java.util.TimeZone
 fun UserProfileRoute(
     loggedUserId: String,
     userProfileId: String,
-    viewModel: UserProfileViewModel = viewModel(),
+    viewModel: UserProfileViewModel = viewModel(factory = UserProfileViewModel.Factory),
     createNewPrescription: (String) -> Unit,
     scheduleAppointment: (String) -> Unit,
     onNavigateBack: () -> Unit
@@ -102,26 +105,33 @@ private fun UserProfileScreen(
             onNavigationClick = { onNavigateBack() },
             backgroundColor = MaterialTheme.colorScheme.surface
         )
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 15.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            Alignment.CenterHorizontally,
-        ) {
-            if (userProfile != null) {
-                ProfileHeader(name = userProfile.name)
 
-                // Patient Profile
-                if (userProfile.role == Role.PATIENT){
-                    PatientProfile(userProfile, createNewPrescription)
-                }
+        when {
+            state.isLoading -> IsLoading()
+            state.hasError -> HasError()
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 15.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    Alignment.CenterHorizontally,
+                ) {
+                    if (userProfile != null) {
+                        ProfileHeader(name = userProfile.name)
 
-                // Doctor Profile
-                if (userProfile.role == Role.DOCTOR){
-                    DoctorProfile(userProfile, scheduleAppointment, state, onEvent)
+                        // Patient Profile
+                        if (userProfile.role == Role.PATIENT){
+                            PatientProfile(userProfile, createNewPrescription)
+                        }
+
+                        // Doctor Profile
+                        if (userProfile.role == Role.DOCTOR){
+                            DoctorProfile(userProfile, scheduleAppointment, state, onEvent)
+                        }
+                    }
+
                 }
             }
-
         }
     }
 }
@@ -500,6 +510,7 @@ private fun PreviewPatientUserProfileScreen() {
                         medicalHistory = "Sin alergias conocidas. Cirugías previas: apendicectomía en 2010.",
                         doctorInfo = null
                     ),
+                    isLoading = false
                 ),
                 onNavigateBack = {},
                 createNewPrescription = {},
@@ -547,6 +558,7 @@ private fun PreviewDoctorUserProfileScreen() {
                             specialty = Specialty.CARDIOLOGY
                         )
                     ),
+                    isLoading = false
                 ),
                 onNavigateBack = {},
                 createNewPrescription = {},

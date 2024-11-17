@@ -72,12 +72,9 @@ fun AppNavigation(
                 navController.navigateUp()
             },
             onConfirmRegistration = {
-                navController.navigateToMainGraph(
-                    navOptions = NavOptions.Builder().setPopUpTo<RegisterDestination>(
-                        inclusive = true
-                    ).build(),
-                    userId = "2" // Flujo de la app para un usuario de tipo paciente
-                )
+                navController.navigate(LoginDestination) {
+                    popUpTo(0)
+                }
             }
         )
         mainNavigationGraph(

@@ -17,17 +17,21 @@ import com.uvg.directhealth.di.KtorDependencies
 import com.uvg.directhealth.domain.UserPreferences
 import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.domain.repository.UserRepository
-import com.uvg.directhealth.util.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.uvg.directhealth.data.network.dto.toUser
+import com.uvg.directhealth.data.network.repository.AppointmentRepositoryImpl
+import com.uvg.directhealth.domain.repository.AppointmentRepository
+
+import com.uvg.directhealth.util.Result
 
 class UserDirectoryViewModel(
     savedStateHandle: SavedStateHandle,
     private val userPreferences: UserPreferences,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val appointmentRepository: AppointmentRepository
 
 ): ViewModel() {
     private val _state = MutableStateFlow(UserDirectoryState())
@@ -47,32 +51,70 @@ class UserDirectoryViewModel(
         viewModelScope.launch {
             val userId = userPreferences.getValue("userId")
 
-            userRepository.getAllUsers().onSuccess { allUserDtos ->
-                val allUsers = allUserDtos.map { it.toUser() }
-                val loggedUser = allUsers.find { it.id == userId }
+            when (val allUsersResult = userRepository.getAllUsers()) {
+                is Result.Success -> {
+                    val allUsers = allUsersResult.data.map { it.toUser() }
+                    val loggedUser = allUsers.find { it.id == userId }
 
-                if (loggedUser != null) {
-                    val filteredUsers: List<User>
-                    val role: Role
-
-                    if (loggedUser.role == Role.DOCTOR) {
-                        filteredUsers = allUsers.filter { it.role == Role.PATIENT }
-                        role = Role.DOCTOR
+                    if (loggedUser != null) {
+                        if (loggedUser.role == Role.DOCTOR) {
+                            handleDoctorDirectory(loggedUser, allUsers)
+                        } else {
+                            handlePatientDirectory(loggedUser, allUsers)
+                        }
                     } else {
-                        filteredUsers = allUsers.filter { it.role == Role.DOCTOR }
-                        role = Role.PATIENT
-                    }
-
-                    _state.update { state ->
-                        state.copy(
-                            userName = loggedUser.name,
-                            userRole = role,
-                            userList = filteredUsers,
-                            isLoading = false
-                        )
+                        handleError()
                     }
                 }
+
+                is Result.Error -> handleError()
             }
+        }
+    }
+
+    private suspend fun handleDoctorDirectory(loggedUser: User, allUsers: List<User>) {
+        when (val appointmentsResult = appointmentRepository.getAllAppointments(loggedUser.id)) {
+            is Result.Success -> {
+                val patientIds = appointmentsResult.data.map { it.patientId }.toSet()
+                val filteredUsers = allUsers.filter {
+                    it.role == Role.PATIENT && patientIds.contains(it.id)
+                }
+
+                _state.update { state ->
+                    state.copy(
+                        userName = loggedUser.name,
+                        userRole = Role.DOCTOR,
+                        userList = filteredUsers,
+                        isLoading = false,
+                        hasError = false
+                    )
+                }
+            }
+
+            is Result.Error -> handleError()
+        }
+    }
+
+    private fun handlePatientDirectory(loggedUser: User, allUsers: List<User>) {
+        val filteredUsers = allUsers.filter { it.role == Role.DOCTOR }
+
+        _state.update { state ->
+            state.copy(
+                userName = loggedUser.name,
+                userRole = Role.PATIENT,
+                userList = filteredUsers,
+                isLoading = false,
+                hasError = false
+            )
+        }
+    }
+
+    private fun handleError() {
+        _state.update {
+            it.copy(
+                isLoading = false,
+                hasError = true
+            )
         }
     }
 
@@ -82,11 +124,13 @@ class UserDirectoryViewModel(
                 val application = checkNotNull(this[APPLICATION_KEY])
                 val api = KtorDirectHealthApi(KtorDependencies.provideHttpClient())
                 val userRepository = UserRepositoryImpl(api)
+                val appointmentRepository = AppointmentRepositoryImpl(api)
 
                 UserDirectoryViewModel(
                     userPreferences = DataStoreUserPrefs(application.dataStore),
                     savedStateHandle = createSavedStateHandle(),
-                    userRepository = userRepository
+                    userRepository = userRepository,
+                    appointmentRepository = appointmentRepository
                 )
             }
         }

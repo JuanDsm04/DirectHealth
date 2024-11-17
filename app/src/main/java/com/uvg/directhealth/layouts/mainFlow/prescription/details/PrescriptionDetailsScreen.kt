@@ -13,13 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,19 +30,21 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.uvg.directhealth.R
 import com.uvg.directhealth.data.model.Medication
 import com.uvg.directhealth.data.model.Prescription
-import com.uvg.directhealth.data.source.UserDb
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import com.uvg.directhealth.layouts.common.SectionHeader
 import com.uvg.directhealth.layouts.common.CustomListItem
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.uvg.directhealth.layouts.common.CustomTopAppBar
+import com.uvg.directhealth.layouts.common.HasError
+import com.uvg.directhealth.layouts.common.IsLoading
 
 @Composable
 fun PrescriptionDetailsRoute(
     prescriptionId: String,
     onNavigateBack: () -> Unit,
-    viewModel: PrescriptionDetailsViewModel = viewModel()
+    viewModel: PrescriptionDetailsViewModel = viewModel(factory = PrescriptionDetailsViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     viewModel.onEvent(PrescriptionDetailsEvent.PopulateData(prescriptionId))
@@ -65,25 +60,36 @@ private fun PrescriptionDetailsScreen(
     state: PrescriptionDetailsState,
     onNavigateBack: () -> Unit
 ) {
-    val userDb = UserDb()
     val prescription = state.prescription
-    val user = prescription?.let { userDb.getUserById(it.patientId) }
-    val age = user?.let { LocalDate.now().year - it.birthDate.year } ?: 0
 
+    Column {
+        CustomTopAppBar(
+            onNavigationClick = { onNavigateBack() },
+            backgroundColor = MaterialTheme.colorScheme.background
+        )
+        when {
+            state.isLoading -> IsLoading()
+            state.hasError -> HasError()
+            else ->
+                Details(
+                prescription = prescription,
+                state = state
+            )
+        }
+    }
+}
+
+@Composable
+fun Details(
+    prescription: Prescription?,
+    state: PrescriptionDetailsState
+){
     Column (
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
             .verticalScroll(rememberScrollState())
     ){
-        if (prescription != null) {
-            CustomLargeTopAppBar(
-                prescription.id,
-                prescription.emissionDate,
-                onNavigateBack = onNavigateBack
-            )
-        }
-
         Column (
             modifier = Modifier
                 .padding(horizontal = 15.dp),
@@ -93,6 +99,24 @@ private fun PrescriptionDetailsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ){
+                val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.emissionDate) + ": " + (state.prescription?.emissionDate?.format(dateFormatter)
+                            ?: ""),
+                        style = MaterialTheme.typography.bodyLarge.copy()
+                    )
+                    Text(
+                        text = stringResource(id = R.string.prescription_id) + (state.prescription?.id
+                            ?: ""),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
                 SectionHeader(stringResource(id = R.string.patient).uppercase())
                 Column (
                     modifier = Modifier
@@ -108,12 +132,10 @@ private fun PrescriptionDetailsScreen(
                                 fontWeight = FontWeight.ExtraBold
                             )
                         )
-                        if (user != null) {
-                            Text(
-                                text = user.name,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
+                        Text(
+                            text = state.patientName,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                     Row {
                         Text(
@@ -123,7 +145,7 @@ private fun PrescriptionDetailsScreen(
                             )
                         )
                         Text(
-                            text = "$age",
+                            text = state.patientAge.toString(),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -203,50 +225,6 @@ fun <T> SectionWithItems(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CustomLargeTopAppBar(
-    prescriptionId: String,
-    prescriptionEmissionDate: LocalDate,
-    onNavigateBack: (() -> Unit)? = null,
-    onActionsClick: (() -> Unit)? = null
-){
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
-    LargeTopAppBar(
-        title = {
-            Column {
-                Text(
-                    text = stringResource(id = R.string.prescription_id) + prescriptionId,
-                )
-                Text(
-                    text = stringResource(id = R.string.emissionDate) + ": " + prescriptionEmissionDate.format(dateFormatter),
-                    style = MaterialTheme.typography.bodyLarge.copy()
-                )
-            }
-        },
-        navigationIcon = {
-            if (onNavigateBack != null) {
-                IconButton( onClick = onNavigateBack ) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back_icon)
-                    )
-                }
-            }
-        },
-        actions = {
-            if (onActionsClick != null) {
-                IconButton( onClick =  onActionsClick ) {
-                    Icon(
-                        Icons.Default.Settings,
-                        contentDescription = stringResource(id = R.string.settings_icon)
-                    )
-                }
-            }
-        }
-    )
-}
-
 @Preview(showBackground = true)
 @Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -274,7 +252,8 @@ private fun PreviewPrescriptionDetailsScreen() {
                             "Tome aspirina una vez al día después de las comidas.",
                             "Controlar los niveles de colesterol cada 3 meses."
                         )
-                    )
+                    ),
+                    isLoading = false
                 ),
                 onNavigateBack = { }
             )
@@ -302,7 +281,8 @@ private fun PreviewPrescriptionDetailsScreenNotesEmpty() {
                             )
                         ),
                         notes = listOf()
-                    )
+                    ),
+                    isLoading = false
                 ),
                 onNavigateBack = { }
             )

@@ -2,6 +2,7 @@ package com.uvg.directhealth.layouts.register
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,12 +46,7 @@ import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import com.uvg.directhealth.layouts.common.FormComponent
 import com.uvg.directhealth.layouts.common.CustomMediumTopAppBar
 import com.uvg.directhealth.data.source.specialtyToStringResource
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun RegisterRoute(
@@ -60,14 +56,21 @@ fun RegisterRoute(
     onConfirmRegistration: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val isFormValid = viewModel.isFormValid(role)
+    val context = LocalContext.current
+    val successfulRegistrationMessage = stringResource(id = R.string.successful_registration)
 
     LaunchedEffect(state.successfulRegistration) {
-        if (state.successfulRegistration) onConfirmRegistration()
+        if (state.successfulRegistration) {
+            Toast.makeText(context, successfulRegistrationMessage, Toast.LENGTH_SHORT).show()
+            onConfirmRegistration()
+        }
     }
 
     RegisterScreen(
         state = state,
         role = role,
+        isFormValid = isFormValid,
         onBackNavigation = onBackNavigation,
         onConfirmRegistration = {
             viewModel.onEvent(RegisterEvent.Register)
@@ -116,6 +119,7 @@ fun RegisterRoute(
 private fun RegisterScreen(
     state: RegisterState,
     role: Role,
+    isFormValid: Boolean,
     onNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -337,7 +341,8 @@ private fun RegisterScreen(
                     onClick = { onConfirmRegistration() },
                     colorBackground = MaterialTheme.colorScheme.primary,
                     maxWidth = true,
-                    colorText = MaterialTheme.colorScheme.onPrimary
+                    colorText = MaterialTheme.colorScheme.onPrimary,
+                    enable = isFormValid
                 )
             }
         }
@@ -374,7 +379,8 @@ private fun PreviewPatientRegisterScreen() {
                 onConfirmRegistration = {},
                 onBackNavigation = {},
                 onExperienceChange = {},
-                onSpecialtyChange = {}
+                onSpecialtyChange = {},
+                isFormValid = true
             )
         }
     }
@@ -410,7 +416,8 @@ private fun PreviewPatientRegisterScreenWithErrors() {
                 onConfirmRegistration = {},
                 onBackNavigation = {},
                 onExperienceChange = {},
-                onSpecialtyChange = {}
+                onSpecialtyChange = {},
+                isFormValid = true
             )
         }
     }

@@ -23,30 +23,34 @@ fun CustomButton(
     colorText: Color,
     icon: ImageVector? = null,
     contentDescriptionIcon: String? = null,
-    maxWidth: Boolean = false
+    maxWidth: Boolean = false,
+    enable: Boolean? = true
 ) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier
-            .then(if (maxWidth) Modifier.fillMaxWidth() else Modifier)
-            .height(50.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colorBackground
-        )
-    ) {
-        if (icon != null) {
-            Icon(
-                icon,
-                contentDescription = contentDescriptionIcon,
-                tint = colorText
+    if (enable != null) {
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier
+                .then(if (maxWidth) Modifier.fillMaxWidth() else Modifier)
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorBackground
+            ),
+            enabled = enable
+        ) {
+            if (icon != null) {
+                Icon(
+                    icon,
+                    contentDescription = contentDescriptionIcon,
+                    tint = colorText
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = colorText
+                )
             )
-            Spacer(modifier = Modifier.width(10.dp))
         }
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge.copy(
-                color = colorText
-            )
-        )
     }
 }

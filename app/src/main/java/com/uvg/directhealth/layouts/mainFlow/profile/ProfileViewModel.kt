@@ -2,21 +2,36 @@ package com.uvg.directhealth.layouts.mainFlow.profile
 
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.uvg.directhealth.data.network.KtorDirectHealthApi
+import com.uvg.directhealth.data.network.dto.DoctorInfoDto
+import com.uvg.directhealth.data.network.dto.UserDto
+import com.uvg.directhealth.data.network.dto.toUser
+import com.uvg.directhealth.data.network.repository.UserRepositoryImpl
 import com.uvg.directhealth.domain.model.Specialty
-import com.uvg.directhealth.data.source.UserDb
+import com.uvg.directhealth.di.KtorDependencies
+import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.uvg.directhealth.util.Result
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-class ProfileViewModel: ViewModel() {
+class ProfileViewModel(
+    private val userRepository: UserRepository
+): ViewModel() {
     private val _state = MutableStateFlow(ProfileState())
     val state = _state.asStateFlow()
-
-    private val userDb = UserDb()
 
     fun onEvent(event: ProfileEvent) {
         when (event) {
@@ -32,6 +47,7 @@ class ProfileViewModel: ViewModel() {
             is ProfileEvent.PasswordChange -> onPasswordChange(event.password)
             is ProfileEvent.PhoneNumberChange -> onPhoneNumberChange(event.phoneNumber)
             is ProfileEvent.PasswordVisibleChange -> onPasswordVisibleChange()
+            is ProfileEvent.SaveProfile -> updateProfile()
         }
     }
 
@@ -39,28 +55,132 @@ class ProfileViewModel: ViewModel() {
         val formatInput = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val formatOutput = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val date: Date = formatInput.parse(birthDateString) ?: Date()
-        
+
+        return formatOutput.format(date)
+    }
+
+    private fun formatDateToApiFormat(birthDateString: String): String {
+        val formatInput = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val formatOutput = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
+        val date: Date = formatInput.parse(birthDateString) ?: Date()
+
         return formatOutput.format(date)
     }
 
     private fun populateData(loggedUserId: String) {
-        val loggedUser = userDb.getUserById(loggedUserId)
+        viewModelScope.launch {
+            when (val result = userRepository.getUserById(loggedUserId)) {
+                is Result.Success -> {
+                    val loggedUser = result.data
+                    val formattedBirthDate = formatDate(loggedUser.birthDate)
 
-        _state.update { state ->
-            state.copy(
-                loggedUser = loggedUser,
-                name = loggedUser.name,
-                email = loggedUser.email,
-                password = loggedUser.password,
-                birthDate = formatDate(loggedUser.birthDate.toString()),
-                dpi = loggedUser.dpi,
-                phoneNumber = loggedUser.phoneNumber,
-                medicalHistory = loggedUser.medicalHistory?: "",
-                membership = loggedUser.doctorInfo?.number?.toString() ?: "",
-                address = loggedUser.doctorInfo?.address ?: "",
-                experience = loggedUser.doctorInfo?.summary ?: "",
-                specialty = loggedUser.doctorInfo?.specialty
-            )
+                    _state.update { state ->
+                        state.copy(
+                            loggedUser = loggedUser.toUser(),
+                            name = loggedUser.name,
+                            email = loggedUser.email,
+                            password = loggedUser.password,
+                            birthDate = formattedBirthDate,
+                            dpi = loggedUser.dpi,
+                            phoneNumber = loggedUser.phoneNumber,
+                            medicalHistory = loggedUser.medicalHistory ?: "",
+                            membership = loggedUser.doctorInfo?.number?.toString() ?: "",
+                            address = loggedUser.doctorInfo?.address ?: "",
+                            experience = loggedUser.doctorInfo?.summary ?: "",
+                            specialty = Specialty.GENERAL,
+                            isLoading = false,
+                            hasError = false
+                        )
+                    }
+                }
+
+                is Result.Error -> {
+                    _state.update { state ->
+                        state.copy(
+                            loggedUser = null,
+                            isLoading = false,
+                            hasError = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun isFormValid(role: Role): Boolean {
+        return when (role) {
+            Role.PATIENT -> {
+                state.value.name.isNotEmpty() &&
+                        state.value.email.isNotEmpty() &&
+                        state.value.password.isNotEmpty() &&
+                        state.value.birthDate.isNotEmpty() &&
+                        state.value.dpi.isNotEmpty() &&
+                        state.value.phoneNumber.isNotEmpty() &&
+                        state.value.medicalHistory.isNotEmpty()
+            }
+            Role.DOCTOR -> {
+                state.value.name.isNotEmpty() &&
+                        state.value.email.isNotEmpty() &&
+                        state.value.password.isNotEmpty() &&
+                        state.value.birthDate.isNotEmpty() &&
+                        state.value.dpi.isNotEmpty() &&
+                        state.value.phoneNumber.isNotEmpty() &&
+                        state.value.membership.isNotEmpty() &&
+                        state.value.address.isNotEmpty() &&
+                        state.value.experience.isNotEmpty() &&
+                        state.value.specialty != null
+            }
+        }
+    }
+
+    private fun updateProfile() {
+        val formattedBirthDate = formatDateToApiFormat(_state.value.birthDate)
+        val doctorNumber = _state.value.membership.toIntOrNull() ?: 0
+
+        val updatedUserDto = UserDto(
+            id = _state.value.loggedUser?.id ?: "",
+            role = _state.value.loggedUser?.role.toString(),
+            name = _state.value.name,
+            email = _state.value.email,
+            password = _state.value.password,
+            birthDate = formattedBirthDate,
+            dpi = _state.value.dpi,
+            phoneNumber = _state.value.phoneNumber,
+            medicalHistory = _state.value.medicalHistory.takeIf { it.isNotEmpty() },
+            doctorInfo = if (_state.value.loggedUser?.doctorInfo != null) {
+                _state.value.loggedUser!!.doctorInfo?.let {
+                    DoctorInfoDto(
+                        number = doctorNumber,
+                        address = _state.value.address,
+                        summary = _state.value.experience,
+                        specialty = _state.value.specialty.toString()
+                    )
+                }
+            } else {
+                null
+            }
+        )
+
+        viewModelScope.launch {
+            when (val result = userRepository.updateUser(updatedUserDto.id, updatedUserDto)) {
+                is Result.Success -> {
+                    _state.update { state ->
+                        state.copy(
+                            loggedUser = result.data.toUser(),
+                            isLoading = false,
+                            hasError = false
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _state.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            hasError = true
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -188,6 +308,17 @@ class ProfileViewModel: ViewModel() {
             state.copy(
                 specialty = specialty
             )
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val api = KtorDirectHealthApi(KtorDependencies.provideHttpClient())
+                val userRepository = UserRepositoryImpl(api)
+
+                ProfileViewModel(userRepository = userRepository)
+            }
         }
     }
 }

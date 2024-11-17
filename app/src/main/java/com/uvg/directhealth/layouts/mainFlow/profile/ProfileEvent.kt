@@ -13,4 +13,5 @@ sealed interface ProfileEvent {
     data class AddressChange(val address: String): ProfileEvent
     data class ExperienceChange(val experience: String): ProfileEvent
     data object PasswordVisibleChange: ProfileEvent
+    data object SaveProfile : ProfileEvent
 }

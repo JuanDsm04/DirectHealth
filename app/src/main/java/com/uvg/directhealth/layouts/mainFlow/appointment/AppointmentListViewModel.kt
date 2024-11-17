@@ -17,6 +17,8 @@ import com.uvg.directhealth.dataStore
 import com.uvg.directhealth.di.KtorDependencies
 import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.domain.model.User
+import com.uvg.directhealth.domain.repository.AppointmentRepository
+import com.uvg.directhealth.domain.repository.UserRepository
 import com.uvg.directhealth.util.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,8 +27,8 @@ import kotlinx.coroutines.launch
 
 class AppointmentListViewModel(
     private val userPrefs: DataStoreUserPrefs,
-    private val appointmentRepository: AppointmentRepositoryImpl,
-    private val userRepositoryImpl: UserRepositoryImpl
+    private val appointmentRepository: AppointmentRepository,
+    private val userRepository: UserRepository
 
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppointmentListState())
@@ -52,20 +54,26 @@ class AppointmentListViewModel(
                 val result = appointmentRepository.getAllAppointments(userId)
 
                 _state.update { state ->
-                    if (result is Result.Success) {
-                        val appointmentList = result.data.map { it.toAppointment() }
-                        val usersResult = getUsersDetails(appointmentList)
+                    when (result) {
+                        is Result.Success -> {
+                            val appointmentList = result.data.map { it.toAppointment() }
+                            val usersResult = getUsersDetails(appointmentList)
 
-                        state.copy(
-                            appointmentList = appointmentList,
-                            userDetails = usersResult,
-                            role = role,
-                            isLoading = false
-                        )
-                    }  else {
-                        state.copy(isLoading = false)
+                            state.copy(
+                                appointmentList = appointmentList,
+                                userDetails = usersResult,
+                                role = role,
+                                isLoading = false,
+                                hasError = false
+                            )
+                        }
+                        is Result.Error -> {
+                            state.copy(isLoading = false, hasError = true)
+                        }
                     }
                 }
+            } else {
+                _state.update { it.copy(isLoading = false, hasError = true) }
             }
         }
     }
@@ -75,7 +83,7 @@ class AppointmentListViewModel(
         val users = mutableListOf<User>()
 
         for (userId in userIds) {
-            val result = userRepositoryImpl.getUserById(userId)
+            val result = userRepository.getUserById(userId)
             if (result is Result.Success) {
                 result.data.toUser().also { users.add(it) }
             }
@@ -94,7 +102,7 @@ class AppointmentListViewModel(
                 AppointmentListViewModel(
                     userPrefs = DataStoreUserPrefs(application.dataStore),
                     appointmentRepository = appointmentRepository,
-                    userRepositoryImpl = userRepository
+                    userRepository = userRepository
                 )
             }
         }

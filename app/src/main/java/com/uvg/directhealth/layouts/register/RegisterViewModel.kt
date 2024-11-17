@@ -58,6 +58,32 @@ class RegisterViewModel(
         }
     }
 
+    fun isFormValid(role: Role): Boolean {
+        return when (role) {
+            Role.PATIENT -> {
+                state.value.name.isNotEmpty() &&
+                state.value.email.isNotEmpty() &&
+                state.value.password.isNotEmpty() &&
+                state.value.birthDate.isNotEmpty() &&
+                state.value.dpi.isNotEmpty() &&
+                state.value.phoneNumber.isNotEmpty() &&
+                state.value.medicalHistory.isNotEmpty()
+            }
+            Role.DOCTOR -> {
+                state.value.name.isNotEmpty() &&
+                state.value.email.isNotEmpty() &&
+                state.value.password.isNotEmpty() &&
+                state.value.birthDate.isNotEmpty() &&
+                state.value.dpi.isNotEmpty() &&
+                state.value.phoneNumber.isNotEmpty() &&
+                state.value.membership.isNotEmpty() &&
+                state.value.address.isNotEmpty() &&
+                state.value.experience.isNotEmpty() &&
+                state.value.specialty != null
+            }
+        }
+    }
+
     private fun onRegister() {
         viewModelScope.launch {
 

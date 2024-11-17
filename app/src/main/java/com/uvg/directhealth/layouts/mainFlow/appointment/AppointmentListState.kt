@@ -8,5 +8,6 @@ data class AppointmentListState(
     val appointmentList: List<Appointment> = emptyList(),
     val userDetails: List<User> = emptyList(),
     val role: Role? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val hasError: Boolean = false
 )

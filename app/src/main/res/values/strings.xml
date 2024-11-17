@@ -160,6 +160,7 @@
     <string name="person_off_icon">Person icon</string>
     <string name="search_icon">Search icon</string>
     <string name="arrow_drop_down_icon">ArrowDropDown icon</string>
+    <string name="error_icon">Error icon</string>
 
     <string name="login_img">Login image</string>
     <string name="register_img">Register image</string>
@@ -174,4 +175,7 @@
     <string name="birthdate_error">Debes ser mayor de edad</string>
     <string name="email_error">El email no es válido</string>
     <string name="prescription_error">La receta debe tener al menos un medicamento</string>
+
+    <string name="has_error">Ocurrió un error inesperado</string>
+    <string name="successful_registration">Usuario registrado correctamente</string>
 </resources>

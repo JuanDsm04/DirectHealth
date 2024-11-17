@@ -22,5 +22,8 @@ data class ProfileState(
     val hasPhoneNumberError: Boolean = false,
     val hasMembershipError: Boolean = false,
     val hasBirthDateError: Boolean = false,
-    val hasEmailError: Boolean = false
+    val hasEmailError: Boolean = false,
+    val isLoading: Boolean = true,
+    val hasError: Boolean = false,
+    val successfulEdit: Boolean = false
 )

@@ -16,6 +16,8 @@ import com.uvg.directhealth.data.network.repository.UserRepositoryImpl
 import com.uvg.directhealth.dataStore
 import com.uvg.directhealth.di.KtorDependencies
 import com.uvg.directhealth.domain.model.Role
+import com.uvg.directhealth.domain.repository.PrescriptionRepository
+import com.uvg.directhealth.domain.repository.UserRepository
 import com.uvg.directhealth.util.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,8 +26,8 @@ import kotlinx.coroutines.launch
 
 class PrescriptionListViewModel(
     private val userPrefs: DataStoreUserPrefs,
-    private val prescriptionRepository: PrescriptionRepositoryImpl,
-    private val userRepositoryImpl: UserRepositoryImpl
+    private val prescriptionRepository: PrescriptionRepository,
+    private val userRepository: UserRepository
 
 ) : ViewModel() {
     private val _state = MutableStateFlow(PrescriptionListState())
@@ -51,20 +53,26 @@ class PrescriptionListViewModel(
                 val result = prescriptionRepository.getAllPrescriptions(userId)
 
                 _state.update { state ->
-                    if (result is Result.Success) {
-                        val prescriptionList = result.data.map { it.toPrescription() }
-                        val usersResult = getUsersDetails(prescriptionList)
+                    when (result) {
+                        is Result.Success -> {
+                            val prescriptionList = result.data.map { it.toPrescription() }
+                            val usersResult = getUsersDetails(prescriptionList)
 
-                        state.copy(
-                            prescriptionList = prescriptionList,
-                            userDetails = usersResult,
-                            role = role,
-                            isLoading = false
-                        )
-                    } else {
-                        state.copy(isLoading = false)
+                            state.copy(
+                                prescriptionList = prescriptionList,
+                                userDetails = usersResult,
+                                role = role,
+                                isLoading = false,
+                                hasError = false
+                            )
+                        }
+                        is Result.Error -> {
+                            state.copy(isLoading = false, hasError = true)
+                        }
                     }
                 }
+            } else {
+                _state.update { it.copy(isLoading = false, hasError = true) }
             }
         }
     }
@@ -74,7 +82,7 @@ class PrescriptionListViewModel(
         val users = mutableMapOf<String, String>()
 
         for (userId in userIds) {
-            val result = userRepositoryImpl.getUserById(userId)
+            val result = userRepository.getUserById(userId)
             if (result is Result.Success) {
                 val user = result.data.toUser()
                 users[userId] = user.name
@@ -94,7 +102,7 @@ class PrescriptionListViewModel(
                 PrescriptionListViewModel(
                     userPrefs = DataStoreUserPrefs(application.dataStore),
                     prescriptionRepository = prescriptionRepository,
-                    userRepositoryImpl = userRepository
+                    userRepository = userRepository
                 )
             }
         }

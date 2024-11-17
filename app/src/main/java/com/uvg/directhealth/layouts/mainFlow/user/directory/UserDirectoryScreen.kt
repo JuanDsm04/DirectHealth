@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +50,8 @@ import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.data.source.specialtyToStringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.uvg.directhealth.layouts.common.HasError
+import com.uvg.directhealth.layouts.common.IsLoading
 
 @Composable
 fun UserDirectoryRoute(
@@ -67,6 +68,22 @@ fun UserDirectoryRoute(
 
 @Composable
 private fun UserDirectoryScreen(
+    state: UserDirectoryState,
+    onUserClick: (String) -> Unit
+){
+    when {
+        state.isLoading -> IsLoading()
+        state.hasError -> HasError()
+        else ->
+            DirectoryContent(
+                state = state,
+                onUserClick = onUserClick
+            )
+    }
+}
+
+@Composable
+fun DirectoryContent(
     state: UserDirectoryState,
     onUserClick: (String) -> Unit
 ){
@@ -87,15 +104,25 @@ private fun UserDirectoryScreen(
     Column (
         modifier = Modifier
             .fillMaxSize()
-    ){
-        Column (
+    ) {
+        Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
-        ){
-            if (state.userRole == Role.DOCTOR){
-                state.userName?.let { WelcomeHeader(nameUser = it, helloMessage = stringResource(id = R.string.hello_message_doctor)) }
+        ) {
+            if (state.userRole == Role.DOCTOR) {
+                state.userName?.let {
+                    WelcomeHeader(
+                        nameUser = it,
+                        helloMessage = stringResource(id = R.string.hello_message_doctor)
+                    )
+                }
             } else {
-                state.userName?.let { WelcomeHeader(nameUser = it, helloMessage = stringResource(id = R.string.hello_message_patient)) }
+                state.userName?.let {
+                    WelcomeHeader(
+                        nameUser = it,
+                        helloMessage = stringResource(id = R.string.hello_message_patient)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -114,66 +141,49 @@ private fun UserDirectoryScreen(
             }
             Spacer(modifier = Modifier.height(10.dp))
         }
-
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .padding(start = 20.dp, top = 20.dp, end = 20.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                    .padding(start = 20.dp, top = 20.dp, end = 20.dp)
-            ) {
-                if (usersList.isNotEmpty()) {
-                    LazyColumn {
-                        items(usersList) { item ->
-                            UserCard(
-                                user = item,
-                                onUserClick
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                        }
-                    }
-                } else {
-                    Column (
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_person_off),
-                            contentDescription = stringResource(id = R.string.person_off_icon),
-                            modifier = Modifier.size(50.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                .padding(start = 20.dp, top = 20.dp, end = 20.dp)
+        ) {
+            if (usersList.isNotEmpty()) {
+                LazyColumn {
+                    items(usersList) { item ->
+                        UserCard(
+                            user = item,
+                            onUserClick
                         )
-
-                        val emptyMessageRes = if ((state.userRole?: Role.PATIENT) == Role.PATIENT) {
-                            R.string.empty_doctors
-                        } else {
-                            R.string.empty_patients
-                        }
-
-                        Text(
-                            text = stringResource(id = emptyMessageRes),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
+                }
+            } else {
+                Column (
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_person_off),
+                        contentDescription = stringResource(id = R.string.person_off_icon),
+                        modifier = Modifier.size(50.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+
+                    val emptyMessageRes = if ((state.userRole?: Role.PATIENT) == Role.PATIENT) {
+                        R.string.empty_doctors
+                    } else {
+                        R.string.empty_patients
+                    }
+
+                    Text(
+                        text = stringResource(id = emptyMessageRes),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
@@ -380,6 +390,7 @@ private fun PreviewPatientUserDirectoryScreen() {
                     userName = "Ana Martínez",
                     userRole = Role.PATIENT,
                     userList = userDb.getAllDoctors(),
+                    isLoading = false
                 ),
                 onUserClick = { }
             )
@@ -400,6 +411,7 @@ private fun PreviewDoctorUserDirectoryScreen() {
                     userName = "Dr. Juan Pérez",
                     userRole = Role.DOCTOR,
                     userList = userDb.getPatientsByDoctorId("1"),
+                    isLoading = false
                 ),
                 onUserClick = { }
             )
@@ -420,6 +432,7 @@ private fun PreviewDoctorUserDirectoryScreenEmpty() {
                     userName = "Dr. Sofia Torres",
                     userRole = Role.DOCTOR,
                     userList = userDb.getPatientsByDoctorId("6"),
+                    isLoading = false
                 ),
                 onUserClick = { }
             )

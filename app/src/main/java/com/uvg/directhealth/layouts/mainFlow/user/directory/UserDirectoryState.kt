@@ -7,5 +7,6 @@ data class UserDirectoryState (
     val userName: String? = null,
     val userRole: Role? = null,
     val userList: List<User> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val hasError: Boolean = false
 )

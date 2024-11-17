@@ -12,5 +12,7 @@ data class UserProfileState(
     val showTimePicker: Boolean = false,
     val initialHour: Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
     val initialMinute: Int = Calendar.getInstance().get(Calendar.MINUTE),
-    val is24Hour: Boolean = true
+    val is24Hour: Boolean = true,
+    val isLoading: Boolean = true,
+    val hasError: Boolean = false
 )
