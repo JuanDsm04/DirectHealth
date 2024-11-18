@@ -1,5 +1,6 @@
 package com.uvg.directhealth.layouts.mainFlow.user.newPrescription
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +33,7 @@ import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,6 +46,7 @@ import com.uvg.directhealth.data.model.Medication
 import com.uvg.directhealth.domain.model.Role
 import com.uvg.directhealth.domain.model.Specialty
 import com.uvg.directhealth.domain.model.User
+import com.uvg.directhealth.layouts.mainFlow.user.profile.UserProfileEvent
 import com.uvg.directhealth.ui.theme.DirectHealthTheme
 import java.time.LocalDate
 
@@ -55,6 +58,18 @@ fun NewPrescriptionRoute(
     onBackNavigation: () -> Unit,
     ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    if (state.successfulCreatePrescription) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.prescription_success_message),
+            Toast.LENGTH_SHORT
+        ).show()
+
+        viewModel.onEvent(NewPrescriptionEvent.ResetPrescription)
+    }
+
     viewModel.onEvent(NewPrescriptionEvent.PopulateData(loggedUserId, userProfileId))
 
     NewPrescriptionScreen(
@@ -164,7 +179,12 @@ private fun NewPrescriptionScreen(
                         descriptionMedicine = state.descriptionMedicine,
                         onDescriptionMedicineChange = onDescriptionMedicineChange,
                         isFormVisible = state.isMedicationFormVisible,
-                        onToggleFormVisibility = { onEvent(NewPrescriptionEvent.ToggleMedicationFormVisibility) }
+                        onToggleFormVisibility = { onEvent(NewPrescriptionEvent.ToggleMedicationFormVisibility) },
+                        onConfirmMedication = { name, description ->
+                            onEvent(NewPrescriptionEvent.NameMedicineChange(name))
+                            onEvent(NewPrescriptionEvent.DescriptionMedicineChange(description))
+                            onEvent(NewPrescriptionEvent.AddMedication(name, description))
+                        }
                     )
                 }
 
@@ -184,18 +204,14 @@ private fun NewPrescriptionScreen(
                         note = state.note,
                         onNoteChange = onNoteChange,
                         isFormVisible = state.isNoteFormVisible,
-                        onToggleFormVisibility = { onEvent(NewPrescriptionEvent.ToggleNoteFormVisibility) }
+                        onToggleFormVisibility = { onEvent(NewPrescriptionEvent.ToggleNoteFormVisibility) },
+                        onConfirmNote = { note ->
+                            onEvent(NewPrescriptionEvent.NoteChange(note))
+                            onEvent(NewPrescriptionEvent.AddNote(note))
+                        }
                     )
                 }
             }
-
-            CustomButton(
-                text = stringResource(id = R.string.confirm_prescription),
-                onClick = { onConfirmPrescription() },
-                colorBackground = MaterialTheme.colorScheme.secondaryContainer,
-                colorText = MaterialTheme.colorScheme.onSecondaryContainer,
-                maxWidth = true
-            )
 
             if (state.isErrorCreatePrescription) {
                 Box(
@@ -231,6 +247,51 @@ private fun NewPrescriptionScreen(
                     }
                 }
             }
+
+            if (state.isErrorCreateMedication) {
+                Box(
+                    modifier = Modifier
+                        .height(75.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(color = MaterialTheme.colorScheme.errorContainer)
+                        .padding(10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_error),
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(40.dp),
+                            contentDescription = "Error",
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Text(
+                            text = stringResource(id = R.string.medicine_fields_required),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+
+
+            CustomButton(
+                text = stringResource(id = R.string.confirm_prescription),
+                onClick = { onConfirmPrescription() },
+                colorBackground = MaterialTheme.colorScheme.secondaryContainer,
+                colorText = MaterialTheme.colorScheme.onSecondaryContainer,
+                maxWidth = true
+            )
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
@@ -342,26 +403,6 @@ fun DropdownForm(
                 Alignment.CenterHorizontally
             ) {
                 content()
-                Spacer(modifier = Modifier.height(5.dp))
-                Row {
-                    CustomButton(
-                        text = stringResource(id = R.string.cancel),
-                        onClick = onToggleFormVisibility,
-                        colorBackground = MaterialTheme.colorScheme.errorContainer,
-                        colorText = MaterialTheme.colorScheme.onErrorContainer,
-                        icon = Icons.Filled.Close,
-                        contentDescriptionIcon = stringResource(id = R.string.close_icon)
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    CustomButton(
-                        text = stringResource(id = R.string.confirm),
-                        onClick = { /*TODO*/ },
-                        colorBackground = MaterialTheme.colorScheme.secondaryContainer,
-                        colorText = MaterialTheme.colorScheme.onSecondaryContainer,
-                        icon = Icons.Filled.Check,
-                        contentDescriptionIcon = stringResource(id = R.string.check_icon)
-                    )
-                }
             }
         }
     }
@@ -374,7 +415,8 @@ fun MedicationForm(
     descriptionMedicine: String,
     onDescriptionMedicineChange: (String) -> Unit,
     isFormVisible: Boolean,
-    onToggleFormVisibility: () -> Unit
+    onToggleFormVisibility: () -> Unit,
+    onConfirmMedication: (String, String) -> Unit
 ) {
     DropdownForm(
         isFormVisible = isFormVisible,
@@ -400,6 +442,31 @@ fun MedicationForm(
             shape = RoundedCornerShape(16.dp),
             singleLine = false
         )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row {
+            CustomButton(
+                text = stringResource(id = R.string.cancel),
+                onClick = onToggleFormVisibility,
+                colorBackground = MaterialTheme.colorScheme.errorContainer,
+                colorText = MaterialTheme.colorScheme.onErrorContainer,
+                icon = Icons.Filled.Close,
+                contentDescriptionIcon = stringResource(id = R.string.close_icon)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            CustomButton(
+                text = stringResource(id = R.string.confirm),
+                onClick = {
+                    onConfirmMedication(nameMedicine, descriptionMedicine)
+                    onNameMedicineChange("")
+                    onDescriptionMedicineChange("")
+                    onToggleFormVisibility()
+                },
+                colorBackground = MaterialTheme.colorScheme.secondaryContainer,
+                colorText = MaterialTheme.colorScheme.onSecondaryContainer,
+                icon = Icons.Filled.Check,
+                contentDescriptionIcon = stringResource(id = R.string.check_icon)
+            )
+        }
     }
 }
 
@@ -408,7 +475,8 @@ fun NoteForm(
     note: String,
     onNoteChange: (String) -> Unit,
     isFormVisible: Boolean,
-    onToggleFormVisibility: () -> Unit
+    onToggleFormVisibility: () -> Unit,
+    onConfirmNote: (String) -> Unit
 ) {
     DropdownForm(
         isFormVisible = isFormVisible,
@@ -424,6 +492,30 @@ fun NoteForm(
             shape = RoundedCornerShape(16.dp),
             singleLine = false
         )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row {
+            CustomButton(
+                text = stringResource(id = R.string.cancel),
+                onClick = onToggleFormVisibility,
+                colorBackground = MaterialTheme.colorScheme.errorContainer,
+                colorText = MaterialTheme.colorScheme.onErrorContainer,
+                icon = Icons.Filled.Close,
+                contentDescriptionIcon = stringResource(id = R.string.close_icon)
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            CustomButton(
+                text = stringResource(id = R.string.confirm),
+                onClick = {
+                    onConfirmNote(note)
+                    onNoteChange("")
+                    onToggleFormVisibility()
+                },
+                colorBackground = MaterialTheme.colorScheme.secondaryContainer,
+                colorText = MaterialTheme.colorScheme.onSecondaryContainer,
+                icon = Icons.Filled.Check,
+                contentDescriptionIcon = stringResource(id = R.string.check_icon)
+            )
+        }
     }
 }
 

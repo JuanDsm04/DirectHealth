@@ -14,5 +14,6 @@ data class UserProfileState(
     val initialMinute: Int = Calendar.getInstance().get(Calendar.MINUTE),
     val is24Hour: Boolean = true,
     val isLoading: Boolean = true,
-    val hasError: Boolean = false
+    val hasError: Boolean = false,
+    val successfulCreateAppointment: Boolean = false
 )

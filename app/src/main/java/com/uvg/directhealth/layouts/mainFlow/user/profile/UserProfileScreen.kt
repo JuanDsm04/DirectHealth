@@ -1,6 +1,7 @@
 package com.uvg.directhealth.layouts.mainFlow.user.profile
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +75,18 @@ fun UserProfileRoute(
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+    if (state.successfulCreateAppointment) {
+        Toast.makeText(
+            context,
+            context.getString(R.string.appointment_success_message),
+            Toast.LENGTH_SHORT
+        ).show()
+
+        viewModel.onEvent(UserProfileEvent.ResetSuccessfulCreateAppointment)
+    }
+
     viewModel.onEvent(UserProfileEvent.PopulateData(loggedUserId, userProfileId))
 
     UserProfileScreen(

@@ -178,4 +178,7 @@
 
     <string name="has_error">Ocurrió un error inesperado</string>
     <string name="successful_registration">Usuario registrado correctamente</string>
+    <string name="appointment_success_message">Cita agendada correctamente</string>
+    <string name="prescription_success_message">Receta creada correctamente</string>
+    <string name="medicine_fields_required">Error al agregar el medicamento</string>
 </resources>

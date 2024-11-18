@@ -48,6 +48,8 @@ class UserProfileViewModel(
             }
 
             is UserProfileEvent.ScheduleAppointment -> scheduleAppointment(event.userID)
+
+            UserProfileEvent.ResetSuccessfulCreateAppointment -> _state.update { it.copy(successfulCreateAppointment = false) }
         }
     }
 
@@ -103,6 +105,7 @@ class UserProfileViewModel(
                             showTimePicker = false,
                             initialHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
                             initialMinute = Calendar.getInstance().get(Calendar.MINUTE),
+                            successfulCreateAppointment = true
                         )
                     }
                 }

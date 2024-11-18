@@ -11,4 +11,5 @@ sealed interface UserProfileEvent {
     data class UpdateSelectedTime(val time: String): UserProfileEvent
     data class ToggleDatePicker(val show: Boolean) : UserProfileEvent
     data class ToggleTimePicker(val show: Boolean) : UserProfileEvent
+    data object ResetSuccessfulCreateAppointment : UserProfileEvent
 }

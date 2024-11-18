@@ -22,6 +22,7 @@ import com.uvg.directhealth.domain.repository.UserRepository
 import com.uvg.directhealth.layouts.mainFlow.user.profile.UserProfileViewModel
 import com.uvg.directhealth.util.Result
 import com.uvg.directhealth.util.map
+import com.uvg.directhealth.util.onError
 import com.uvg.directhealth.util.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,7 +56,16 @@ class NewPrescriptionViewModel(
             is NewPrescriptionEvent.NameMedicineChange -> onNameMedicineChange(event.name)
             is NewPrescriptionEvent.DescriptionMedicineChange -> onDescriptionMedicineChange(event.description)
             is NewPrescriptionEvent.NoteChange -> onNoteChange(event.note)
+
+            is NewPrescriptionEvent.AddMedication -> addMedication(event.name, event.description)
+            is NewPrescriptionEvent.AddNote -> addNote(event.note)
             NewPrescriptionEvent.NewPrescription -> newPrescription()
+
+            is NewPrescriptionEvent.ResetPrescription -> {
+                _state.update { state ->
+                    state.copy(successfulCreatePrescription = false)
+                }
+            }
         }
     }
 
@@ -83,6 +93,13 @@ class NewPrescriptionViewModel(
         val doctor: User = _state.value.loggedUser!!
         val patient: User = _state.value.patientUser!!
 
+        if (_state.value.medicationList.isEmpty()) {
+            _state.update { state ->
+                state.copy(isErrorCreatePrescription = true)
+            }
+            return
+        }
+
         val date = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant())
         val df = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
@@ -98,6 +115,9 @@ class NewPrescriptionViewModel(
                     )
                 )
                 .onSuccess {
+                    medicationList.clear()
+                    noteList.clear()
+
                     _state.update { state ->
                         state.copy(
                             medicationList = emptyList(),
@@ -107,8 +127,14 @@ class NewPrescriptionViewModel(
                             nameMedicine = "",
                             descriptionMedicine = "",
                             note = "",
-                            isErrorCreatePrescription = false
+                            isErrorCreatePrescription = false,
+                            successfulCreatePrescription = true
                         )
+                    }
+                }
+                .onError {
+                    _state.update { state ->
+                        state.copy(isErrorCreatePrescription = true, successfulCreatePrescription = false)
                     }
                 }
         }
@@ -139,15 +165,24 @@ class NewPrescriptionViewModel(
     }
 
     private fun addMedication(name: String, description: String) {
+        if (name.isBlank() || description.isBlank()) {
+            _state.update { state ->
+                state.copy(isErrorCreateMedication = true)
+            }
+            return
+        }
+
         val newMedication = Medication(name, description)
         medicationList.add(newMedication)
 
         _state.update { state ->
             state.copy(
-                medicationList = medicationList.toList()
+                medicationList = medicationList.toList(),
+                isErrorCreateMedication = false
             )
         }
     }
+
 
     private fun addNote(note: String) {
         noteList.add(note)

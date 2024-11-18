@@ -13,5 +13,7 @@ data class NewPrescriptionState (
     val nameMedicine: String = "",
     val descriptionMedicine: String = "",
     val note: String = "",
-    val isErrorCreatePrescription: Boolean = false
+    val isErrorCreatePrescription: Boolean = false,
+    val isErrorCreateMedication: Boolean = false,
+    val successfulCreatePrescription: Boolean = false,
 )
