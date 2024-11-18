@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.DirectHealth" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.DirectHealth.SplashScreen" parent="Theme.SplashScreen" >
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenIconBackgroundColor">@android:color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.DirectHealth</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>
