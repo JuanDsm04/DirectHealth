@@ -234,10 +234,6 @@ private fun Form(
         calendar.get(Calendar.DAY_OF_MONTH)
     )
 
-    val specialties = getSpecialtyItems()
-    var selectedSpecialty by remember { mutableStateOf<Pair<Specialty, String>?>(null) }
-    var expanded by remember { mutableStateOf(false) }
-
     Box (
         modifier = Modifier
             .padding(15.dp)
@@ -399,22 +395,6 @@ private fun Form(
                             singleLine = false
                         )
                     }
-
-                    FormComponent(
-                        textId = R.string.doctor_register_specialty,
-                        textFieldId = R.string.doctor_register_text_field_specialty,
-                        keyboardType = KeyboardType.Text,
-                        value = selectedSpecialty?.second ?: "",
-                        onValueChange = { },
-                        singleLine = true,
-                        readOnly = true,
-                        expanded = expanded,
-                        onExpandedChange = { expanded = it },
-                        dropdownItems = specialties.map { it.second },
-                        onDropdownSelect = { selectedName ->
-                            selectedSpecialty = specialties.first { it.second == selectedName }
-                        }
-                    )
                 }
             }
 

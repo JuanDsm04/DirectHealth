@@ -60,11 +60,13 @@ class AppointmentListViewModel(
                     .getAllAppointments(userId)
                     .map { data -> data.map { it.toAppointment() } }
                     .onSuccess { appointments ->
-                        val usersResult = getUsersDetails(appointments)
+                        val sortedAppointments = appointments.sortedBy { it.date }
+
+                        val usersResult = getUsersDetails(sortedAppointments)
 
                         _state.update { state ->
                             state.copy(
-                                appointmentList = appointments,
+                                appointmentList = sortedAppointments,
                                 userDetails = usersResult,
                                 role = role,
                                 isLoading = false,

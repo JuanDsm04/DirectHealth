@@ -179,7 +179,7 @@ fun PrescriptionListItem(
                     style = MaterialTheme.typography.bodySmall.copy()
                 )
                 Text(
-                    text = stringResource(id = R.string.patient) + ": " + name,
+                    text = stringResource(id = if (isDoctor) R.string.patient else R.string.doctor) + ": " + name,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
@@ -205,7 +205,8 @@ private fun PreviewPrescriptionListScreenDoctor() {
             PrescriptionListScreen(
                 state = PrescriptionListState(
                     prescriptionList = prescriptionDb.getPrescriptionsByDoctorId("1"),
-                    role = Role.DOCTOR
+                    role = Role.DOCTOR,
+                    isLoading = false
                 ),
                 onPrescriptionClick = { }
             )
@@ -223,7 +224,8 @@ private fun PreviewPrescriptionListScreenPatient() {
             PrescriptionListScreen(
                 state = PrescriptionListState(
                     prescriptionList = prescriptionDb.getPrescriptionsByPatientId("2"),
-                    role = Role.PATIENT
+                    role = Role.PATIENT,
+                    isLoading = false
                 ),
                 onPrescriptionClick = { }
             )
@@ -241,7 +243,8 @@ private fun PreviewEmptyPrescriptionListScreen() {
             PrescriptionListScreen(
                 state = PrescriptionListState(
                     prescriptionList = prescriptionDb.getPrescriptionsByPatientId("5"),
-                    role = Role.PATIENT
+                    role = Role.PATIENT,
+                    isLoading = false
                 ),
                 onPrescriptionClick = { }
             )

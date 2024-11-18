@@ -60,11 +60,12 @@ class PrescriptionListViewModel(
                     .getAllPrescriptions(userId)
                     .map { data -> data.map { it.toPrescription() } }
                     .onSuccess { prescriptions ->
+                        val sortedPrescriptions = prescriptions.sortedByDescending { it.emissionDate }
                         val usersResult = getUsersDetails(prescriptions)
 
                         _state.update { state ->
                             state.copy(
-                                prescriptionList = prescriptions,
+                                prescriptionList = sortedPrescriptions,
                                 userDetails = usersResult,
                                 role = role,
                                 isLoading = false,
