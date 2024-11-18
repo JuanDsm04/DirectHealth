@@ -26,7 +26,6 @@ fun NavController.navigateToNewPrescriptionScreen (
 
 fun NavGraphBuilder.newPrescriptionScreen (
     onNavigateBack: () -> Unit,
-    onConfirmPrescription: () -> Unit
 ) {
     composable<NewPrescriptionDestination> { backStackEntry ->
         val destination: NewPrescriptionDestination = backStackEntry.toRoute()
@@ -34,8 +33,7 @@ fun NavGraphBuilder.newPrescriptionScreen (
         NewPrescriptionRoute (
             loggedUserId = destination.loggedUserId,
             userProfileId = destination.userProfileId,
-            onBackNavigation = onNavigateBack,
-            onConfirmPrescription = onConfirmPrescription
+            onBackNavigation = onNavigateBack
         )
     }
 }

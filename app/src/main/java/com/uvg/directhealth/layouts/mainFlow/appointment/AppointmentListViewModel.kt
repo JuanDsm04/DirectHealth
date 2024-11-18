@@ -20,6 +20,9 @@ import com.uvg.directhealth.domain.model.User
 import com.uvg.directhealth.domain.repository.AppointmentRepository
 import com.uvg.directhealth.domain.repository.UserRepository
 import com.uvg.directhealth.util.Result
+import com.uvg.directhealth.util.map
+import com.uvg.directhealth.util.onError
+import com.uvg.directhealth.util.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -46,32 +49,43 @@ class AppointmentListViewModel(
 
     private fun getData() {
         viewModelScope.launch {
+            _state.update { state ->
+                state.copy(
+                    isLoading = true,
+                    hasError = false
+                )
+            }
+
             val userId = userPrefs.getValue("userId")
             val roleString = userPrefs.getValue("role")
             val role = roleString?.let { Role.valueOf(it) }
 
             if (userId != null && role != null) {
-                val result = appointmentRepository.getAllAppointments(userId)
+                appointmentRepository
+                    .getAllAppointments(userId)
+                    .map { data -> data.map { it.toAppointment() } }
+                    .onSuccess { appointments ->
+                        val usersResult = getUsersDetails(appointments)
 
-                _state.update { state ->
-                    when (result) {
-                        is Result.Success -> {
-                            val appointmentList = result.data.map { it.toAppointment() }
-                            val usersResult = getUsersDetails(appointmentList)
-
+                        _state.update { state ->
                             state.copy(
-                                appointmentList = appointmentList,
+                                appointmentList = appointments,
                                 userDetails = usersResult,
                                 role = role,
                                 isLoading = false,
                                 hasError = false
                             )
                         }
-                        is Result.Error -> {
-                            state.copy(isLoading = false, hasError = true)
+                    }
+                    .onError {
+                        _state.update { state ->
+                            state.copy(
+                                isLoading = false,
+                                hasError = true
+                            )
                         }
                     }
-                }
+
             } else {
                 _state.update { it.copy(isLoading = false, hasError = true) }
             }

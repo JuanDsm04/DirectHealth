@@ -12,6 +12,7 @@ import com.uvg.directhealth.util.Result
 import com.uvg.directhealth.util.safeCall
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
@@ -51,7 +52,9 @@ class KtorDirectHealthApi(private val httpClient: HttpClient): DirectHealthApi {
 
     override suspend fun getAllUsers(): Result<List<UserDto>, NetworkError> {
         return safeCall {
-            httpClient.get("https://direct-health-d73893a26328.herokuapp.com/api/user/all") {
+            httpClient.get(
+                "https://direct-health-d73893a26328.herokuapp.com/api/user/all"
+            ) {
                 contentType(ContentType.Application.Json)
             }.body()
         }
@@ -59,7 +62,9 @@ class KtorDirectHealthApi(private val httpClient: HttpClient): DirectHealthApi {
 
     override suspend fun getUserById(id: String): Result<UserDto, NetworkError> {
         return safeCall {
-            httpClient.get("https://direct-health-d73893a26328.herokuapp.com/api/user/$id") {
+            httpClient.get(
+                "https://direct-health-d73893a26328.herokuapp.com/api/user/$id"
+            ) {
                 contentType(ContentType.Application.Json)
             }.body()
         }
@@ -67,7 +72,9 @@ class KtorDirectHealthApi(private val httpClient: HttpClient): DirectHealthApi {
 
     override suspend fun updateUser(id: String, user: UserDto): Result<UserDto, NetworkError> {
         return safeCall {
-            httpClient.put("https://direct-health-d73893a26328.herokuapp.com/api/user/$id") {
+            httpClient.put(
+                "https://direct-health-d73893a26328.herokuapp.com/api/user/$id"
+            ) {
                 contentType(ContentType.Application.Json)
                 setBody(user)
             }.body()
@@ -84,13 +91,17 @@ class KtorDirectHealthApi(private val httpClient: HttpClient): DirectHealthApi {
 
     override suspend fun getPrescriptionById(id: String): Result<PrescriptionDto, NetworkError> {
         return safeCall {
-            httpClient.get("https://direct-health-d73893a26328.herokuapp.com/api/prescription/$id").body()
+            httpClient.get(
+                "https://direct-health-d73893a26328.herokuapp.com/api/prescription/$id"
+            ).body()
         }
     }
 
     override suspend fun addPrescription(prescription: PrescriptionDto): Result<PrescriptionDto, NetworkError> {
         return safeCall {
-            httpClient.post("https://direct-health-d73893a26328.herokuapp.com/api/prescription/add") {
+            httpClient.post(
+                "https://direct-health-d73893a26328.herokuapp.com/api/prescription/add"
+            ) {
                 contentType(ContentType.Application.Json)
                 setBody(prescription)
             }.body()
@@ -107,13 +118,17 @@ class KtorDirectHealthApi(private val httpClient: HttpClient): DirectHealthApi {
 
     override suspend fun getAppointmentById(id: String): Result<AppointmentDto, NetworkError> {
         return safeCall {
-            httpClient.get("https://direct-health-d73893a26328.herokuapp.com/api/appointment/$id").body()
+            httpClient.get(
+                "https://direct-health-d73893a26328.herokuapp.com/api/appointment/$id"
+            ).body()
         }
     }
 
     override suspend fun addAppointment(appointment: AppointmentDto): Result<AppointmentDto, NetworkError> {
         return safeCall {
-            httpClient.post("https://direct-health-d73893a26328.herokuapp.com/api/appointment/add") {
+            httpClient.post(
+                "https://direct-health-d73893a26328.herokuapp.com/api/appointment/add"
+            ) {
                 contentType(ContentType.Application.Json)
                 setBody(appointment)
             }.body()

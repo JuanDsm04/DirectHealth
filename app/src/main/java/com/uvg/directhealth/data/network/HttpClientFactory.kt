@@ -2,6 +2,7 @@ package com.uvg.directhealth.data.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.ANDROID
@@ -28,6 +29,10 @@ object HttpClientFactory {
                         ignoreUnknownKeys = true
                     }
                 )
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = HttpTimeout.INFINITE_TIMEOUT_MS
             }
 
             defaultRequest {

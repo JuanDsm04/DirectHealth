@@ -70,7 +70,6 @@ fun UserProfileRoute(
     userProfileId: String,
     viewModel: UserProfileViewModel = viewModel(factory = UserProfileViewModel.Factory),
     createNewPrescription: (String) -> Unit,
-    scheduleAppointment: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -79,7 +78,9 @@ fun UserProfileRoute(
     UserProfileScreen(
         state = state,
         createNewPrescription = createNewPrescription,
-        scheduleAppointment = scheduleAppointment,
+        scheduleAppointment = {
+            viewModel.onEvent(UserProfileEvent.ScheduleAppointment(it))
+        },
         onNavigateBack = onNavigateBack,
         onEvent = { event -> viewModel.onEvent(event) }
     )

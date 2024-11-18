@@ -6,6 +6,7 @@ sealed interface UserProfileEvent {
         val userProfileId: String
     ): UserProfileEvent
 
+    data class ScheduleAppointment(val userID: String): UserProfileEvent
     data class UpdateSelectedDate(val date: String): UserProfileEvent
     data class UpdateSelectedTime(val time: String): UserProfileEvent
     data class ToggleDatePicker(val show: Boolean) : UserProfileEvent

@@ -51,9 +51,8 @@ import java.time.LocalDate
 fun NewPrescriptionRoute(
     loggedUserId: String,
     userProfileId: String,
-    viewModel: NewPrescriptionViewModel = viewModel(),
+    viewModel: NewPrescriptionViewModel = viewModel(factory = NewPrescriptionViewModel.Factory),
     onBackNavigation: () -> Unit,
-    onConfirmPrescription: () -> Unit
     ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     viewModel.onEvent(NewPrescriptionEvent.PopulateData(loggedUserId, userProfileId))
@@ -61,7 +60,9 @@ fun NewPrescriptionRoute(
     NewPrescriptionScreen(
         state = state,
         onBackNavigation = onBackNavigation,
-        onConfirmPrescription = onConfirmPrescription,
+        onConfirmPrescription = {
+            viewModel.onEvent(NewPrescriptionEvent.NewPrescription)
+        },
         onEvent = viewModel::onEvent,
         onNameMedicineChange = {
             viewModel.onEvent(NewPrescriptionEvent.NameMedicineChange(it))

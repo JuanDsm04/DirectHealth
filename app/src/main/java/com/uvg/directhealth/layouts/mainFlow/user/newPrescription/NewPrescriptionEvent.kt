@@ -10,6 +10,7 @@ sealed interface NewPrescriptionEvent {
     data class DescriptionMedicineChange(val description: String) : NewPrescriptionEvent
     data class NoteChange(val note: String) : NewPrescriptionEvent
 
+    data object NewPrescription: NewPrescriptionEvent
     data object ToggleMedicationFormVisibility : NewPrescriptionEvent
     data object ToggleNoteFormVisibility : NewPrescriptionEvent
 }

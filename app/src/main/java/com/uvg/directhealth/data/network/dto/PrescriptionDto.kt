@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter
 
 @Serializable
 data class PrescriptionDto(
-    val id: String,
+    val id: String? = null,
     val doctorId: String,
     val patientId: String,
     val emissionDate: String,
@@ -19,7 +19,7 @@ data class PrescriptionDto(
 @Serializable
 data class MedicationDto(
     val name: String,
-    val description: String
+    val description: String?
 )
 
 fun PrescriptionDto.toPrescription(): Prescription {
@@ -29,7 +29,7 @@ fun PrescriptionDto.toPrescription(): Prescription {
     val medications = this.medicationList.map { it.toMedication() }
 
     return Prescription(
-        id = this.id,
+        id = this.id ?: "",
         doctorId = this.doctorId,
         patientId = this.patientId,
         emissionDate = parsedDate,
@@ -40,6 +40,13 @@ fun PrescriptionDto.toPrescription(): Prescription {
 
 fun MedicationDto.toMedication(): Medication {
     return Medication(
+        name = this.name,
+        description = this.description ?: ""
+    )
+}
+
+fun Medication.mapToDto(): MedicationDto {
+    return MedicationDto(
         name = this.name,
         description = this.description
     )

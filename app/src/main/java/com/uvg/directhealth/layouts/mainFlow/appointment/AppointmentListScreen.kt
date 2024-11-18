@@ -46,7 +46,6 @@ fun AppointmentListRoute(
     viewModel: AppointmentListViewModel = viewModel(factory = AppointmentListViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    viewModel.onEvent(AppointmentListEvent.PopulateData)
 
     AppointmentListScreen(state = state)
 }

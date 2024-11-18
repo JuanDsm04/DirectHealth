@@ -31,11 +31,9 @@ fun NavGraphBuilder.userGraph (
                 navController.navigateToNewPrescriptionScreen(loggedUserId = userId, userProfileId = userProfileId)
             },
             onNavigateBack = navController::navigateUp,
-            scheduleAppointment = { },
         )
         newPrescriptionScreen (
             onNavigateBack = navController::navigateUp,
-            onConfirmPrescription = navController::navigateUp
         )
     }
 }

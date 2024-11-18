@@ -46,7 +46,6 @@ fun PrescriptionListRoute (
     onPrescriptionClick: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    viewModel.onEvent(PrescriptionListEvent.PopulateData)
 
     PrescriptionListScreen(
         state = state,

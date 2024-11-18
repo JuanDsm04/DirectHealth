@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.uvg.directhealth.data.network.KtorDirectHealthApi
 import com.uvg.directhealth.data.network.dto.toPrescription
+import com.uvg.directhealth.data.network.dto.toUser
 import com.uvg.directhealth.data.network.repository.PrescriptionRepositoryImpl
 import com.uvg.directhealth.data.network.repository.UserRepositoryImpl
 import com.uvg.directhealth.di.KtorDependencies
@@ -17,6 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.uvg.directhealth.util.Result
+import com.uvg.directhealth.util.map
+import com.uvg.directhealth.util.onError
+import com.uvg.directhealth.util.onSuccess
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -36,46 +40,55 @@ class PrescriptionDetailsViewModel(
 
     private fun populateData(prescriptionId: String) {
         viewModelScope.launch {
-            when (val result = prescriptionRepository.getPrescriptionById(prescriptionId)) {
-                is Result.Success -> {
-                    val prescription = result.data.toPrescription()
-                    val userResult = userRepository.getUserById(prescription.patientId)
-                    val userName = if(userResult is Result.Success) userResult.data.name else ""
-                    val userBirthDate = if(userResult is Result.Success) userResult.data.birthDate else null
+            _state.update { state ->
+                state.copy(
+                    isLoading = true,
+                    hasError = false
+                )
+            }
 
-                    val patientAge = userBirthDate?.let {
-                        try {
+            prescriptionRepository
+                .getPrescriptionById(prescriptionId)
+                .map { it.toPrescription() }
+                .onSuccess { prescription ->
+                    userRepository
+                        .getUserById(prescription.patientId)
+                        .map { it.toUser() }
+                        .onSuccess { user ->
                             val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-                            val birthDate = LocalDate.parse(it, dateFormatter)
-                            LocalDate.now().year - birthDate.year
-                        } catch (e: Exception) {
-                            0
+                            val patientAge = LocalDate.now().year - user.birthDate.year
+
+                            _state.update { state ->
+                                state.copy(
+                                    prescription = prescription,
+                                    patientName = user.name,
+                                    patientAge = patientAge,
+                                    isLoading = false,
+                                    hasError = false
+                                )
+                            }
                         }
-                    } ?: 0
-
-                    _state.update { state ->
-                        state.copy(
-                            prescription = prescription,
-                            patientName = userName,
-                            patientAge = patientAge,
-                            isLoading = false,
-                            hasError = false
-                        )
+                        .onError {
+                            _state.update { state ->
+                                state.copy(
+                                    prescription = null,
+                                    isLoading = false,
+                                    hasError = true
+                                )
+                            }
+                        }
                     }
-                }
-
-                is Result.Error -> {
+                .onError {
                     _state.update { state ->
                         state.copy(
                             prescription = null,
                             isLoading = false,
-                            hasError = true,
+                            hasError = true
                         )
                     }
                 }
             }
         }
-    }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
