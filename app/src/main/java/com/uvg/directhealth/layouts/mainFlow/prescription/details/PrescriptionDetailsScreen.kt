@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,7 +48,10 @@ fun PrescriptionDetailsRoute(
     viewModel: PrescriptionDetailsViewModel = viewModel(factory = PrescriptionDetailsViewModel.Factory)
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    viewModel.onEvent(PrescriptionDetailsEvent.PopulateData(prescriptionId))
+
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(PrescriptionDetailsEvent.PopulateData(prescriptionId))
+    }
 
     PrescriptionDetailsScreen(
         state = state,

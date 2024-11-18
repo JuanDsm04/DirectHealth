@@ -20,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,12 +48,20 @@ fun AppointmentListRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    AppointmentListScreen(state = state)
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(AppointmentListEvent.PopulateData)
+    }
+
+    AppointmentListScreen(
+        state = state,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppointmentListScreen(state: AppointmentListState){
+fun AppointmentListScreen(
+    state: AppointmentListState,
+){
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -229,40 +238,6 @@ private fun PreviewPatientAppointmentListScreen() {
                 state = AppointmentListState(
                     appointmentList = appointmentDb.getAppointmentsByPatientId("2"),
                     role = Role.PATIENT
-                )
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewDoctorAppointmentListScreen() {
-    DirectHealthTheme {
-        Surface {
-            val appointmentDb = AppointmentDb()
-            AppointmentListScreen(
-                state = AppointmentListState(
-                    appointmentList = appointmentDb.getAppointmentsByDoctorId("1"),
-                    role = Role.DOCTOR
-                )
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Preview(uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewAppointmentListScreenEmpty() {
-    DirectHealthTheme {
-        Surface {
-            val appointmentDb = AppointmentDb()
-            AppointmentListScreen(
-                state = AppointmentListState(
-                    appointmentList = appointmentDb.getAppointmentsByDoctorId("6"),
-                    role = Role.DOCTOR
                 )
             )
         }

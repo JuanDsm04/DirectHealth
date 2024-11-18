@@ -99,10 +99,13 @@ fun MainFlowScreen (
                 .padding(innerPadding)
         ) {
             userGraph(navController, userId)
+
             prescriptionGraph(navController, userId)
+
             appointmentListScreen()
+
             profileScreen(
-                onNavigateBack = { navController.navigateUp() },
+                onNavigateBack = navController::navigateUp,
                 onLogOut = onLogOutClick
             )
         }

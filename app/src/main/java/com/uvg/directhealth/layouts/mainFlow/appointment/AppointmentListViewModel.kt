@@ -32,14 +32,9 @@ class AppointmentListViewModel(
     private val userPrefs: DataStoreUserPrefs,
     private val appointmentRepository: AppointmentRepository,
     private val userRepository: UserRepository
-
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppointmentListState())
     val state = _state.asStateFlow()
-
-    init {
-        getData()
-    }
 
     fun onEvent(event: AppointmentListEvent) {
         when (event) {

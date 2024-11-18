@@ -98,7 +98,7 @@ fun AppNavigation(
         mainNavigationGraph(
             onLogOutClick = {
                 viewModel.logout()
-                navController.navigate(LoginDestination) {
+                navController.navigate(WelcomeDestination) {
                     popUpTo(0)
                 }
             }

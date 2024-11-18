@@ -36,10 +36,6 @@ class PrescriptionListViewModel(
     private val _state = MutableStateFlow(PrescriptionListState())
     val state = _state.asStateFlow()
 
-    init {
-        getData()
-    }
-
     fun onEvent(event: PrescriptionListEvent) {
         when (event) {
             PrescriptionListEvent.PopulateData -> getData()
